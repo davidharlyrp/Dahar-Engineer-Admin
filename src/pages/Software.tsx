@@ -97,7 +97,6 @@ function SoftwareModal({ isOpen, onClose, software, onSuccess }: SoftwareModalPr
             data.append("version", formData.version);
             data.append("category", formData.category);
             data.append("description", formData.description);
-            data.append("category", formData.category);
             data.append("link", formData.link);
 
             if (files.logo) data.append("logo", files.logo);
