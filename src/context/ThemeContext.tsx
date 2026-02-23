@@ -13,7 +13,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     // 1. Initialize state from localStorage (default: 'dark' as per documentation)
     const [theme, setTheme] = useState<Theme>(() => {
         const saved = localStorage.getItem('theme');
-        return (saved as Theme) || 'dark';
+        return (saved as Theme) || 'light';
     });
 
     // 2. Side effect for DOM and localStorage updates
