@@ -1,0 +1,9 @@
+
+E:\Website\Dahar Engineer Admin\src\context\ThemeContext.tsx
+  38:17  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+E:\Website\Dahar Engineer Admin\src\pages\Software.tsx
+  322:18  error  '_error' is defined but never used  @typescript-eslint/no-unused-vars
+
+Ô£û 2 problems (2 errors, 0 warnings)
+
