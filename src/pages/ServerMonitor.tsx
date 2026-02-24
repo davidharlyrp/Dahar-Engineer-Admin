@@ -184,6 +184,8 @@ export function ServerMonitor() {
             });
             // Re-fetch container list and server health after action
             await fetchContainers();
+            // Wait 2 seconds for state to settle before checking health
+            await new Promise(resolve => setTimeout(resolve, 2000));
             await pollAllServers();
         } catch (err) {
             alert(`Failed to ${action} "${name}": ${(err as Error).message}`);
