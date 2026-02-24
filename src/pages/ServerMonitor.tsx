@@ -176,14 +176,15 @@ export function ServerMonitor() {
     };
 
     const handleContainerAction = async (name: string, action: "start" | "stop" | "restart" | "rebuild") => {
-        setActionLoading(`${name}:${action} `);
+        setActionLoading(`${name}:${action}`);
         try {
             await controlApiFetch(`/containers/${name}/action`, {
                 method: "POST",
                 body: JSON.stringify({ action }),
             });
-            // Re-fetch container list after action
+            // Re-fetch container list and server health after action
             await fetchContainers();
+            await pollAllServers();
         } catch (err) {
             alert(`Failed to ${action} "${name}": ${(err as Error).message}`);
         } finally {
