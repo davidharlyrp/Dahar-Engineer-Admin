@@ -454,7 +454,7 @@ export const CourseService = {
 };
 
 export const CashflowService = {
-    async getItems(page = 1, perPage = 10, sort = "-date", filter = ""): Promise<ListResult<CashflowItemRecord>> {
+    async getItems(page = 1, perPage = 25, sort = "-date", filter = ""): Promise<ListResult<CashflowItemRecord>> {
         try {
             return await pb.collection("cashflow_items").getList<CashflowItemRecord>(page, perPage, { sort, filter });
         } catch (error) {

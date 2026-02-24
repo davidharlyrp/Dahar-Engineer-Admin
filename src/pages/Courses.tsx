@@ -317,6 +317,10 @@ function GridCard({ booking, onAction }: { booking: BookingRecord, onAction: () 
             <div className="mt-auto space-y-2">
                 <div className="flex items-center text-xs text-slate-600 dark:text-slate-400">
                     <Calendar className="w-3.5 h-3.5 mr-2 text-slate-400 dark:text-slate-500" />
+                    created: {booking.payment_date ? new Date(booking.payment_date).toLocaleDateString() : 'No date set'}
+                </div>
+                <div className="flex items-center text-xs text-slate-600 dark:text-slate-400">
+                    <Calendar className="w-3.5 h-3.5 mr-2 text-slate-400 dark:text-slate-500" />
                     {booking.session_date ? new Date(booking.session_date).toLocaleDateString() : 'No date set'}
                 </div>
                 <div className="flex items-center text-xs text-slate-600 dark:text-slate-400">

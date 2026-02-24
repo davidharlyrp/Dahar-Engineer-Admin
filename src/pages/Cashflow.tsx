@@ -88,6 +88,8 @@ export function Cashflow() {
 
     // Filtering states
     const [dateFilter, setDateFilter] = useState("all");
+    const [customStartDate, setCustomStartDate] = useState("");
+    const [customEndDate, setCustomEndDate] = useState("");
     const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
 
     // Checkbox Filter states
@@ -147,6 +149,18 @@ export function Cashflow() {
                 const d = new Date(now.getFullYear(), 0, 1);
                 return `date >= "${d.toISOString().replace('T', ' ')}"`;
             }
+            case "custom": {
+                if (!customStartDate && !customEndDate) return "";
+                let q = "";
+                if (customStartDate) {
+                    q += `date >= "${customStartDate} 00:00:00"`;
+                }
+                if (customEndDate) {
+                    if (q) q += " && ";
+                    q += `date <= "${customEndDate} 23:59:59"`;
+                }
+                return q;
+            }
             default:
                 return "";
         }
@@ -190,7 +204,7 @@ export function Cashflow() {
         try {
             const filterQuery = buildFilterQuery();
             const [itemsResult, statsResult, namesResult, tagsResult] = await Promise.all([
-                CashflowService.getItems(page, 15, "-date", filterQuery),
+                CashflowService.getItems(page, 25, "-date", filterQuery),
                 CashflowService.getStats(filterQuery),
                 CashflowService.getNames(),
                 CashflowService.getTags()
@@ -211,7 +225,7 @@ export function Cashflow() {
 
     useEffect(() => {
         fetchData(1); // Reset to page 1 on filter change
-    }, [dateFilter, selectedNames, selectedTypes, selectedCategories, search]);
+    }, [dateFilter, selectedNames, selectedTypes, selectedCategories, search, customStartDate, customEndDate]);
 
     useEffect(() => {
         fetchData(currentPage);
@@ -403,32 +417,83 @@ export function Cashflow() {
                             </button>
 
                             {isDateFilterOpen && (
-                                <div className="absolute right-0 mt-1 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-lg z-[70] py-1">
-                                    {[
-                                        { id: 'all', label: 'All Time' },
-                                        { id: 'today', label: 'Today' },
-                                        { id: 'last_7', label: 'Last 7 Days' },
-                                        { id: 'last_14', label: 'Last 14 Days' },
-                                        { id: 'last_30', label: 'Last 30 Days' },
-                                        { id: 'this_week', label: 'This Week' },
-                                        { id: 'this_month', label: 'This Month' },
-                                        { id: 'this_year', label: 'This Year' }
-                                    ].map(preset => (
-                                        <button
-                                            key={preset.id}
-                                            onClick={() => {
-                                                setDateFilter(preset.id);
-                                                setIsDateFilterOpen(false);
-                                                setCurrentPage(1);
-                                            }}
-                                            className={cn(
-                                                "w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors",
-                                                dateFilter === preset.id ? "font-bold text-slate-900 dark:text-white" : "text-slate-600 dark:text-slate-400"
-                                            )}
-                                        >
-                                            {preset.label}
-                                        </button>
-                                    ))}
+                                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-lg z-[70] py-1 overflow-hidden">
+                                    <div className="max-h-60 overflow-y-auto">
+                                        {[
+                                            { id: 'all', label: 'All Time' },
+                                            { id: 'today', label: 'Today' },
+                                            { id: 'last_7', label: 'Last 7 Days' },
+                                            { id: 'last_14', label: 'Last 14 Days' },
+                                            { id: 'last_30', label: 'Last 30 Days' },
+                                            { id: 'this_week', label: 'This Week' },
+                                            { id: 'this_month', label: 'This Month' },
+                                            { id: 'this_year', label: 'This Year' },
+                                            { id: 'custom', label: 'Custom Range' }
+                                        ].map(preset => (
+                                            <button
+                                                key={preset.id}
+                                                onClick={() => {
+                                                    setDateFilter(preset.id);
+                                                    if (preset.id !== 'custom') {
+                                                        setIsDateFilterOpen(false);
+                                                        setCurrentPage(1);
+                                                    }
+                                                }}
+                                                className={cn(
+                                                    "w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors",
+                                                    dateFilter === preset.id ? "font-bold text-slate-900 dark:text-white" : "text-slate-600 dark:text-slate-400"
+                                                )}
+                                            >
+                                                {preset.label}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {dateFilter === 'custom' && (
+                                        <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 space-y-3">
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] uppercase font-bold text-slate-400">From</label>
+                                                <input
+                                                    type="date"
+                                                    value={customStartDate}
+                                                    onChange={(e) => setCustomStartDate(e.target.value)}
+                                                    className="w-full px-2 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:ring-1 focus:ring-slate-400 outline-none"
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] uppercase font-bold text-slate-400">To</label>
+                                                <input
+                                                    type="date"
+                                                    value={customEndDate}
+                                                    onChange={(e) => setCustomEndDate(e.target.value)}
+                                                    className="w-full px-2 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:ring-1 focus:ring-slate-400 outline-none"
+                                                />
+                                            </div>
+                                            <div className="flex gap-2 pt-1">
+                                                <button
+                                                    onClick={() => {
+                                                        setIsDateFilterOpen(false);
+                                                        setCurrentPage(1);
+                                                    }}
+                                                    className="flex-1 px-3 py-1.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold rounded hover:opacity-90 transition-opacity"
+                                                >
+                                                    Apply
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setCustomStartDate("");
+                                                        setCustomEndDate("");
+                                                        setDateFilter("all");
+                                                        setIsDateFilterOpen(false);
+                                                        setCurrentPage(1);
+                                                    }}
+                                                    className="px-3 py-1.5 border border-slate-200 dark:border-slate-700 text-xs text-slate-500 rounded hover:bg-slate-100 dark:hover:bg-slate-800"
+                                                >
+                                                    Reset
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
