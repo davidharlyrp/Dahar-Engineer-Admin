@@ -11,7 +11,8 @@ import {
     Loader2,
     Terminal,
     X,
-    Container
+    Container,
+    Hammer
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { pb } from "../lib/pb";
@@ -65,6 +66,25 @@ async function controlApiFetch(path: string, options?: RequestInit) {
         throw new Error(body.detail || `Request failed (${res.status})`);
     }
     return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function formatPorts(ports: Record<string, any>): string[] {
+    const result: string[] = [];
+    for (const [containerPort, bindings] of Object.entries(ports)) {
+        if (Array.isArray(bindings) && bindings.length > 0) {
+            for (const b of bindings) {
+                const hostPort = b.HostPort || "?";
+                result.push(`${hostPort}→${containerPort}`);
+            }
+        } else {
+            result.push(containerPort);
+        }
+    }
+    return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -156,7 +176,7 @@ export function ServerMonitor() {
         }
     };
 
-    const handleContainerAction = async (name: string, action: "start" | "stop" | "restart") => {
+    const handleContainerAction = async (name: string, action: "start" | "stop" | "restart" | "rebuild") => {
         setActionLoading(`${name}:${action}`);
         try {
             await controlApiFetch(`/containers/${name}/action`, {
@@ -360,6 +380,7 @@ export function ServerMonitor() {
                                         <tr>
                                             <th className="px-6 py-3 font-medium">Container</th>
                                             <th className="px-6 py-3 font-medium">Image</th>
+                                            <th className="px-6 py-3 font-medium">Ports</th>
                                             <th className="px-6 py-3 font-medium">Status</th>
                                             <th className="px-6 py-3 font-medium text-right">Actions</th>
                                         </tr>
@@ -382,6 +403,17 @@ export function ServerMonitor() {
                                                     </td>
                                                     <td className="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-xs truncate font-mono text-xs">
                                                         {c.image}
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {formatPorts(c.ports).length > 0 ? formatPorts(c.ports).map((p, i) => (
+                                                                <span key={i} className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded text-[10px] font-mono">
+                                                                    {p}
+                                                                </span>
+                                                            )) : (
+                                                                <span className="text-xs text-slate-400 dark:text-slate-600">—</span>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <span className={cn(
@@ -428,6 +460,20 @@ export function ServerMonitor() {
                                                                 {actionLoading === `${c.name}:restart`
                                                                     ? <Loader2 className="w-4 h-4 animate-spin" />
                                                                     : <RotateCcw className="w-4 h-4" />}
+                                                            </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (confirm(`Rebuild "${c.name}"? This will pull the latest image and recreate the container.`)) {
+                                                                        handleContainerAction(c.name, "rebuild");
+                                                                    }
+                                                                }}
+                                                                disabled={!!actionLoading}
+                                                                className="p-1.5 text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-md transition-colors disabled:opacity-50"
+                                                                title="Rebuild"
+                                                            >
+                                                                {actionLoading === `${c.name}:rebuild`
+                                                                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                                                                    : <Hammer className="w-4 h-4" />}
                                                             </button>
                                                             <button
                                                                 onClick={() => setLogContainer(c.name)}

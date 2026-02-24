@@ -99,7 +99,7 @@ async def get_current_admin(authorization: Optional[str] = Header(None)):
 # ---------------------------------------------------------------------------
 
 class ActionRequest(BaseModel):
-    action: str  # "start" | "stop" | "restart"
+    action: str  # "start" | "stop" | "restart" | "rebuild"
 
 class ContainerInfo(BaseModel):
     id: str
@@ -190,12 +190,12 @@ async def container_action(
     body: ActionRequest,
     _user=Depends(get_current_admin),
 ):
-    """Start, stop, or restart a container by name."""
+    """Start, stop, restart, or rebuild a container by name."""
     container = _get_container(name)
     action = body.action.lower()
 
-    if action not in ("start", "stop", "restart"):
-        raise HTTPException(status_code=400, detail=f"Invalid action '{action}'. Use start, stop, or restart.")
+    if action not in ("start", "stop", "restart", "rebuild"):
+        raise HTTPException(status_code=400, detail=f"Invalid action '{action}'. Use start, stop, restart, or rebuild.")
 
     try:
         if action == "start":
@@ -204,6 +204,8 @@ async def container_action(
             container.stop(timeout=10)
         elif action == "restart":
             container.restart(timeout=10)
+        elif action == "rebuild":
+            return await _rebuild_container(name, container)
     except docker.errors.APIError as e:
         raise HTTPException(status_code=500, detail=f"Docker error during '{action}': {e.explanation}")
 
@@ -216,6 +218,86 @@ async def container_action(
         action=action,
         result=f"Container is now {container.status}",
     )
+
+
+async def _rebuild_container(name: str, container):
+    """
+    Rebuild a container:
+    1. Read the current container's configuration
+    2. Pull the latest version of its image
+    3. Stop & remove the old container
+    4. Create & start a new container with the same config
+    """
+    _require_docker()
+
+    try:
+        # ---- Capture current config ----
+        attrs = container.attrs
+        config = attrs.get("Config", {})
+        host_config = attrs.get("HostConfig", {})
+        networking = attrs.get("NetworkSettings", {})
+        image_name = config.get("Image", "")
+
+        if not image_name:
+            # Fallback: use image tags
+            image_name = container.image.tags[0] if container.image.tags else container.image.id
+
+        logger.info(f"Rebuilding '{name}' from image '{image_name}'...")
+
+        # ---- Pull latest image ----
+        logger.info(f"Pulling latest image: {image_name}")
+        try:
+            docker_client.images.pull(image_name)
+        except docker.errors.APIError as e:
+            logger.warning(f"Image pull failed (might be a local build): {e}")
+
+        # ---- Stop & remove old container ----
+        container.stop(timeout=10)
+        container.remove()
+        logger.info(f"Old container '{name}' stopped and removed.")
+
+        # ---- Prepare networking ----
+        networks = networking.get("Networks", {})
+        networking_config = None
+        if networks:
+            endpoint_configs = {}
+            for net_name, net_conf in networks.items():
+                endpoint_configs[net_name] = docker.types.EndpointConfig(
+                    version="1.44",
+                    ipv4_address=net_conf.get("IPAddress") or None,
+                    aliases=net_conf.get("Aliases"),
+                )
+            networking_config = docker.types.NetworkingConfig(endpoint_configs)
+
+        # ---- Create & start new container ----
+        new_container = docker_client.containers.create(
+            image=image_name,
+            name=name,
+            detach=True,
+            environment=config.get("Env"),
+            labels=config.get("Labels", {}),
+            ports=host_config.get("PortBindings"),
+            volumes=host_config.get("Binds"),
+            restart_policy=host_config.get("RestartPolicy"),
+            networking_config=networking_config,
+            command=config.get("Cmd"),
+            entrypoint=config.get("Entrypoint"),
+        )
+        new_container.start()
+        new_container.reload()
+
+        logger.info(f"New container '{name}' created and started. Status: {new_container.status}")
+
+        return ActionResponse(
+            container=name,
+            action="rebuild",
+            result=f"Container rebuilt and is now {new_container.status}",
+        )
+
+    except docker.errors.APIError as e:
+        raise HTTPException(status_code=500, detail=f"Docker error during rebuild: {e.explanation}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Rebuild failed: {str(e)}")
 
 
 @app.get("/containers/{name}/logs")
