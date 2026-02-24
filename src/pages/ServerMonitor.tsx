@@ -52,11 +52,11 @@ const CONTROL_API = import.meta.env.VITE_CONTROL_API_URL || "";
 
 async function controlApiFetch(path: string, options?: RequestInit) {
     const token = pb.authStore.token;
-    const res = await fetch(`${CONTROL_API}${path} `, {
+    const res = await fetch(`${CONTROL_API}${path}`, {
         ...options,
         headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token} `,
+            Authorization: `Bearer ${token}`,
             ...(options?.headers || {}),
         },
     });
@@ -178,7 +178,7 @@ export function ServerMonitor() {
     const handleContainerAction = async (name: string, action: "start" | "stop" | "restart" | "rebuild") => {
         setActionLoading(`${name}:${action} `);
         try {
-            await controlApiFetch(`/ containers / ${name}/action`, {
+            await controlApiFetch(`/containers/${name}/action`, {
                 method: "POST",
                 body: JSON.stringify({ action }),
             });

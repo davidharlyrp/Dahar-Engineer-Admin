@@ -110,6 +110,16 @@ class ContainerInfo(BaseModel):
     ports: dict
     created: str
 
+class ImageInfo(BaseModel):
+    id: str
+    tags: list[str]
+    size: int
+    created: str
+
+class PullRequest(BaseModel):
+    image: str
+    tag: Optional[str] = "latest"
+
 class ActionResponse(BaseModel):
     container: str
     action: str
@@ -306,6 +316,42 @@ async def _rebuild_container(name: str, container):
         raise HTTPException(status_code=500, detail=f"Docker error during rebuild: {e.explanation}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Rebuild failed: {str(e)}")
+
+
+@app.get("/images", response_model=list[ImageInfo])
+async def list_images(_user=Depends(get_current_admin)):
+    """List all Docker images on the host."""
+    _require_docker()
+    try:
+        images = docker_client.images.list()
+        result = []
+        for img in images:
+            result.append(
+                ImageInfo(
+                    id=img.short_id,
+                    tags=img.tags,
+                    size=img.attrs.get("Size", 0),
+                    created=img.attrs.get("Created", ""),
+                )
+            )
+        return result
+    except docker.errors.APIError as e:
+        raise HTTPException(status_code=500, detail=f"Docker API error: {e.explanation}")
+
+
+@app.post("/images/pull")
+async def pull_image(body: PullRequest, _user=Depends(get_current_admin)):
+    """Pull a Docker image from a registry."""
+    _require_docker()
+    full_image = f"{body.image}:{body.tag}"
+    try:
+        logger.info(f"Pulling image: {full_image}")
+        docker_client.images.pull(body.image, tag=body.tag)
+        return {"status": "success", "image": full_image}
+    except docker.errors.APIError as e:
+        raise HTTPException(status_code=500, detail=f"Docker error pulling '{full_image}': {e.explanation}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to pull '{full_image}': {str(e)}")
 
 
 @app.get("/containers/{name}/logs")
