@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  control-api:
+    build: .
+    container_name: control-api
+    restart: unless-stopped
+    ports:
+      - "8100:8100"
+    volumes:
+      # Mount the Docker socket so we can control host containers
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      # PocketBase URL for JWT validation
+      - PB_URL=https://pb.daharengineer.com
+      # Comma-separated list of allowed origins (your admin panel domain)
+      - ALLOWED_ORIGINS=https://admin.daharengineer.com,http://localhost:5173
