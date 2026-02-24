@@ -37,22 +37,21 @@ function SoftwareModal({ isOpen, onClose, software, onSuccess }: SoftwareModalPr
     const [files, setFiles] = useState<{
         logo: File | null;
         thumbnail: File | null;
-        preview: File | null;
     }>({
         logo: null,
         thumbnail: null,
-        preview: null
     });
 
     const [previews, setPreviews] = useState<{
         logo: string | null;
         thumbnail: string | null;
-        preview: string | null;
     }>({
         logo: null,
         thumbnail: null,
-        preview: null
     });
+
+    const [previewFiles, setPreviewFiles] = useState<{ file: File; url: string }[]>([]);
+    const [existingPreviews, setExistingPreviews] = useState<{ name: string; url: string }[]>([]);
 
     useEffect(() => {
         if (software) {
@@ -66,12 +65,19 @@ function SoftwareModal({ isOpen, onClose, software, onSuccess }: SoftwareModalPr
             setPreviews({
                 logo: SoftwareService.getFileUrl(software, software.logo),
                 thumbnail: SoftwareService.getFileUrl(software, software.thumbnail),
-                preview: SoftwareService.getFileUrl(software, software.preview),
             });
+            const existing = (software.preview || []).map(p => ({
+                name: p,
+                url: SoftwareService.getFileUrl(software, p) as string
+            })).filter(p => p.url);
+            setExistingPreviews(existing);
+            setPreviewFiles([]);
         } else {
             setFormData({ name: "", version: "", description: "", category: "", link: "" });
-            setFiles({ logo: null, thumbnail: null, preview: null });
-            setPreviews({ logo: null, thumbnail: null, preview: null });
+            setFiles({ logo: null, thumbnail: null });
+            setPreviews({ logo: null, thumbnail: null });
+            setExistingPreviews([]);
+            setPreviewFiles([]);
         }
         setError(null);
     }, [software, isOpen]);
@@ -84,6 +90,24 @@ function SoftwareModal({ isOpen, onClose, software, onSuccess }: SoftwareModalPr
             setPreviews(prev => ({ ...prev, [field]: reader.result as string }));
         };
         reader.readAsDataURL(file);
+    };
+
+    const handlePreviewFilesChange = (newFiles: File[]) => {
+        newFiles.forEach(file => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewFiles(prev => [...prev, { file, url: reader.result as string }]);
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const handleRemoveExistingPreview = (index: number) => {
+        setExistingPreviews(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const handleRemoveNewPreview = (index: number) => {
+        setPreviewFiles(prev => prev.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -101,7 +125,10 @@ function SoftwareModal({ isOpen, onClose, software, onSuccess }: SoftwareModalPr
 
             if (files.logo) data.append("logo", files.logo);
             if (files.thumbnail) data.append("thumbnail", files.thumbnail);
-            if (files.preview) data.append("preview", files.preview);
+
+            previewFiles.forEach(p => {
+                data.append("preview", p.file);
+            });
 
             if (software) {
                 await SoftwareService.updateSoftware(software.id, data);
@@ -208,10 +235,13 @@ function SoftwareModal({ isOpen, onClose, software, onSuccess }: SoftwareModalPr
                             onFileSelect={(file) => handleFileChange("thumbnail", file)}
                             aspect="video"
                         />
-                        <FileDropZone
-                            label="Preview Image"
-                            preview={previews.preview}
-                            onFileSelect={(file) => handleFileChange("preview", file)}
+                        <MultiFileDropZone
+                            label="Preview Images"
+                            existingPreviews={existingPreviews}
+                            newPreviews={previewFiles}
+                            onFilesSelect={handlePreviewFilesChange}
+                            onRemoveExisting={handleRemoveExistingPreview}
+                            onRemoveNew={handleRemoveNewPreview}
                             aspect="video"
                         />
                     </div>
@@ -286,7 +316,7 @@ function FileDropZone({ label, preview, onFileSelect, aspect = "video" }: FileDr
                 ) : (
                     <div className="p-4">
                         <UploadCloud className="w-6 h-6 text-slate-400 dark:text-slate-600 mb-2 mx-auto" />
-                        <span className="text-[10px] text-slate-500 dark:text-slate-500 uppercase tracking-wider font-bold">Drop here</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-500 font-medium">Drop here</span>
                     </div>
                 )}
                 <input
@@ -295,6 +325,121 @@ function FileDropZone({ label, preview, onFileSelect, aspect = "video" }: FileDr
                     className="hidden"
                     accept="image/*"
                     onChange={(e) => e.target.files?.[0] && onFileSelect(e.target.files[0])}
+                />
+            </div>
+        </div>
+    );
+}
+
+interface MultiFileDropZoneProps {
+    label: string;
+    existingPreviews: { name: string; url: string }[];
+    newPreviews: { file: File; url: string }[];
+    onFilesSelect: (files: File[]) => void;
+    onRemoveExisting: (index: number) => void;
+    onRemoveNew: (index: number) => void;
+    aspect?: "square" | "video";
+}
+
+function MultiFileDropZone({
+    label,
+    existingPreviews,
+    newPreviews,
+    onFilesSelect,
+    onRemoveExisting,
+    onRemoveNew,
+    aspect = "video"
+}: MultiFileDropZoneProps) {
+    const [isDragging, setIsDragging] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const onDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            onFilesSelect(Array.from(e.dataTransfer.files));
+        }
+    };
+
+    const totalCount = existingPreviews.length + newPreviews.length;
+
+    return (
+        <div className="space-y-2">
+            <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
+                {totalCount > 0 && (
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        {totalCount} file{totalCount !== 1 ? 's' : ''}
+                    </span>
+                )}
+            </div>
+
+            {(totalCount > 0) && (
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                    {existingPreviews.map((p, idx) => (
+                        <div key={`existing-${idx}`} className={cn(
+                            "relative border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden group",
+                            aspect === "square" ? "aspect-square" : "aspect-video"
+                        )}>
+                            <img src={p.url} alt="Preview" className="w-full h-full object-cover" />
+                            <button
+                                type="button"
+                                onClick={() => onRemoveExisting(idx)}
+                                className="absolute top-1.5 right-1.5 p-1 bg-red-500/90 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-sm z-10"
+                            >
+                                <X className="w-3.5 h-3.5" />
+                            </button>
+                        </div>
+                    ))}
+                    {newPreviews.map((p, idx) => (
+                        <div key={`new-${idx}`} className={cn(
+                            "relative border-2 border-slate-900 dark:border-slate-100 rounded-xl overflow-hidden group",
+                            aspect === "square" ? "aspect-square" : "aspect-video"
+                        )}>
+                            <img src={p.url} alt="New Preview" className="w-full h-full object-cover" />
+                            <button
+                                type="button"
+                                onClick={() => onRemoveNew(idx)}
+                                className="absolute top-1.5 right-1.5 p-1 bg-red-500/90 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-sm z-10"
+                            >
+                                <X className="w-3.5 h-3.5" />
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            <div
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={onDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={cn(
+                    "relative border-2 border-dashed rounded-xl overflow-hidden cursor-pointer transition-all flex flex-col items-center justify-center text-center",
+                    aspect === "square" ? "aspect-square" : "aspect-video",
+                    isDragging
+                        ? "border-slate-900 bg-slate-50 dark:bg-slate-900/10"
+                        : "border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 bg-slate-50 dark:bg-slate-900/50"
+                )}
+            >
+                <div className="p-4">
+                    <UploadCloud className="w-6 h-6 text-slate-400 dark:text-slate-600 mb-2 mx-auto" />
+                    <span className="text-[10px] text-slate-500 dark:text-slate-500 font-medium">
+                        {totalCount > 0 ? "Add more" : "Drop here"}
+                    </span>
+                </div>
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => {
+                        if (e.target.files && e.target.files.length > 0) {
+                            onFilesSelect(Array.from(e.target.files));
+                            e.target.value = '';
+                        }
+                    }}
                 />
             </div>
         </div>

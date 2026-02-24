@@ -30,7 +30,7 @@ export interface SoftwareRecord {
     category: string;
     logo: string;
     thumbnail: string;
-    preview: string;
+    preview: string[];
     description: string;
     version: string;
     link: string;
