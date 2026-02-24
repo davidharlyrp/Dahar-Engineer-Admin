@@ -14,7 +14,8 @@ import {
     Activity,
     CreditCard,
     BarChart3,
-    Mail
+    Mail,
+    Server
 } from "lucide-react";
 
 interface SidebarProps {
@@ -38,6 +39,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         { label: "TerraSim", href: "/terrasim", icon: Activity },
         { label: "Softwares", href: "/software", icon: Touchpad },
         { label: "Products", href: "/products", icon: ShoppingBag },
+        { label: "Server Monitor", href: "/server-monitor", icon: Server },
         { label: "Requested Files", href: "/files", icon: FileUp },
         { label: "Revit Files", href: "/revit-files", icon: FileUp },
         { label: "Resources", href: "/resources", icon: FileUp },

@@ -18,6 +18,7 @@ import { Settings } from "./pages/Settings";
 import { Login } from "./pages/Login";
 import { ProductPayment } from "./pages/ProductPayment";
 import { PromotionalEmail } from "./pages/PromotionalEmail";
+import { ServerMonitor } from "./pages/ServerMonitor";
 
 // Temporary placeholder components for routes
 
@@ -45,6 +46,7 @@ function App() {
             <Route path="product-payment" element={<ProductPayment />} />
             <Route path="promotional-email" element={<PromotionalEmail />} />
             <Route path="software" element={<Software />} />
+            <Route path="server-monitor" element={<ServerMonitor />} />
             <Route path="settings" element={<Settings />} />
           </Route>
         </Route>
