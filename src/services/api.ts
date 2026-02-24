@@ -36,6 +36,7 @@ export interface SoftwareRecord {
     link: string;
     collectionId: string;
     collectionName: string;
+    isMaintain: boolean;
     created: string;
     updated: string;
 }
@@ -951,4 +952,230 @@ export const ProductPaymentService = {
             throw error;
         }
     }
+};
+
+// ---------------------------------------------------------------------------
+// Engineering Second Brain — Interfaces
+// ---------------------------------------------------------------------------
+
+export interface CodeMapping {
+    app: string;
+    className: string;
+    functionName: string;
+    description: string;
+}
+
+export interface ResearchLinkRecord {
+    id: string;
+    user_id: string;
+    title: string;
+    paper_url: string;
+    paper_file: string;
+    code_mappings: CodeMapping[];
+    tags: string;
+    notes: string;
+    collectionId: string;
+    collectionName: string;
+    created: string;
+    updated: string;
+}
+
+export interface EngineeringLogRecord {
+    id: string;
+    user_id: string;
+    title: string;
+    application: string;
+    content: string;
+    log_date: string;
+    category: string;
+    created: string;
+    updated: string;
+}
+
+export interface DerivationRecord {
+    id: string;
+    user_id: string;
+    title: string;
+    description: string;
+    latex_content: string;
+    application: string;
+    tags: string;
+    related_paper: string;
+    expand?: {
+        related_paper?: ResearchLinkRecord;
+    };
+    created: string;
+    updated: string;
+}
+
+export interface BibliographyRecord {
+    id: string;
+    user_id: string;
+    title: string;
+    authors: string;
+    year: number;
+    journal: string;
+    doi: string;
+    abstract: string;
+    file: string;
+    tags: string;
+    status: "to_read" | "in_progress" | "read" | "implemented";
+    notes: string;
+    collectionId: string;
+    collectionName: string;
+    created: string;
+    updated: string;
+}
+
+export interface DocumentationRecord {
+    id: string;
+    user_id: string;
+    title: string;
+    content: string;
+    category: string;
+    tags: string;
+    file: string;
+    collectionId: string;
+    collectionName: string;
+    created: string;
+    updated: string;
+}
+
+export interface SecondBrainRecord {
+    id: string;
+    user_id: string;
+    title: string;
+    tags: string;
+    content: string;
+    linked_nodes?: string[];
+    collectionId: string;
+    collectionName: string;
+    created: string;
+    updated: string;
+}
+
+// ---------------------------------------------------------------------------
+// Engineering Second Brain — Services
+// ---------------------------------------------------------------------------
+
+export const ResearchLinkService = {
+    async getAll(): Promise<ResearchLinkRecord[]> {
+        const filter = pb.authStore.record ? `user_id = "${pb.authStore.record.id}"` : '';
+        return pb.collection("research_links").getFullList<ResearchLinkRecord>({
+            sort: "-updated",
+            filter: filter
+        });
+    },
+    async create(data: FormData): Promise<ResearchLinkRecord> {
+        if (pb.authStore.record) data.append('user_id', pb.authStore.record.id);
+        return pb.collection("research_links").create<ResearchLinkRecord>(data);
+    },
+    async update(id: string, data: FormData): Promise<ResearchLinkRecord> {
+        return pb.collection("research_links").update<ResearchLinkRecord>(id, data);
+    },
+    async remove(id: string): Promise<boolean> {
+        return pb.collection("research_links").delete(id);
+    },
+};
+
+export const EngineeringLogService = {
+    async getAll(): Promise<EngineeringLogRecord[]> {
+        const filter = pb.authStore.record ? `user_id = "${pb.authStore.record.id}"` : '';
+        return pb.collection("engineering_logs").getFullList<EngineeringLogRecord>({
+            sort: "-log_date",
+            filter: filter
+        });
+    },
+    async create(data: Record<string, any>): Promise<EngineeringLogRecord> {
+        const payload = { ...data, user_id: pb.authStore.record?.id };
+        return pb.collection("engineering_logs").create<EngineeringLogRecord>(payload);
+    },
+    async update(id: string, data: Record<string, any>): Promise<EngineeringLogRecord> {
+        return pb.collection("engineering_logs").update<EngineeringLogRecord>(id, data);
+    },
+    async remove(id: string): Promise<boolean> {
+        return pb.collection("engineering_logs").delete(id);
+    },
+};
+
+export const DerivationService = {
+    async getAll(): Promise<DerivationRecord[]> {
+        const filter = pb.authStore.record ? `user_id = "${pb.authStore.record.id}"` : '';
+        return pb.collection("derivations").getFullList<DerivationRecord>({
+            sort: "-updated",
+            expand: "related_paper",
+            filter: filter
+        });
+    },
+    async create(data: Record<string, any>): Promise<DerivationRecord> {
+        const payload = { ...data, user_id: pb.authStore.record?.id };
+        return pb.collection("derivations").create<DerivationRecord>(payload);
+    },
+    async update(id: string, data: Record<string, any>): Promise<DerivationRecord> {
+        return pb.collection("derivations").update<DerivationRecord>(id, data);
+    },
+    async remove(id: string): Promise<boolean> {
+        return pb.collection("derivations").delete(id);
+    },
+};
+
+export const BibliographyService = {
+    async getAll(): Promise<BibliographyRecord[]> {
+        const filter = pb.authStore.record ? `user_id = "${pb.authStore.record.id}"` : '';
+        return pb.collection("bibliography").getFullList<BibliographyRecord>({
+            sort: "-updated",
+            filter: filter
+        });
+    },
+    async create(data: FormData): Promise<BibliographyRecord> {
+        if (pb.authStore.record) data.append('user_id', pb.authStore.record.id);
+        return pb.collection("bibliography").create<BibliographyRecord>(data);
+    },
+    async update(id: string, data: FormData): Promise<BibliographyRecord> {
+        return pb.collection("bibliography").update<BibliographyRecord>(id, data);
+    },
+    async remove(id: string): Promise<boolean> {
+        return pb.collection("bibliography").delete(id);
+    },
+};
+
+export const DocumentationService = {
+    async getAll(): Promise<DocumentationRecord[]> {
+        const filter = pb.authStore.record ? `user_id = "${pb.authStore.record.id}"` : '';
+        return pb.collection("documentations").getFullList<DocumentationRecord>({
+            sort: "-updated",
+            filter: filter
+        });
+    },
+    async create(data: FormData): Promise<DocumentationRecord> {
+        if (pb.authStore.record) data.append('user_id', pb.authStore.record.id);
+        return pb.collection("documentations").create<DocumentationRecord>(data);
+    },
+    async update(id: string, data: FormData): Promise<DocumentationRecord> {
+        return pb.collection("documentations").update<DocumentationRecord>(id, data);
+    },
+    async remove(id: string): Promise<boolean> {
+        return pb.collection("documentations").delete(id);
+    },
+};
+
+export const SecondBrainService = {
+    async getAll(): Promise<SecondBrainRecord[]> {
+        // Filter by user_id to ensure privacy
+        const filter = pb.authStore.record ? `user_id = "${pb.authStore.record.id}"` : '';
+        return pb.collection("second_brains").getFullList<SecondBrainRecord>({
+            sort: "-updated",
+            filter: filter
+        });
+    },
+    async create(data: Record<string, any>): Promise<SecondBrainRecord> {
+        const payload = { ...data, user_id: pb.authStore.record?.id };
+        return pb.collection("second_brains").create<SecondBrainRecord>(payload);
+    },
+    async update(id: string, data: Record<string, any>): Promise<SecondBrainRecord> {
+        return pb.collection("second_brains").update<SecondBrainRecord>(id, data);
+    },
+    async remove(id: string): Promise<boolean> {
+        return pb.collection("second_brains").delete(id);
+    },
 };

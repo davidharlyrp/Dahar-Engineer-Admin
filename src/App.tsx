@@ -19,6 +19,12 @@ import { Login } from "./pages/Login";
 import { ProductPayment } from "./pages/ProductPayment";
 import { PromotionalEmail } from "./pages/PromotionalEmail";
 import { ServerMonitor } from "./pages/ServerMonitor";
+import { PaperLinker } from "./pages/PaperLinker";
+import { EngineeringLog } from "./pages/EngineeringLog";
+import { DerivationTracker } from "./pages/DerivationTracker";
+import { Bibliography } from "./pages/Bibliography";
+import { Documentation } from "./pages/Documentation";
+import { SecondBrain } from "./pages/SecondBrain";
 
 // Temporary placeholder components for routes
 
@@ -47,6 +53,12 @@ function App() {
             <Route path="promotional-email" element={<PromotionalEmail />} />
             <Route path="software" element={<Software />} />
             <Route path="server-monitor" element={<ServerMonitor />} />
+            <Route path="paper-linker" element={<PaperLinker />} />
+            <Route path="engineering-log" element={<EngineeringLog />} />
+            <Route path="derivations" element={<DerivationTracker />} />
+            <Route path="bibliography" element={<Bibliography />} />
+            <Route path="documentation" element={<Documentation />} />
+            <Route path="second-brain" element={<SecondBrain />} />
             <Route path="settings" element={<Settings />} />
           </Route>
         </Route>

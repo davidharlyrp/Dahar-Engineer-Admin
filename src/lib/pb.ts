@@ -14,4 +14,10 @@ export const COLLECTIONS = {
     FILES: 'files',
     PORTFOLIO: 'portfolio',
     CASHFLOW: 'cashflow',
+    // Engineering Second Brain
+    RESEARCH_LINKS: 'research_links',
+    ENGINEERING_LOGS: 'engineering_logs',
+    DERIVATIONS: 'derivations',
+    BIBLIOGRAPHY: 'bibliography',
+    DOCUMENTATIONS: 'documentations',
 };

@@ -32,6 +32,7 @@ function SoftwareModal({ isOpen, onClose, software, onSuccess }: SoftwareModalPr
         description: "",
         category: "",
         link: "",
+        isMaintain: false,
     });
 
     // File states
@@ -62,6 +63,7 @@ function SoftwareModal({ isOpen, onClose, software, onSuccess }: SoftwareModalPr
                 description: software.description || "",
                 category: software.category || "",
                 link: software.link || "",
+                isMaintain: software.isMaintain || false,
             });
             setPreviews({
                 logo: SoftwareService.getFileUrl(software, software.logo),
@@ -74,7 +76,7 @@ function SoftwareModal({ isOpen, onClose, software, onSuccess }: SoftwareModalPr
             setExistingPreviews(existing);
             setPreviewFiles([]);
         } else {
-            setFormData({ name: "", version: "", description: "", category: "", link: "" });
+            setFormData({ name: "", version: "", description: "", category: "", link: "", isMaintain: false });
             setFiles({ logo: null, thumbnail: null });
             setPreviews({ logo: null, thumbnail: null });
             setExistingPreviews([]);
@@ -123,6 +125,7 @@ function SoftwareModal({ isOpen, onClose, software, onSuccess }: SoftwareModalPr
             data.append("category", formData.category);
             data.append("description", formData.description);
             data.append("link", formData.link);
+            data.append("isMaintain", String(formData.isMaintain));
 
             if (files.logo) data.append("logo", files.logo);
             if (files.thumbnail) data.append("thumbnail", files.thumbnail);
@@ -209,6 +212,18 @@ function SoftwareModal({ isOpen, onClose, software, onSuccess }: SoftwareModalPr
                             className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 transition-all outline-none"
                             placeholder="https://example.com"
                         />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            role="switch"
+                            id="isMaintain"
+                            checked={formData.isMaintain}
+                            onChange={e => setFormData(prev => ({ ...prev, isMaintain: e.target.checked }))}
+                            className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100"
+                        />
+                        <label htmlFor="isMaintain" className="text-sm font-medium text-slate-700 dark:text-slate-300">Maintenance Mode</label>
                     </div>
 
                     <div className="space-y-2">
@@ -447,6 +462,25 @@ function MultiFileDropZone({
     );
 }
 
+const Switch = ({ checked, onChange, disabled }: { checked: boolean, onChange: () => void, disabled?: boolean }) => (
+    <button
+        type="button"
+        onClick={onChange}
+        disabled={disabled}
+        className={cn(
+            "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:opacity-50",
+            checked ? "bg-slate-900 dark:bg-slate-100" : "bg-slate-200 dark:bg-slate-700"
+        )}
+    >
+        <span
+            className={cn(
+                "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white dark:bg-slate-900 shadow ring-0 transition duration-200 ease-in-out",
+                checked ? "translate-x-4" : "translate-x-0"
+            )}
+        />
+    </button>
+);
+
 export function Software() {
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [search, setSearch] = useState("");
@@ -501,6 +535,15 @@ export function Software() {
             fetchSoftwares();
         } catch {
             alert("Failed to delete software");
+        }
+    };
+
+    const handleToggleMaintain = async (sw: SoftwareRecord) => {
+        try {
+            await SoftwareService.updateSoftware(sw.id, { isMaintain: !sw.isMaintain });
+            fetchSoftwares();
+        } catch {
+            alert("Failed to update maintenance status");
         }
     };
 
@@ -604,10 +647,12 @@ export function Software() {
                                                 <ImageIcon className="w-10 h-10 text-slate-300 dark:text-slate-700" />
                                             </div>
                                         )}
-                                        <div className="absolute top-3 left-3 flex items-center gap-2">
-                                            <span className="px-2 py-0.5 rounded bg-slate-900/80 text-white text-[10px] font-bold">
-                                                v{sw.version}
-                                            </span>
+                                        <div className="absolute top-3 right-3 flex items-center gap-2">
+                                            {sw.isMaintain && (
+                                                <span className="px-2 py-0.5 rounded bg-slate-900/80 text-white text-[10px] font-semibold flex items-center gap-1 backdrop-blur-sm">
+                                                    Maintain
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="p-4 flex-1 flex flex-col">
@@ -621,10 +666,22 @@ export function Software() {
                                             {sw.link}
                                         </a>
                                         <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                                            <span className="text-[10px] text-slate-400">
-                                                Updated {new Date(sw.updated).toLocaleDateString()}
-                                            </span>
-                                            <div className="flex items-center gap-1">
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] font-bold text-slate-900 dark:text-slate-100">
+                                                    v{sw.version}
+                                                </span>
+                                                <span className="text-[10px] text-slate-400">
+                                                    {new Date(sw.updated).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex items-center gap-2 pr-2 border-r border-slate-100 dark:border-slate-700">
+                                                    <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">Maintain</span>
+                                                    <Switch
+                                                        checked={sw.isMaintain}
+                                                        onChange={() => handleToggleMaintain(sw)}
+                                                    />
+                                                </div>
                                                 <button
                                                     onClick={() => handleEdit(sw)}
                                                     className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors"
@@ -651,6 +708,7 @@ export function Software() {
                                         <tr>
                                             <th className="px-6 py-3 font-medium">Software</th>
                                             <th className="px-6 py-3 font-medium">Description</th>
+                                            <th className="px-6 py-3 font-medium text-center">Maintain</th>
                                             <th className="px-6 py-3 font-medium">Version</th>
                                             <th className="px-6 py-3 font-medium">Updated</th>
                                             <th className="px-6 py-3 font-medium text-right">Actions</th>
@@ -682,6 +740,14 @@ export function Software() {
                                                 </td>
                                                 <td className="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-xs truncate">
                                                     {sw.description}
+                                                </td>
+                                                <td className="px-6 py-4 text-center">
+                                                    <div className="flex justify-center">
+                                                        <Switch
+                                                            checked={sw.isMaintain}
+                                                            onChange={() => handleToggleMaintain(sw)}
+                                                        />
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-[10px] font-bold">

@@ -197,6 +197,14 @@ async def container_action(
     if action not in ("start", "stop", "restart", "rebuild"):
         raise HTTPException(status_code=400, detail=f"Invalid action '{action}'. Use start, stop, restart, or rebuild.")
 
+    # Prevent actions that could stop this control API if running inside docker
+    if name == "control-api" and action in ("stop", "restart", "rebuild"):
+        logger.warning(f"BLOCKED action '{action}' on protected container '{name}'")
+        raise HTTPException(
+            status_code=403, 
+            detail=f"Action '{action}' is disabled for the protected container '{name}' to prevent server management downtime."
+        )
+
     try:
         if action == "start":
             container.start()

@@ -11,7 +11,6 @@ import {
     Loader2,
     Terminal,
     X,
-    Container,
     Hammer
 } from "lucide-react";
 import { cn } from "../lib/utils";
@@ -53,17 +52,17 @@ const CONTROL_API = import.meta.env.VITE_CONTROL_API_URL || "";
 
 async function controlApiFetch(path: string, options?: RequestInit) {
     const token = pb.authStore.token;
-    const res = await fetch(`${CONTROL_API}${path}`, {
+    const res = await fetch(`${CONTROL_API}${path} `, {
         ...options,
         headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token} `,
             ...(options?.headers || {}),
         },
     });
     if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.detail || `Request failed (${res.status})`);
+        throw new Error(body.detail || `Request failed(${res.status})`);
     }
     return res.json();
 }
@@ -78,7 +77,7 @@ function formatPorts(ports: Record<string, any>): string[] {
         if (Array.isArray(bindings) && bindings.length > 0) {
             for (const b of bindings) {
                 const hostPort = b.HostPort || "?";
-                result.push(`${hostPort}→${containerPort}`);
+                result.push(`${hostPort}→${containerPort} `);
             }
         } else {
             result.push(containerPort);
@@ -177,9 +176,9 @@ export function ServerMonitor() {
     };
 
     const handleContainerAction = async (name: string, action: "start" | "stop" | "restart" | "rebuild") => {
-        setActionLoading(`${name}:${action}`);
+        setActionLoading(`${name}:${action} `);
         try {
-            await controlApiFetch(`/containers/${name}/action`, {
+            await controlApiFetch(`/ containers / ${name}/action`, {
                 method: "POST",
                 body: JSON.stringify({ action }),
             });
@@ -353,7 +352,6 @@ export function ServerMonitor() {
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                            <Container className="w-5 h-5 text-slate-500" />
                             Docker Containers
                         </h2>
                     </div>
@@ -387,7 +385,7 @@ export function ServerMonitor() {
                                     </thead>
                                     <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                                         {containers.map((c) => {
-                                            const isRunning = c.state === "running";
+                                            const isRunning = c.status.toLowerCase() === "running";
                                             return (
                                                 <tr key={c.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors">
                                                     <td className="px-6 py-4">
@@ -427,61 +425,79 @@ export function ServerMonitor() {
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
                                                         <div className="flex items-center justify-end gap-1">
-                                                            {!isRunning && (
-                                                                <button
-                                                                    onClick={() => handleContainerAction(c.name, "start")}
-                                                                    disabled={!!actionLoading}
-                                                                    className="p-1.5 text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-md transition-colors disabled:opacity-50"
-                                                                    title="Start"
-                                                                >
-                                                                    {actionLoading === `${c.name}:start`
-                                                                        ? <Loader2 className="w-4 h-4 animate-spin" />
-                                                                        : <Play className="w-4 h-4" />}
-                                                                </button>
-                                                            )}
-                                                            {isRunning && (
-                                                                <button
-                                                                    onClick={() => handleContainerAction(c.name, "stop")}
-                                                                    disabled={!!actionLoading}
-                                                                    className="p-1.5 text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors disabled:opacity-50"
-                                                                    title="Stop"
-                                                                >
-                                                                    {actionLoading === `${c.name}:stop`
-                                                                        ? <Loader2 className="w-4 h-4 animate-spin" />
-                                                                        : <Square className="w-4 h-4" />}
-                                                                </button>
-                                                            )}
-                                                            <button
-                                                                onClick={() => handleContainerAction(c.name, "restart")}
-                                                                disabled={!!actionLoading}
-                                                                className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors disabled:opacity-50"
-                                                                title="Restart"
-                                                            >
-                                                                {actionLoading === `${c.name}:restart`
-                                                                    ? <Loader2 className="w-4 h-4 animate-spin" />
-                                                                    : <RotateCcw className="w-4 h-4" />}
-                                                            </button>
-                                                            <button
-                                                                onClick={() => {
-                                                                    if (confirm(`Rebuild "${c.name}"? This will pull the latest image and recreate the container.`)) {
-                                                                        handleContainerAction(c.name, "rebuild");
-                                                                    }
-                                                                }}
-                                                                disabled={!!actionLoading}
-                                                                className="p-1.5 text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-md transition-colors disabled:opacity-50"
-                                                                title="Rebuild"
-                                                            >
-                                                                {actionLoading === `${c.name}:rebuild`
-                                                                    ? <Loader2 className="w-4 h-4 animate-spin" />
-                                                                    : <Hammer className="w-4 h-4" />}
-                                                            </button>
-                                                            <button
-                                                                onClick={() => setLogContainer(c.name)}
-                                                                className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors"
-                                                                title="Logs"
-                                                            >
-                                                                <Terminal className="w-4 h-4" />
-                                                            </button>
+                                                            {(() => {
+                                                                const isProtected = c.name === "control-api";
+                                                                const manageTitle = isProtected ? "Protected: System critical service" : "";
+
+                                                                return (
+                                                                    <>
+                                                                        {!isRunning && (
+                                                                            <button
+                                                                                onClick={() => handleContainerAction(c.name, "start")}
+                                                                                disabled={!!actionLoading}
+                                                                                className="p-1.5 text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-md transition-colors disabled:opacity-50"
+                                                                                title="Start"
+                                                                            >
+                                                                                {actionLoading === `${c.name}:start`
+                                                                                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                                                                                    : <Play className="w-4 h-4" />}
+                                                                            </button>
+                                                                        )}
+                                                                        {isRunning && (
+                                                                            <button
+                                                                                onClick={() => handleContainerAction(c.name, "stop")}
+                                                                                disabled={!!actionLoading || isProtected}
+                                                                                className={cn(
+                                                                                    "p-1.5 text-slate-500 rounded-md transition-colors disabled:opacity-30",
+                                                                                    !isProtected && "hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                                                                )}
+                                                                                title={manageTitle || "Stop"}
+                                                                            >
+                                                                                {actionLoading === `${c.name}:stop`
+                                                                                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                                                                                    : <Square className="w-4 h-4" />}
+                                                                            </button>
+                                                                        )}
+                                                                        <button
+                                                                            onClick={() => handleContainerAction(c.name, "restart")}
+                                                                            disabled={!!actionLoading || isProtected}
+                                                                            className={cn(
+                                                                                "p-1.5 text-slate-500 rounded-md transition-colors disabled:opacity-30",
+                                                                                !isProtected && "hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700"
+                                                                            )}
+                                                                            title={manageTitle || "Restart"}
+                                                                        >
+                                                                            {actionLoading === `${c.name}:restart`
+                                                                                ? <Loader2 className="w-4 h-4 animate-spin" />
+                                                                                : <RotateCcw className="w-4 h-4" />}
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                if (confirm(`Rebuild "${c.name}"? This will pull the latest image and recreate the container.`)) {
+                                                                                    handleContainerAction(c.name, "rebuild");
+                                                                                }
+                                                                            }}
+                                                                            disabled={!!actionLoading || isProtected}
+                                                                            className={cn(
+                                                                                "p-1.5 text-slate-500 rounded-md transition-colors disabled:opacity-30",
+                                                                                !isProtected && "hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                                                                            )}
+                                                                            title={manageTitle || "Rebuild"}
+                                                                        >
+                                                                            {actionLoading === `${c.name}:rebuild`
+                                                                                ? <Loader2 className="w-4 h-4 animate-spin" />
+                                                                                : <Hammer className="w-4 h-4" />}
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => setLogContainer(c.name)}
+                                                                            className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors"
+                                                                            title="Logs"
+                                                                        >
+                                                                            <Terminal className="w-4 h-4" />
+                                                                        </button>
+                                                                    </>
+                                                                );
+                                                            })()}
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -492,15 +508,15 @@ export function ServerMonitor() {
                             </div>
                         </div>
                     )}
-                </div>
-            )}
 
-            {/* Log Viewer Modal */}
-            {logContainer && (
-                <LogViewerModal
-                    containerName={logContainer}
-                    onClose={() => setLogContainer(null)}
-                />
+                    {/* Log Viewer Modal */}
+                    {logContainer && (
+                        <LogViewerModal
+                            containerName={logContainer}
+                            onClose={() => setLogContainer(null)}
+                        />
+                    )}
+                </div>
             )}
         </div>
     );

@@ -15,7 +15,14 @@ import {
     CreditCard,
     BarChart3,
     Mail,
-    Server
+    Server,
+    Link2,
+    NotebookPen,
+    Sigma,
+    Library,
+    FileCode2,
+    Brain,
+    Network
 } from "lucide-react";
 
 interface SidebarProps {
@@ -39,10 +46,17 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         { label: "TerraSim", href: "/terrasim", icon: Activity },
         { label: "Softwares", href: "/software", icon: Touchpad },
         { label: "Products", href: "/products", icon: ShoppingBag },
-        { label: "Server Monitor", href: "/server-monitor", icon: Server },
         { label: "Requested Files", href: "/files", icon: FileUp },
         { label: "Revit Files", href: "/revit-files", icon: FileUp },
         { label: "Resources", href: "/resources", icon: FileUp },
+        { label: "Server Monitor", href: "/server-monitor", icon: Server },
+        { type: "separator" as const, label: "Knowledge Base", icon: Brain },
+        { label: "Second Brain 3D", href: "/second-brain", icon: Network },
+        { label: "Paper Linker", href: "/paper-linker", icon: Link2 },
+        { label: "Eng. Journal", href: "/engineering-log", icon: NotebookPen },
+        { label: "Derivations", href: "/derivations", icon: Sigma },
+        { label: "Bibliography", href: "/bibliography", icon: Library },
+        { label: "Documentation", href: "/documentation", icon: FileCode2 },
     ];
 
     return (
@@ -63,7 +77,19 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                 )}
             >
                 <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-                    {navItems.map((item) => {
+                    {navItems.map((item: any) => {
+                        if (item.type === "separator") {
+                            const SepIcon = item.icon;
+                            return (
+                                <div key={item.label} className="pt-4 pb-1 px-3">
+                                    <span className="flex items-center gap-2 text-[10px] font-semibold text-slate-400 dark:text-slate-500">
+                                        <SepIcon className="w-3 h-3" />
+                                        {item.label}
+                                    </span>
+                                </div>
+                            );
+                        }
+
                         const isActive = location.pathname === item.href;
                         const Icon = item.icon;
 
