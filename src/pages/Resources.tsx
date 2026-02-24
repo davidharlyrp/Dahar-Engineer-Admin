@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { ResourceService, type ResourceRecord } from "../services/api";
 import { cn } from "../lib/utils";
+import { useAdminSettings } from "../hooks/useAdminSettings";
 
 export function Resources() {
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -27,7 +28,7 @@ export function Resources() {
     const [filters, setFilters] = useState({
         category: "",
     });
-    const perPage = 15;
+    const { perPage, autoRefresh, refreshInterval } = useAdminSettings();
 
     // Reset to page 1 when filters or search change
     useEffect(() => {
@@ -57,6 +58,13 @@ export function Resources() {
     useEffect(() => {
         fetchData();
     }, [fetchData]);
+
+    // Auto-refresh
+    useEffect(() => {
+        if (!autoRefresh) return;
+        const id = setInterval(fetchData, refreshInterval * 1000);
+        return () => clearInterval(id);
+    }, [autoRefresh, refreshInterval, fetchData]);
 
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this resource?")) return;
@@ -251,7 +259,7 @@ export function Resources() {
                                             <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors group/row">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-4">
-                                                        <div className="flex-shrink-0 w-12 h-16 bg-slate-50 dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800 overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105">
+                                                        <div className="flex-shrink-0 w-12 h-12 bg-slate-50 dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800 overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105">
                                                             <FileText className="w-6 h-6 text-slate-200 dark:text-slate-700" />
                                                         </div>
                                                         <div className="flex-1 min-w-0">

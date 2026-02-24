@@ -12,10 +12,12 @@ import { Resources } from "./pages/Resources";
 import { DaharPDF } from "./pages/DaharPDF";
 import { TerraSim } from "./pages/TerraSim";
 import { Cashflow } from "./pages/Cashflow";
+import { CashflowReport } from "./pages/CashflowReport";
 import { Software } from "./pages/Software";
 import { Settings } from "./pages/Settings";
 import { Login } from "./pages/Login";
 import { ProductPayment } from "./pages/ProductPayment";
+import { PromotionalEmail } from "./pages/PromotionalEmail";
 
 // Temporary placeholder components for routes
 
@@ -39,7 +41,9 @@ function App() {
             <Route path="daharpdf" element={<DaharPDF />} />
             <Route path="terrasim" element={<TerraSim />} />
             <Route path="cashflow" element={<Cashflow />} />
+            <Route path="cashflow-report" element={<CashflowReport />} />
             <Route path="product-payment" element={<ProductPayment />} />
+            <Route path="promotional-email" element={<PromotionalEmail />} />
             <Route path="software" element={<Software />} />
             <Route path="settings" element={<Settings />} />
           </Route>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Search, Plus, Edit2, Trash2, UserIcon, ChevronLeft, ChevronRight, X, Loader2, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { UserService, type UserRecord } from "../services/api";
+import { useAdminSettings } from "../hooks/useAdminSettings";
 
 export function Users() {
     const [search, setSearch] = useState("");
@@ -11,7 +12,7 @@ export function Users() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
-    const perPage = 10;
+    const { perPage, autoRefresh, refreshInterval } = useAdminSettings();
 
     // Sorting state
     const [sortField, setSortField] = useState<string>("created");
@@ -48,6 +49,13 @@ export function Users() {
     useEffect(() => {
         fetchUsers();
     }, [fetchUsers]);
+
+    // Auto-refresh
+    useEffect(() => {
+        if (!autoRefresh) return;
+        const id = setInterval(fetchUsers, refreshInterval * 1000);
+        return () => clearInterval(id);
+    }, [autoRefresh, refreshInterval, fetchUsers]);
 
     const filteredUsers = users.filter((u) => {
         const searchTerm = search.toLowerCase();

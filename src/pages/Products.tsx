@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAdminSettings } from "../hooks/useAdminSettings";
 import { Plus, Search, Image as ImageIcon, Edit2, Trash2, X, Upload, ShoppingBag, Package, FileText, Globe, CheckCircle2, Loader2, LayoutGrid, List } from "lucide-react";
 import { ProductService, type ProductRecord } from "../services/api";
 import { clsx, type ClassValue } from "clsx";
@@ -17,7 +18,7 @@ export function Products() {
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const perPage = 15;
+    const { perPage, autoRefresh, refreshInterval } = useAdminSettings();
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -35,7 +36,14 @@ export function Products() {
 
     useEffect(() => {
         fetchData();
-    }, [search, page]);
+    }, [search, page, perPage]);
+
+    // Auto-refresh
+    useEffect(() => {
+        if (!autoRefresh) return;
+        const id = setInterval(fetchData, refreshInterval * 1000);
+        return () => clearInterval(id);
+    }, [autoRefresh, refreshInterval]);
 
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this product?")) return;

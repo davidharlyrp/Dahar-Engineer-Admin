@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { SoftwareService, type SoftwareRecord } from "../services/api";
 import { cn } from "../lib/utils";
+import { useAdminSettings } from "../hooks/useAdminSettings";
 
 interface SoftwareModalProps {
     isOpen: boolean;
@@ -453,7 +454,7 @@ export function Software() {
     const [isLoading, setIsLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const perPage = 12;
+    const { perPage, autoRefresh, refreshInterval } = useAdminSettings();
 
     // Modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -475,6 +476,13 @@ export function Software() {
     useEffect(() => {
         fetchSoftwares();
     }, [fetchSoftwares]);
+
+    // Auto-refresh
+    useEffect(() => {
+        if (!autoRefresh) return;
+        const id = setInterval(fetchSoftwares, refreshInterval * 1000);
+        return () => clearInterval(id);
+    }, [autoRefresh, refreshInterval, fetchSoftwares]);
 
     const handleEdit = (sw: SoftwareRecord) => {
         setSelectedSoftware(sw);

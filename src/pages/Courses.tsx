@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { Plus, Search, Calendar, Clock, LayoutGrid, List, CalendarDays, X, ChevronLeft, ChevronRight, AlertCircle } from "lucide-react";
 import { CourseService, type BookingRecord } from "../services/api";
+import { useAdminSettings } from "../hooks/useAdminSettings";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -15,6 +16,9 @@ export function Courses() {
     const [viewMode, setViewMode] = useState<'grid' | 'list' | 'calendar'>('grid');
     const [selectedBooking, setSelectedBooking] = useState<BookingRecord | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const { perPage, autoRefresh, refreshInterval } = useAdminSettings();
 
     // Form state for modal
     const [editData, setEditData] = useState({
@@ -27,8 +31,10 @@ export function Courses() {
     const fetchBookings = async () => {
         setIsLoading(true);
         try {
-            const result = await CourseService.getBookings(1, 100);
+            const filterString = search ? `(course_title ~ "${search}" || full_name ~ "${search}")` : "";
+            const result = await CourseService.getBookings(page, perPage, "-created", filterString);
             setBookings(result.items);
+            setTotalPages(result.totalPages);
         } catch (error) {
             console.error("Courses: Error fetching bookings:", error);
         } finally {
@@ -37,8 +43,19 @@ export function Courses() {
     };
 
     useEffect(() => {
+        setPage(1);
+    }, [search]);
+
+    useEffect(() => {
         fetchBookings();
-    }, []);
+    }, [page, search, perPage]);
+
+    // Auto-refresh
+    useEffect(() => {
+        if (!autoRefresh) return;
+        const id = setInterval(fetchBookings, refreshInterval * 1000);
+        return () => clearInterval(id);
+    }, [autoRefresh, refreshInterval]);
 
     const openActionModal = (booking: BookingRecord) => {
         setSelectedBooking(booking);
@@ -153,6 +170,7 @@ export function Courses() {
                                                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Client</th>
                                                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Schedule</th>
                                                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                                                <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Payment Date</th>
                                                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Amount</th>
                                                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Action</th>
                                             </tr>
@@ -172,6 +190,29 @@ export function Courses() {
                         </>
                     )}
                 </div>
+
+                {/* Pagination */}
+                {!isLoading && totalPages > 1 && viewMode !== 'calendar' && (
+                    <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 flex items-center justify-center gap-2">
+                        <button
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                            className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
+                        >
+                            Previous
+                        </button>
+                        <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                            Page {page} of {totalPages}
+                        </span>
+                        <button
+                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                            disabled={page === totalPages}
+                            className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
+                        >
+                            Next
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Action Modal */}
@@ -379,6 +420,12 @@ function ListRow({ booking, onAction }: { booking: BookingRecord, onAction: () =
                     )}>
                         {booking.payment_status}
                     </span>
+                </div>
+            </td>
+            <td className="px-4 py-4">
+                <div className="flex items-center text-xs text-slate-600 dark:text-slate-400">
+                    <Calendar className="w-3 h-3 mr-1.5 opacity-50" />
+                    {booking.payment_date ? new Date(booking.payment_date).toLocaleDateString() : '-'}
                 </div>
             </td>
             <td className="px-4 py-4 text-sm font-medium text-slate-900 dark:text-slate-100 underline decoration-slate-200 underline-offset-4">

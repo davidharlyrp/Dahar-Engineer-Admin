@@ -1,4 +1,4 @@
-import { Menu, LogOut, Bell, Sun, Moon } from "lucide-react";
+import { Menu, LogOut, Sun, Moon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { pb } from "../../lib/pb";
 import { useTheme } from "../../context/ThemeContext";
@@ -27,7 +27,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                 </button>
                 <div className="flex items-center gap-2">
                     <img src="/Logo.png" alt="Logo" className="w-8 h-8" />
-                    <span className="font-bold text-lg text-slate-900 dark:text-slate-100 tracking-tight">Dahar<span className="text-slate-500 font-normal dark:text-slate-400">Engineer</span></span>
+                    <span className="font-bold text-2xl text-slate-900 dark:text-slate-100 tracking-tight">Dahar <span className="text-slate-500 font-normal dark:text-slate-400">Engineer</span></span>
                 </div>
             </div>
 
@@ -40,10 +40,10 @@ export function Header({ onMenuClick }: HeaderProps) {
                     {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
                 </button>
 
-                <button className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors relative">
+                {/* <button className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors relative">
                     <Bell className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                     <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-slate-400 rounded-full ring-2 ring-white dark:ring-slate-800"></span>
-                </button>
+                </button> */}
 
                 <button
                     onClick={handleLogout}

@@ -298,10 +298,11 @@ export const UserService = {
     /**
      * Fetch paginated users from the PocketBase collection
      */
-    async getUsers(page = 1, perPage = 10, sort = "-created"): Promise<ListResult<UserRecord>> {
+    async getUsers(page = 1, perPage = 10, sort = "-created", filter = ""): Promise<ListResult<UserRecord>> {
         try {
             const result = await pb.collection("users").getList<UserRecord>(page, perPage, {
                 sort: sort,
+                filter: filter,
             });
             return result;
         } catch (error) {
@@ -433,9 +434,9 @@ export const SoftwareService = {
 };
 
 export const CourseService = {
-    async getBookings(page = 1, perPage = 10, sort = "-created"): Promise<ListResult<BookingRecord>> {
+    async getBookings(page = 1, perPage = 10, sort = "-created", filter = ""): Promise<ListResult<BookingRecord>> {
         try {
-            return await pb.collection("bookings").getList<BookingRecord>(page, perPage, { sort });
+            return await pb.collection("bookings").getList<BookingRecord>(page, perPage, { sort, filter });
         } catch (error) {
             console.error("CourseService: Error fetching bookings:", error);
             throw error;
@@ -448,6 +449,27 @@ export const CourseService = {
             return record;
         } catch (error) {
             console.error(`CourseService: Error updating booking ${id}:`, error);
+            throw error;
+        }
+    }
+};
+
+export const EmailService = {
+    async sendPromotionalEmail(data: {
+        userIds: string[];
+        subject: string;
+        body: string;
+        allUsers: boolean;
+        adminEmail?: string;
+        adminPassword?: string;
+    }): Promise<{ success: boolean; message: string }> {
+        try {
+            return await pb.send("/promotional-emails", {
+                method: "POST",
+                body: data,
+            });
+        } catch (error) {
+            console.error("EmailService: Error sending emails:", error);
             throw error;
         }
     }

@@ -12,7 +12,9 @@ import {
     Settings,
     FileText,
     Activity,
-    CreditCard
+    CreditCard,
+    BarChart3,
+    Mail
 } from "lucide-react";
 
 interface SidebarProps {
@@ -27,8 +29,10 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         { label: "Dashboard", href: "/", icon: LayoutDashboard },
         { label: "User Management", href: "/users", icon: Users },
         { label: "Course Booking", href: "/courses", icon: BookOpen },
+        { label: "Promotional Email", href: "/promotional-email", icon: Mail },
         { label: "Portfolio", href: "/portfolio", icon: Briefcase },
         { label: "Cashflow", href: "/cashflow", icon: Wallet },
+        { label: "Cashflow Report", href: "/cashflow-report", icon: BarChart3 },
         { label: "Product Payment", href: "/product-payment", icon: CreditCard },
         { label: "Dahar PDF", href: "/daharpdf", icon: FileText },
         { label: "TerraSim", href: "/terrasim", icon: Activity },

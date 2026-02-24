@@ -28,6 +28,7 @@ import {
 import { DaharPDFService, type DaharPDFHistoryRecord } from "../services/api";
 import { cn } from "../lib/utils";
 import { format } from "date-fns";
+import { useAdminSettings } from "../hooks/useAdminSettings";
 
 export function DaharPDF() {
     const [history, setHistory] = useState<DaharPDFHistoryRecord[]>([]);
@@ -36,7 +37,7 @@ export function DaharPDF() {
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const perPage = 10;
+    const { perPage, autoRefresh, refreshInterval } = useAdminSettings();
 
     const fetchHistory = useCallback(async () => {
         setIsLoading(true);
@@ -59,6 +60,13 @@ export function DaharPDF() {
     useEffect(() => {
         fetchHistory();
     }, [fetchHistory]);
+
+    // Auto-refresh
+    useEffect(() => {
+        if (!autoRefresh) return;
+        const id = setInterval(fetchHistory, refreshInterval * 1000);
+        return () => clearInterval(id);
+    }, [autoRefresh, refreshInterval, fetchHistory]);
 
     // Reset page on search
     useEffect(() => {
