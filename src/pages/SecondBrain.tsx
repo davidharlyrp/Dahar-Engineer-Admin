@@ -91,16 +91,6 @@ export function SecondBrain() {
     const processGraphData = (data: SecondBrainRecord[]) => {
         const nodes: GraphNode[] = [];
         const links: GraphLink[] = [];
-        const tagMap = new Map<string, string[]>();
-
-        const processTags = (nodeId: string, tagsString: string | undefined) => {
-            if (!tagsString) return;
-            const tags = tagsString.split(',').map(t => t.trim().toLowerCase()).filter(t => t);
-            tags.forEach(tag => {
-                if (!tagMap.has(tag)) tagMap.set(tag, []);
-                tagMap.get(tag)!.push(nodeId);
-            });
-        };
 
         data.forEach((item) => {
             nodes.push({
@@ -111,7 +101,6 @@ export function SecondBrain() {
                 color: DEFAULT_COLOR,
                 data: item
             });
-            processTags(item.id, item.tags);
         });
 
         const linkSet = new Set<string>();
@@ -134,19 +123,6 @@ export function SecondBrain() {
                     links.push({ source: item.id, target: targetId, val: 2 });
                 }
             });
-        });
-        tagMap.forEach((nodeIds) => {
-            for (let i = 0; i < nodeIds.length; i++) {
-                for (let j = i + 1; j < nodeIds.length; j++) {
-                    const id1 = nodeIds[i];
-                    const id2 = nodeIds[j];
-                    const key = id1 < id2 ? `${id1}-${id2}` : `${id2}-${id1}`;
-                    if (!linkSet.has(key)) {
-                        linkSet.add(key);
-                        links.push({ source: id1, target: id2, val: 1 });
-                    }
-                }
-            }
         });
 
         setGraphData({ nodes, links });
