@@ -22,7 +22,8 @@ import {
     Library,
     FileCode2,
     Brain,
-    Network
+    Network,
+    Layers
 } from "lucide-react";
 
 interface SidebarProps {
@@ -37,18 +38,19 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         { label: "Dashboard", href: "/", icon: LayoutDashboard },
         { label: "User Management", href: "/users", icon: Users },
         { label: "Course Booking", href: "/courses", icon: BookOpen },
-        { label: "Promotional Email", href: "/promotional-email", icon: Mail },
-        { label: "Portfolio", href: "/portfolio", icon: Briefcase },
+        { label: "Course Report", href: "/course-report", icon: BarChart3 },
         { label: "Cashflow", href: "/cashflow", icon: Wallet },
         { label: "Cashflow Report", href: "/cashflow-report", icon: BarChart3 },
+        { label: "Portfolio", href: "/portfolio", icon: Briefcase },
         { label: "Product Payment", href: "/product-payment", icon: CreditCard },
+        { label: "Softwares", href: "/software", icon: Touchpad },
         { label: "Dahar PDF", href: "/daharpdf", icon: FileText },
         { label: "TerraSim", href: "/terrasim", icon: Activity },
-        { label: "Softwares", href: "/software", icon: Touchpad },
         { label: "Products", href: "/products", icon: ShoppingBag },
         { label: "Requested Files", href: "/files", icon: FileUp },
         { label: "Revit Files", href: "/revit-files", icon: FileUp },
         { label: "Resources", href: "/resources", icon: FileUp },
+        { label: "Promotional Email", href: "/promotional-email", icon: Mail },
         { label: "Server Monitor", href: "/server-monitor", icon: Server },
         { type: "separator" as const, label: "Knowledge Base", icon: Brain },
         { label: "Second Brain 3D", href: "/second-brain", icon: Network },
@@ -57,6 +59,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         { label: "Derivations", href: "/derivations", icon: Sigma },
         { label: "Bibliography", href: "/bibliography", icon: Library },
         { label: "Documentation", href: "/documentation", icon: FileCode2 },
+        { label: "Geotech Visualizer", href: "/geotech-visualizer", icon: Layers },
     ];
 
     return (

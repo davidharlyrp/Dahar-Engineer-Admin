@@ -34,7 +34,10 @@ export function PromotionalEmail() {
     const fetchUsers = useCallback(async () => {
         setIsLoading(true);
         try {
-            const filter = search ? `(name ~ "${search}" || email ~ "${search}" || display_name ~ "${search}")` : "";
+            let filter = "newsletter = true";
+            if (search) {
+                filter += ` && (name ~ "${search}" || email ~ "${search}" || display_name ~ "${search}")`;
+            }
             const res = await UserService.getUsers(page, perPage, "-created", filter);
             setUsers(res.items);
             setTotalPages(res.totalPages);

@@ -13,6 +13,7 @@ import { DaharPDF } from "./pages/DaharPDF";
 import { TerraSim } from "./pages/TerraSim";
 import { Cashflow } from "./pages/Cashflow";
 import { CashflowReport } from "./pages/CashflowReport";
+import { CourseReport } from "./pages/CourseReport";
 import { Software } from "./pages/Software";
 import { Settings } from "./pages/Settings";
 import { Login } from "./pages/Login";
@@ -25,6 +26,7 @@ import { DerivationTracker } from "./pages/DerivationTracker";
 import { Bibliography } from "./pages/Bibliography";
 import { Documentation } from "./pages/Documentation";
 import { SecondBrain } from "./pages/SecondBrain";
+import { GeotechVisualizer } from "./pages/GeotechVisualizer";
 
 // Temporary placeholder components for routes
 
@@ -49,6 +51,7 @@ function App() {
             <Route path="terrasim" element={<TerraSim />} />
             <Route path="cashflow" element={<Cashflow />} />
             <Route path="cashflow-report" element={<CashflowReport />} />
+            <Route path="course-report" element={<CourseReport />} />
             <Route path="product-payment" element={<ProductPayment />} />
             <Route path="promotional-email" element={<PromotionalEmail />} />
             <Route path="software" element={<Software />} />
@@ -59,6 +62,7 @@ function App() {
             <Route path="bibliography" element={<Bibliography />} />
             <Route path="documentation" element={<Documentation />} />
             <Route path="second-brain" element={<SecondBrain />} />
+            <Route path="geotech-visualizer" element={<GeotechVisualizer />} />
             <Route path="settings" element={<Settings />} />
           </Route>
         </Route>

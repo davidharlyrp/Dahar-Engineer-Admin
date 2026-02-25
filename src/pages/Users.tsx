@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { Search, Plus, Edit2, Trash2, UserIcon, ChevronLeft, ChevronRight, X, Loader2, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, UserIcon, ChevronLeft, ChevronRight, X, Loader2, ArrowUpDown, ArrowUp, ArrowDown, LayoutGrid, List, Phone, Building2, Coins, Mail } from "lucide-react";
 import { UserService, type UserRecord } from "../services/api";
 import { useAdminSettings } from "../hooks/useAdminSettings";
+import { cn } from "../lib/utils";
 
 export function Users() {
     const [search, setSearch] = useState("");
@@ -17,6 +18,7 @@ export function Users() {
     // Sorting state
     const [sortField, setSortField] = useState<string>("created");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+    const [viewMode, setViewMode] = useState<"table" | "grid">("table");
 
     // Edit Modal State
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -155,122 +157,280 @@ export function Users() {
                             className="w-full pl-9 pr-4 py-2 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 focus:border-transparent transition-all"
                         />
                     </div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400">
-                        Showing {users.length} of {totalItems} users
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <button
+                                onClick={() => setViewMode("table")}
+                                className={cn(
+                                    "p-1.5 rounded-md transition-all",
+                                    viewMode === "table"
+                                        ? "bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-slate-100"
+                                        : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                                )}
+                                title="Table View"
+                            >
+                                <List className="w-4 h-4" />
+                            </button>
+                            <button
+                                onClick={() => setViewMode("grid")}
+                                className={cn(
+                                    "p-1.5 rounded-md transition-all",
+                                    viewMode === "grid"
+                                        ? "bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-slate-100"
+                                        : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                                )}
+                                title="Grid View"
+                            >
+                                <LayoutGrid className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <div className="text-sm text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                            Showing {users.length} of {totalItems} users
+                        </div>
                     </div>
                 </div>
 
-                <div className="overflow-x-auto min-h-[400px]">
-                    <table className="w-full text-sm text-left">
-                        <thead className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 uppercase">
-                            <tr>
-                                <th
-                                    className="px-6 py-3 font-medium cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
-                                    onClick={() => handleSort("name")}
-                                >
-                                    <div className="flex items-center">User {getSortIcon("name")}</div>
-                                </th>
-                                <th
-                                    className="px-6 py-3 font-medium cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
-                                    onClick={() => handleSort("phone_number")}
-                                >
-                                    <div className="flex items-center">Phone Number {getSortIcon("phone_number")}</div>
-                                </th>
-                                <th
-                                    className="px-6 py-3 font-medium cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
-                                    onClick={() => handleSort("institution")}
-                                >
-                                    <div className="flex items-center">Institution {getSortIcon("institution")}</div>
-                                </th>
-                                <th
-                                    className="px-6 py-3 font-medium cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
-                                    onClick={() => handleSort("isAdmin")}
-                                >
-                                    <div className="flex items-center">Role {getSortIcon("isAdmin")}</div>
-                                </th>
-                                <th
-                                    className="px-6 py-3 font-medium cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
-                                    onClick={() => handleSort("total_coins")}
-                                >
-                                    <div className="flex items-center">Total Coins {getSortIcon("total_coins")}</div>
-                                </th>
-                                <th
-                                    className="px-6 py-3 font-medium cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
-                                    onClick={() => handleSort("created")}
-                                >
-                                    <div className="flex items-center">Joined {getSortIcon("created")}</div>
-                                </th>
-                                <th className="px-6 py-3 font-medium text-right dark:text-slate-400">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                            {isLoading ? (
+                <div className="flex-1 overflow-auto min-h-[400px]">
+                    {viewMode === "table" ? (
+                        <table className="w-full text-sm text-left">
+                            <thead className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 uppercase">
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">
-                                        Loading users...
-                                    </td>
+                                    <th
+                                        className="px-6 py-3 font-medium cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                                        onClick={() => handleSort("name")}
+                                    >
+                                        <div className="flex items-center">User {getSortIcon("name")}</div>
+                                    </th>
+                                    <th
+                                        className="px-6 py-3 font-medium cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                                        onClick={() => handleSort("phone_number")}
+                                    >
+                                        <div className="flex items-center">Phone Number {getSortIcon("phone_number")}</div>
+                                    </th>
+                                    <th
+                                        className="px-6 py-3 font-medium cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                                        onClick={() => handleSort("institution")}
+                                    >
+                                        <div className="flex items-center">Institution {getSortIcon("institution")}</div>
+                                    </th>
+                                    <th
+                                        className="px-6 py-3 font-medium cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                                        onClick={() => handleSort("isAdmin")}
+                                    >
+                                        <div className="flex items-center">Role {getSortIcon("isAdmin")}</div>
+                                    </th>
+                                    <th
+                                        className="px-6 py-3 font-medium cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                                        onClick={() => handleSort("total_coins")}
+                                    >
+                                        <div className="flex items-center">Total Coins {getSortIcon("total_coins")}</div>
+                                    </th>
+                                    <th
+                                        className="px-6 py-3 font-medium cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                                        onClick={() => handleSort("newsletter")}
+                                    >
+                                        <div className="flex items-center">Newsletter {getSortIcon("newsletter")}</div>
+                                    </th>
+                                    <th
+                                        className="px-6 py-3 font-medium cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                                        onClick={() => handleSort("created")}
+                                    >
+                                        <div className="flex items-center">Joined {getSortIcon("created")}</div>
+                                    </th>
+                                    <th className="px-6 py-3 font-medium text-right dark:text-slate-400">Actions</th>
                                 </tr>
-                            ) : filteredUsers.length === 0 ? (
-                                <tr>
-                                    <td colSpan={6} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">
-                                        No users found.
-                                    </td>
-                                </tr>
-                            ) : (
-                                filteredUsers.map((user) => {
-                                    const displayName = UserService.getDisplayName(user);
-                                    const avatarUrl = UserService.getAvatarUrl(user);
+                            </thead>
+                            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                                {isLoading ? (
+                                    <tr>
+                                        <td colSpan={8} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">
+                                            Loading users...
+                                        </td>
+                                    </tr>
+                                ) : filteredUsers.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={8} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">
+                                            No users found.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    filteredUsers.map((user) => {
+                                        const displayName = UserService.getDisplayName(user);
+                                        const avatarUrl = UserService.getAvatarUrl(user);
 
-                                    return (
-                                        <tr key={user.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors">
-                                            <td className="px-6 py-4 flex items-center gap-3">
-                                                {avatarUrl ? (
-                                                    <img src={avatarUrl} alt={displayName} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
-                                                ) : (
-                                                    <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-500 dark:text-slate-400">
-                                                        <UserIcon className="w-5 h-5" />
+                                        return (
+                                            <tr key={user.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors">
+                                                <td className="px-6 py-4 flex items-center gap-3">
+                                                    {avatarUrl ? (
+                                                        <img src={avatarUrl} alt={displayName} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
+                                                    ) : (
+                                                        <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-500 dark:text-slate-400">
+                                                            <UserIcon className="w-5 h-5" />
+                                                        </div>
+                                                    )}
+                                                    <div>
+                                                        <div className="font-medium text-slate-900 dark:text-slate-100">{displayName}</div>
+                                                        <div className="text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                                                            {user.email}
+                                                            <span className={cn(
+                                                                "text-[10px] px-2 py-0.5 rounded-full",
+                                                                user.verified ? "bg-green-100/50 dark:bg-green-700/20 text-green-700 dark:text-green-300" : "bg-red-100/50 dark:bg-red-700/20 text-red-700 dark:text-red-300"
+                                                            )}>
+                                                                {user.verified ? "verified" : "not verified"}
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                )}
-                                                <div>
-                                                    <div className="font-medium text-slate-900 dark:text-slate-100">{displayName}</div>
-                                                    <div className="text-slate-500 dark:text-slate-400">{user.email}</div>
+                                                </td>
+                                                <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{user.phone_number || "-"}</td>
+                                                <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{user.institution || "-"}</td>
+                                                <td className="px-6 py-4">
+                                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${user.isAdmin
+                                                        ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
+                                                        : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
+                                                        }`}>
+                                                        {user.isAdmin ? "Admin" : "User"}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{user.total_coins}</td>
+                                                <td className="px-6 py-4">
+                                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${user.newsletter
+                                                        ? 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
+                                                        : 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
+                                                        }`}>
+                                                        {user.newsletter ? "Yes" : "No"}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{new Date(user.created).toLocaleDateString()}</td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <div className="flex justify-end gap-2">
+                                                        <button
+                                                            onClick={() => openEditModal(user)}
+                                                            className="p-1 text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                                                            title="Edit User"
+                                                        >
+                                                            <Edit2 className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            className="p-1 text-slate-400 hover:text-red-600 transition-colors"
+                                                            title="Delete User"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                                )}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <div className="p-6">
+                            {isLoading ? (
+                                <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+                                    <Loader2 className="w-8 h-8 animate-spin mb-2" />
+                                    <span>Loading users...</span>
+                                </div>
+                            ) : filteredUsers.length === 0 ? (
+                                <div className="text-center py-20 text-slate-500 dark:text-slate-400">
+                                    No users found.
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                    {filteredUsers.map((user) => {
+                                        const displayName = UserService.getDisplayName(user);
+                                        const avatarUrl = UserService.getAvatarUrl(user);
+
+                                        return (
+                                            <div key={user.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 hover:border-slate-400 dark:hover:border-slate-500 transition-all group flex flex-col justify-between h-full">
+                                                <div className="space-y-4">
+                                                    <div className="flex items-start justify-between gap-4">
+                                                        <div className="flex items-center gap-3 min-w-0">
+                                                            {avatarUrl ? (
+                                                                <img src={avatarUrl} alt={displayName} className="w-12 h-12 rounded-full object-cover border border-slate-100 dark:border-slate-700 shadow-sm shrink-0" />
+                                                            ) : (
+                                                                <div className="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-400 shrink-0">
+                                                                    <UserIcon className="w-6 h-6" />
+                                                                </div>
+                                                            )}
+                                                            <div className="min-w-0">
+                                                                <div className="font-medium text-slate-900 dark:text-slate-100 truncate" title={displayName}>{displayName}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex flex-col items-end gap-1.5 shrink-0">
+                                                            <span className={cn(
+                                                                "text-[10px] px-2 py-0.5 rounded-full inline-block",
+                                                                user.verified ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400" : "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
+                                                            )}>
+                                                                {user.verified ? "Verified" : "Unverified"}
+                                                            </span>
+                                                            <span className={cn(
+                                                                "text-[10px] px-2 py-0.5 rounded-full inline-block",
+                                                                user.isAdmin ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900" : "bg-slate-50 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                                                            )}>
+                                                                {user.isAdmin ? "Admin" : "User"}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="space-y-2.5">
+                                                        <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                                                            <Mail className="w-3.5 h-3.5 opacity-60" />
+                                                            <span>{user.email || "No email"}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                                                            <Phone className="w-3.5 h-3.5 opacity-60" />
+                                                            <span>{user.phone_number || "No phone"}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                                                            <Building2 className="w-3.5 h-3.5 opacity-60" />
+                                                            <span className="truncate">{user.institution || "No institution"}</span>
+                                                        </div>
+                                                        <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-700/50">
+                                                            <div className="flex items-center gap-1.5 text-sm font-medium text-slate-900 dark:text-slate-100">
+                                                                <Coins className="w-3.5 h-3.5 text-slate-500" />
+                                                                <span>{user.total_coins}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2 text-xs">
+                                                                <span className="text-slate-400">Newsletter:</span>
+                                                                <span className={cn(
+                                                                    "px-1.5 py-0.5 rounded",
+                                                                    user.newsletter ? "text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-700" : "text-white bg-slate-900 dark:bg-slate-100 dark:text-slate-900"
+                                                                )}>
+                                                                    {user.newsletter ? "Yes" : "No"}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </td>
-                                            <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{user.phone_number || "-"}</td>
-                                            <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{user.institution || "-"}</td>
-                                            <td className="px-6 py-4">
-                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${user.isAdmin
-                                                    ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
-                                                    : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
-                                                    }`}>
-                                                    {user.isAdmin ? "Admin" : "User"}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{user.total_coins}</td>
-                                            <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{new Date(user.created).toLocaleDateString()}</td>
-                                            <td className="px-6 py-4 text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <button
-                                                        onClick={() => openEditModal(user)}
-                                                        className="p-1 text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
-                                                        title="Edit User"
-                                                    >
-                                                        <Edit2 className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        className="p-1 text-slate-400 hover:text-red-600 transition-colors"
-                                                        title="Delete User"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
+
+                                                <div className="mt-5 flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700">
+                                                    <span className="text-[11px] text-slate-400 italic">
+                                                        Joined {new Date(user.created).toLocaleDateString()}
+                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            onClick={() => openEditModal(user)}
+                                                            className="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                                                            title="Edit User"
+                                                        >
+                                                            <Edit2 className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                            title="Delete User"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             )}
-                        </tbody>
-                    </table>
+                        </div>
+                    )}
                 </div>
 
                 {/* Pagination Controls */}

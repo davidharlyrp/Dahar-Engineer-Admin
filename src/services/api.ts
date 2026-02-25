@@ -20,6 +20,8 @@ export interface UserRecord {
     total_coins: number;
     isAdmin: boolean;
     institution: string;
+    newsletter: boolean;
+    verified: boolean;
     created: string;
     updated: string;
 }
@@ -288,6 +290,20 @@ export interface PaymentHistoryRecord {
     download_date: string;
     user_email: string;
     user_name: string;
+    expand?: {
+        user_id: UserRecord;
+    };
+    created: string;
+    updated: string;
+}
+
+export interface SessionReviewRecord {
+    id: string;
+    user_id: string;
+    booking_group_id: string;
+    session_number: number;
+    rating: number;
+    comment: string;
     expand?: {
         user_id: UserRecord;
     };
@@ -1178,4 +1194,37 @@ export const SecondBrainService = {
     async remove(id: string): Promise<boolean> {
         return pb.collection("second_brains").delete(id);
     },
+};
+
+export const ReviewService = {
+    async getReviews(page = 1, perPage = 50, sort = "-created", filter = ""): Promise<ListResult<SessionReviewRecord>> {
+        try {
+            return await pb.collection("session_reviews").getList<SessionReviewRecord>(page, perPage, {
+                sort,
+                filter,
+                expand: "user_id",
+            });
+        } catch (error) {
+            console.error("ReviewService: Error fetching reviews:", error);
+            throw error;
+        }
+    },
+
+    async getAllReviews(filter = ""): Promise<SessionReviewRecord[]> {
+        try {
+            return await pb.collection("session_reviews").getFullList<SessionReviewRecord>({
+                sort: "-created",
+                filter,
+                expand: "user_id",
+            });
+        } catch (error) {
+            console.error("ReviewService: Error fetching all reviews:", error);
+            return [];
+        }
+    },
+
+    getDisplayName(user: UserRecord | undefined): string {
+        if (!user) return "Student";
+        return user.display_name || user.name || "Student";
+    }
 };
