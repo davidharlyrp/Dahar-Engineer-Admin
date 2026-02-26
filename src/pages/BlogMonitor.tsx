@@ -5,10 +5,10 @@ import { useAdminSettings } from "../hooks/useAdminSettings";
 import { cn } from "../lib/utils";
 import { BlogEditorOverlay } from "../components/blog/BlogEditorOverlay";
 
-type TabType = "articles" | "analytics";
+type TabType = "analytics" | "articles";
 
 export function BlogMonitor() {
-    const [activeTab, setActiveTab] = useState<TabType>("articles");
+    const [activeTab, setActiveTab] = useState<TabType>("analytics");
     const [blogs, setBlogs] = useState<BlogRecord[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [search, setSearch] = useState("");
@@ -91,7 +91,6 @@ export function BlogMonitor() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100 font-outfit">Blog Monitor</h1>
-                    <p className="text-xs text-slate-500 font-medium">Manage and monitor website articles</p>
                 </div>
                 <div className="flex gap-2">
                     <button
@@ -117,17 +116,6 @@ export function BlogMonitor() {
                 <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="flex bg-slate-100 dark:bg-slate-700 p-1 rounded-lg w-full sm:w-auto">
                         <button
-                            onClick={() => { setActiveTab("articles"); setSearch(""); setPage(1); }}
-                            className={cn(
-                                "flex-1 sm:flex-none px-4 py-1.5 rounded-md text-sm font-medium transition-all text-center",
-                                activeTab === "articles"
-                                    ? "bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-slate-100"
-                                    : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-                            )}
-                        >
-                            Articles
-                        </button>
-                        <button
                             onClick={() => { setActiveTab("analytics"); }}
                             className={cn(
                                 "flex-1 sm:flex-none px-4 py-1.5 rounded-md text-sm font-medium transition-all text-center",
@@ -137,6 +125,17 @@ export function BlogMonitor() {
                             )}
                         >
                             Analytics & Comments
+                        </button>
+                        <button
+                            onClick={() => { setActiveTab("articles"); setSearch(""); setPage(1); }}
+                            className={cn(
+                                "flex-1 sm:flex-none px-4 py-1.5 rounded-md text-sm font-medium transition-all text-center",
+                                activeTab === "articles"
+                                    ? "bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-slate-100"
+                                    : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                            )}
+                        >
+                            Articles
                         </button>
                     </div>
 
@@ -339,9 +338,11 @@ function BlogAnalyticsTab() {
     const [topBlogs, setTopBlogs] = useState<BlogRecord[]>([]);
     const [recentComments, setRecentComments] = useState<BlogCommentRecord[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
-    const fetchAnalytics = async () => {
-        setIsLoading(true);
+    const fetchAnalytics = async (isInitial = false) => {
+        if (isInitial) setIsLoading(true);
+        else setIsRefreshing(true);
         try {
             // Fetch all blogs to aggregate views and likes, and find top blogs
             const blogsResult = await BlogService.getBlogs(1, 100, "-view_count,-like_count");
@@ -368,15 +369,14 @@ function BlogAnalyticsTab() {
             setTopBlogs(blogs.slice(0, 5));
             setRecentComments(comments);
 
-        } catch (error) {
-            console.error("Error fetching analytics:", error);
         } finally {
             setIsLoading(false);
+            setIsRefreshing(false);
         }
     };
 
     useEffect(() => {
-        fetchAnalytics();
+        fetchAnalytics(true);
     }, []);
 
     const handleDeleteComment = async (id: string) => {
@@ -400,6 +400,19 @@ function BlogAnalyticsTab() {
 
     return (
         <div className="space-y-8">
+            <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Analytics & Comments Overview</h2>
+                </div>
+                <button
+                    onClick={() => fetchAnalytics(false)}
+                    disabled={isLoading || isRefreshing}
+                    className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                >
+                    <RefreshCw className={cn("w-4 h-4", (isLoading || isRefreshing) && "animate-spin")} />
+                    {isRefreshing ? "Refreshing..." : "Refresh Data"}
+                </button>
+            </div>
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <StatCard icon={Eye} label="Total Page Views" value={stats.views} color="text-slate-600 dark:text-slate-400" bg="bg-slate-50 dark:bg-slate-500/10" />

@@ -22,6 +22,7 @@ export interface UserRecord {
     institution: string;
     newsletter: boolean;
     verified: boolean;
+    last_notification_read?: string;
     created: string;
     updated: string;
 }
@@ -335,6 +336,7 @@ export interface SessionReviewRecord {
     comment: string;
     expand?: {
         user_id: UserRecord;
+        booking_group_id?: BookingRecord;
     };
     created: string;
     updated: string;
@@ -533,6 +535,18 @@ export const CourseService = {
         } catch (error) {
             console.error(`CourseService: Error updating booking ${id}:`, error);
             throw error;
+        }
+    },
+
+    async getPaidBookings(): Promise<BookingRecord[]> {
+        try {
+            return await pb.collection("bookings").getFullList<BookingRecord>({
+                filter: "payment_status = 'paid' || payment_status = 'settled'",
+                sort: "-created"
+            });
+        } catch (error) {
+            console.error("CourseService: Error fetching paid bookings:", error);
+            return [];
         }
     }
 };
@@ -1423,7 +1437,7 @@ export const ReviewService = {
             return await pb.collection("session_reviews").getList<SessionReviewRecord>(page, perPage, {
                 sort,
                 filter,
-                expand: "user_id",
+                expand: "user_id,booking_group_id",
             });
         } catch (error) {
             console.error("ReviewService: Error fetching reviews:", error);
@@ -1436,7 +1450,7 @@ export const ReviewService = {
             return await pb.collection("session_reviews").getFullList<SessionReviewRecord>({
                 sort: "-created",
                 filter,
-                expand: "user_id",
+                expand: "user_id,booking_group_id",
             });
         } catch (error) {
             console.error("ReviewService: Error fetching all reviews:", error);

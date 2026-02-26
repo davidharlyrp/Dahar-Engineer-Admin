@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
     Users, BookOpen, Wallet, Clock,
-    Touchpad, ShoppingBag, Briefcase, FileText, Activity, Layers, Package, FileUp, MessageSquare
+    Touchpad, ShoppingBag, Briefcase, FileText, Activity, Layers, Package, FileUp, MessageSquare, MessageCircle, Star
 } from "lucide-react";
 import {
     UserService,
@@ -14,7 +14,9 @@ import {
     RevitFileService,
     ResourceService,
     DaharPDFService,
-    TerraSimService
+    TerraSimService,
+    BlogCommentService,
+    ReviewService
 } from "../services/api";
 import { formatDistanceToNow } from "date-fns";
 
@@ -31,7 +33,7 @@ export function Dashboard() {
     const [analyticsStats, setAnalyticsStats] = useState<{ label: string, value: number, icon: any }[]>([]);
 
     // Activity Feed
-    const [recentActivities, setRecentActivities] = useState<{ id: string, date: Date, text: string, type: 'user' | 'course' | 'payment' | 'activity' | 'file' | 'feedback' }[]>([]);
+    const [recentActivities, setRecentActivities] = useState<{ id: string, date: Date, text: string, type: 'user' | 'course' | 'payment' | 'activity' | 'file' | 'feedback' | 'comment' | 'review' }[]>([]);
 
     useEffect(() => {
         let isMounted = true;
@@ -53,10 +55,13 @@ export function Dashboard() {
                     daharPdfRes,
                     terrasimRunsRes,
                     terrasimProjectsRes,
-                    terrasimFeedbackRes
+                    terrasimFeedbackRes,
+                    commentsRes,
+                    reviewsRes,
+                    allPaidBookingsRes
                 ] = await Promise.allSettled([
                     UserService.getUsers(1, 10), // Get 10 for activity feed
-                    CourseService.getBookings(1, 10), // Get 10 for activity
+                    CourseService.getBookings(1, 50), // Increased to 50 for better mapping
                     CashflowService.getStats(),
                     ProductPaymentService.getPayments(1, 10), // Get 10 for activity
                     SoftwareService.getSoftwares(1, 1),
@@ -67,7 +72,10 @@ export function Dashboard() {
                     DaharPDFService.getHistory(1, 1),
                     TerraSimService.getRunningHistory(1, 10), // Get 10 for activity feed
                     TerraSimService.getProjects(1, 1),
-                    TerraSimService.getFeedback(1, 10) // Get 10 for activity feed
+                    TerraSimService.getFeedback(1, 10), // Get 10 for activity feed
+                    BlogCommentService.getComments(1, 10), // New: blog comments
+                    ReviewService.getReviews(1, 10), // New: session reviews
+                    CourseService.getPaidBookings() // New: full paid bookings for name mapping
                 ]);
 
                 if (!isMounted) return;
@@ -114,7 +122,15 @@ export function Dashboard() {
                 ]);
 
                 // 4. Build Unified Recent Activity Feed
-                const activities: { id: string, date: Date, text: string, type: 'user' | 'course' | 'payment' | 'activity' | 'file' | 'feedback' }[] = [];
+                const activities: { id: string, date: Date, text: string, type: 'user' | 'course' | 'payment' | 'activity' | 'file' | 'feedback' | 'comment' | 'review' }[] = [];
+
+                // Build a map of booking names for reviews mapping
+                const bookingNameMap: Record<string, string> = {};
+                if (allPaidBookingsRes.status === "fulfilled") {
+                    allPaidBookingsRes.value.forEach(b => {
+                        if (b.booking_group_id) bookingNameMap[b.booking_group_id] = b.full_name;
+                    });
+                }
 
                 if (usersRes.status === "fulfilled") {
                     usersRes.value.items.slice(0, 5).forEach(user => {
@@ -203,6 +219,33 @@ export function Dashboard() {
                             date: new Date(res.created),
                             text: `New Resource uploaded: ${res.title}.`,
                             type: 'file'
+                        });
+                    });
+                }
+
+                if (commentsRes.status === "fulfilled") {
+                    commentsRes.value.items.slice(0, 5).forEach(comment => {
+                        const userName = comment.expand?.user_id?.name || "A user";
+                        const blogTitle = comment.expand?.blog_id?.title || "a blog post";
+                        activities.push({
+                            id: `comment-${comment.id}`,
+                            date: new Date(comment.created),
+                            text: `${userName} commented on "${blogTitle}".`,
+                            type: 'comment'
+                        });
+                    });
+                }
+
+                if (reviewsRes.status === "fulfilled") {
+                    reviewsRes.value.items.slice(0, 5).forEach(review => {
+                        const userName = bookingNameMap[review.booking_group_id] ||
+                            review.expand?.booking_group_id?.full_name ||
+                            ReviewService.getDisplayName(review.expand?.user_id);
+                        activities.push({
+                            id: `review-${review.id}`,
+                            date: new Date(review.created),
+                            text: `${userName} submitted a ${review.rating}-star review.`,
+                            type: 'review'
                         });
                     });
                 }
@@ -349,10 +392,12 @@ export function Dashboard() {
                                         {activity.type === 'activity' && <Activity className="w-4 h-4 text-slate-500" />}
                                         {activity.type === 'file' && <FileUp className="w-4 h-4 text-slate-500" />}
                                         {activity.type === 'feedback' && <MessageSquare className="w-4 h-4 text-slate-500" />}
+                                        {activity.type === 'comment' && <MessageCircle className="w-4 h-4 text-slate-500" />}
+                                        {activity.type === 'review' && <Star className="w-4 h-4 text-slate-500" />}
                                     </div>
                                     <div>
                                         <p className="text-slate-700 dark:text-slate-300 text-sm font-semibold leading-snug">{activity.text}</p>
-                                        <p className="text-slate-400 dark:text-slate-500 text-[11px] font-bold mt-1">
+                                        <p className="text-slate-400 dark:text-slate-500 text-[11px] font-semibold mt-1">
                                             {formatDistanceToNow(activity.date, { addSuffix: true })}
                                         </p>
                                     </div>

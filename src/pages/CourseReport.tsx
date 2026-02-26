@@ -383,9 +383,9 @@ export function CourseReport() {
         const averageRating = reviews.length > 0 ? (totalRating / reviews.length).toFixed(1) : "0.0";
 
         // Unreviewed Groups
-        // Find all unique booking groups from filtered paid bookings
+        // Find all unique booking groups from ALL paid bookings (to map historical reviews)
         const groupMap: Record<string, { title: string, user: string, mentor: string, sessions: number }> = {};
-        filteredBookings.forEach(b => {
+        bookings.forEach(b => {
             if (b.booking_group_id) {
                 if (!groupMap[b.booking_group_id]) {
                     groupMap[b.booking_group_id] = {
@@ -942,7 +942,9 @@ export function CourseReport() {
                                                         <Users size={16} />
                                                     </div>
                                                     <div>
-                                                        <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">{ReviewService.getDisplayName(review.expand?.user_id)}</p>
+                                                        <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
+                                                            {reviewData.groupMap[review.booking_group_id]?.user || review.expand?.booking_group_id?.full_name || ReviewService.getDisplayName(review.expand?.user_id)}
+                                                        </p>
                                                         <p className="text-[10px] text-slate-400">{new Date(review.created).toLocaleDateString()}</p>
                                                     </div>
                                                 </div>
