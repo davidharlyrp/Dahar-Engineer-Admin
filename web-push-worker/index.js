@@ -1,14 +1,17 @@
 const webpush = require('web-push');
-const https = require('https');
 const fetch = require('cross-fetch');
+// Polyfill EventSource for PocketBase JS SDK in Node.js
+const es = require('eventsource');
+global.EventSource = es.EventSource || es;
+// Use the official PocketBase JS SDK for reliable SSE connection
+const PocketBase = require('pocketbase/cjs');
 
-const POCKETBASE_URL = 'https://pb.daharengineer.com'; // Sesuaikan jika PocketBase di port lain
-const ADMIN_EMAIL = 'admin@daharengineer.com'; // Ganti dengan akun admin Anda
-const ADMIN_PASSWORD = 'D27h03R00p'; // Ganti dengan password admin Anda
+const POCKETBASE_URL = process.env.POCKETBASE_URL || 'https://pb.daharengineer.com'; // Sesuaikan jika PocketBase di port lain
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@daharengineer.com'; // Ganti dengan akun admin Anda
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'D27h03R00p'; // Ganti dengan password admin Anda
 
-const publicVapidKey = 'BBf-IIYJJQqTfQRkyjUuF6OtKqAaVhIo51F7WPunPHvH1ss-ByuIPKzXLa3ralKeW7QlqFqm6S1dJ6NW0j5X1Fc';
-// TODO: INSERT PRIVATE VAPID KEY HERE
-const privateVapidKey = 'oNha1_GtK8w_q1XDZx84cRLMp6as6uzm3blBdYwezvU';
+const publicVapidKey = process.env.VAPID_PUBLIC_KEY || 'BBf-IIYJJQqTfQRkyjUuF6OtKqAaVhIo51F7WPunPHvH1ss-ByuIPKzXLa3ralKeW7QlqFqm6S1dJ6NW0j5X1Fc';
+const privateVapidKey = process.env.VAPID_PRIVATE_KEY || 'oNha1_GtK8w_q1XDZx84cRLMp6as6uzm3blBdYwezvU';
 
 webpush.setVapidDetails(
     'mailto:dahar.engineer@example.com',
@@ -16,43 +19,31 @@ webpush.setVapidDetails(
     privateVapidKey
 );
 
-let adminToken = '';
+// Initialize PocketBase globally
+const pb = new PocketBase(POCKETBASE_URL);
+pb.autoCancellation(false);
 
 async function loginAdmin() {
     console.log("Logging into PocketBase...");
-    // Update for PocketBase v0.23+ which renamed '/api/admins' to '/api/collections/_superusers'
-    const res = await fetch(`${POCKETBASE_URL}/api/collections/_superusers/auth-with-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            identity: ADMIN_EMAIL,
-            password: ADMIN_PASSWORD
-        })
-    });
-    const data = await res.json();
-    if (data.token) {
-        adminToken = data.token;
+    try {
+        await pb.collection('_superusers').authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
         console.log("Login success.");
-    } else {
-        console.error("Login failed!", data);
+    } catch (err) {
+        console.error("Login failed!", err);
         process.exitCode = 1;
         throw new Error("Login failed");
     }
 }
 
 async function sendPushNotification(title, body) {
-    if (!adminToken) return;
+    if (!pb.authStore.isValid) return;
 
     try {
-        // Fetch all subscriptions
-        const res = await fetch(`${POCKETBASE_URL}/api/collections/push_subscriptions/records`, {
-            headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
-        const data = await res.json();
-        const subscriptions = data.items;
+        // Fetch all subscriptions using the SDK
+        const subscriptions = await pb.collection('push_subscriptions').getFullList();
 
         if (!subscriptions || subscriptions.length === 0) {
-            console.log("No push subscriptions found.");
+            console.log("No push subscriptions found in DB.");
             return;
         }
 
@@ -80,12 +71,9 @@ async function sendPushNotification(title, body) {
             } catch (err) {
                 console.error(`Failed to send push to device ID ${subRecord.id}`, err.statusCode);
                 // Optionally delete expired subscriptions here
-                if (err.statusCode === 410) {
-                    await fetch(`${POCKETBASE_URL}/api/collections/push_subscriptions/records/${subRecord.id}`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${adminToken}` }
-                    });
-                    console.log(`Deleted expired subscription ${subRecord.id}`);
+                if (err.statusCode === 410 || err.statusCode === 404) {
+                    await pb.collection('push_subscriptions').delete(subRecord.id);
+                    console.log(`Deleted expired subscription ${subRecord.id} from DB.`);
                 }
             }
         }
@@ -103,97 +91,32 @@ async function startListening() {
     }
 
     console.log("Connecting to PocketBase SSE for real-time events...");
-    const url = new URL(`${POCKETBASE_URL}/api/realtime`);
 
-    const options = {
-        hostname: url.hostname,
-        port: url.port || 443,
-        path: url.pathname + url.search,
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${adminToken}`,
-            'Accept': 'text/event-stream'
-        }
-    };
+    const collectionsToListen = [
+        { name: 'bookings', title: "New Booking", body: "Someone booked a session." },
+        { name: 'product_payments', title: "New Payment", body: "A product payment was received." },
+        { name: 'terrasim_running_history', title: "TerraSim Update", body: "A TerraSim analysis was run." },
+        { name: 'terrasim_feedbacks', title: "New Feedback", body: "TerraSim feedback was received." },
+        { name: 'revit_files', title: "New File", body: "A Revit file was uploaded." },
+        { name: 'resources', title: "New Resource", body: "A new Resource was uploaded." },
+        { name: 'blog_comments', title: "New Comment", body: "A new blog comment was posted." },
+        { name: 'session_reviews', title: "New Review", body: "A new course review was submitted." }
+    ];
 
-    https.get(options, (res) => {
-        if (res.statusCode !== 200) {
-            console.error(`SSE Connection Failed. Status Code: ${res.statusCode}`);
-            return;
-        }
-
-        let buffer = '';
-        let currentEvent = null;
-        let currentData = null;
-
-        res.on('data', (chunk) => {
-            buffer += chunk.toString('utf8');
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || ''; // keep the incomplete line in buffer
-
-            for (const line of lines) {
-                if (line.startsWith('event:')) {
-                    currentEvent = line.replace('event:', '').trim();
-                } else if (line.startsWith('data:')) {
-                    currentData = line.replace('data:', '').trim();
+    try {
+        for (const col of collectionsToListen) {
+            await pb.collection(col.name).subscribe('*', function (e) {
+                if (e.action === 'create') {
+                    console.log(`Incoming realtime event from [${col.name}]: Create`);
+                    sendPushNotification(col.title, col.body);
                 }
-
-                // Empty line means end of SSE message
-                if (line.trim() === '' && currentEvent && currentData) {
-                    try {
-                        const parsedData = JSON.parse(currentData);
-
-                        if (currentEvent === 'PB_CONNECT') {
-                            console.log("Connected to Realtime SSE.");
-                            const clientId = parsedData.clientId;
-
-                            // Subscribe to relevant collections
-                            const collections = [
-                                'bookings', 'product_payments', 'terrasim_running_history',
-                                'terrasim_feedbacks', 'revit_files', 'resources', 'blog_comments', 'session_reviews'
-                            ];
-
-                            collections.forEach(col => fetch(`${POCKETBASE_URL}/api/realtime`, {
-                                method: 'POST',
-                                headers: {
-                                    'Authorization': `Bearer ${adminToken}`,
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    clientId: clientId,
-                                    subscriptions: [col]
-                                })
-                            }));
-                        } else if (currentEvent === 'bookings' && parsedData.action === 'create') {
-                            sendPushNotification("New Booking", "Someone booked a session.");
-                        } else if (currentEvent === 'product_payments' && parsedData.action === 'create') {
-                            sendPushNotification("New Payment", "A product payment was received.");
-                        } else if (currentEvent === 'blog_comments' && parsedData.action === 'create') {
-                            sendPushNotification("New Comment", "A new blog comment was posted.");
-                        } else if (currentEvent === 'session_reviews' && parsedData.action === 'create') {
-                            sendPushNotification("New Review", "A new course review was submitted.");
-                        }
-                    } catch (e) {
-                        console.error("Error parsing SSE data:", e);
-                    }
-
-                    // Reset for next message
-                    currentEvent = null;
-                    currentData = null;
-                }
-            }
-        });
-
-        res.on('end', () => {
-            console.log("SSE Connection closed by server.");
-        });
-
-        res.on('error', (err) => {
-            console.error("SSE Streaming Error:", err);
-        });
-    }).on('error', (err) => {
-        console.error("Failed to make SSE request:", err);
-    });
+            });
+            console.log(`Subscribed to: ${col.name}`);
+        }
+        console.log("Listening for events indefinitely...");
+    } catch (err) {
+        console.error("SSE Subscription Error:", err);
+    }
 }
 
 startListening();

@@ -1,0 +1,18 @@
+services:
+  web-push-worker:
+    build: .
+    container_name: dahar-web-push-worker
+    restart: unless-stopped
+    environment:
+      # These credentials should match your production PocketBase admin
+      - POCKETBASE_URL=https://pb.daharengineer.com
+      - ADMIN_EMAIL=admin@daharengineer.com
+      - ADMIN_PASSWORD=D27h03R00p
+      - VAPID_PUBLIC_KEY=BBf-IIYJJQqTfQRkyjUuF6OtKqAaVhIo51F7WPunPHvH1ss-ByuIPKzXLa3ralKeW7QlqFqm6S1dJ6NW0j5X1Fc
+      - VAPID_PRIVATE_KEY=oNha1_GtK8w_q1XDZx84cRLMp6as6uzm3blBdYwezvU
+    # Optional: Log rotation to prevent filling up disk space
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
