@@ -359,7 +359,7 @@ export function CashflowReport() {
                                             tickFormatter={(val) => `Rp${val / 1000000}M`}
                                         />
                                         <Tooltip content={<CustomTooltip />} />
-                                        <Legend verticalAlign="top" align="right" height={36} iconType="circle" />
+                                        <Legend />
                                         <Line type="monotone" dataKey="income" name="Income" stroke={CHART_COLORS.income} strokeWidth={2} dot={{ r: 1, fill: CHART_COLORS.income }} activeDot={{ r: 4 }} />
                                         <Line type="monotone" dataKey="expense" name="Expense" stroke={CHART_COLORS.expense} strokeWidth={2} dot={{ r: 1, fill: CHART_COLORS.expense }} activeDot={{ r: 4 }} />
                                     </LineChart>

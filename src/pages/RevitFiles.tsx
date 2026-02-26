@@ -238,7 +238,7 @@ export function RevitFiles() {
                                     </div>
 
                                     <div className="p-4 flex-1 flex flex-col">
-                                        <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm leading-tight group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors line-clamp-1 mb-1">
+                                        <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-sm leading-tight group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors line-clamp-1 mb-1">
                                             {item.display_name}
                                         </h3>
                                         <div className="flex flex-wrap gap-2 mt-1">
@@ -311,7 +311,7 @@ export function RevitFiles() {
                                                             )}
                                                         </div>
                                                         <div className="flex-1 min-w-0">
-                                                            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate mb-1">
+                                                            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate mb-1">
                                                                 {item.display_name}
                                                             </h3>
                                                         </div>

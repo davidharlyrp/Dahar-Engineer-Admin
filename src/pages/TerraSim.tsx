@@ -31,7 +31,7 @@ export function TerraSim() {
     const [expandedUsers, setExpandedUsers] = useState<string[]>([]);
 
     const toggleUserAccordion = (userId: string) => {
-        setExpandedUsers(prev => 
+        setExpandedUsers(prev =>
             prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
         );
     };
@@ -222,7 +222,7 @@ export function TerraSim() {
                         {projectsByUser.length > 0 ? (
                             projectsByUser.map((group) => (
                                 <div key={group.user.id} className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
-                                    <button 
+                                    <button
                                         onClick={() => toggleUserAccordion(group.user.id)}
                                         className="w-full bg-slate-50 hover:bg-slate-100 dark:hover:bg-slate-800 dark:bg-slate-800/50 p-3 flex items-center justify-between border-b border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                                     >
@@ -231,7 +231,7 @@ export function TerraSim() {
                                                 {group.user.name?.charAt(0) || "U"}
                                             </div>
                                             <div className="text-left">
-                                                <div className="text-sm font-bold text-slate-900 dark:text-slate-100">{group.user.display_name || group.user.name || "Unknown User"}</div>
+                                                <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{group.user.display_name || group.user.name || "Unknown User"}</div>
                                                 <div className="text-[10px] text-slate-500 font-medium">{group.user.email || "No email"}</div>
                                             </div>
                                         </div>
@@ -244,7 +244,7 @@ export function TerraSim() {
                                             </div>
                                         </div>
                                     </button>
-                                    
+
                                     {expandedUsers.includes(group.user.id) && (
                                         <ul className="divide-y divide-slate-100 dark:divide-slate-800/50 bg-white dark:bg-slate-900/20">
                                             {group.projects.map(proj => (

@@ -487,7 +487,7 @@ export function ProductPayment() {
                                             </div>
                                         </td>
 
-                                        <td className="px-6 py-3 whitespace-nowrap cursor-default text-xs font-bold text-slate-600 dark:text-slate-300">
+                                        <td className="px-6 py-3 whitespace-nowrap cursor-default text-xs font-semibold text-slate-600 dark:text-slate-300">
                                             {item.payment_method || "-"}
                                         </td>
 

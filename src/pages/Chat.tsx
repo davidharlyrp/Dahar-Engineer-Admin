@@ -3,7 +3,8 @@ import { Send, Image as ImageIcon, X, User, CheckCheck, Loader2, ArrowLeft, Mess
 import { ChatService, UserService, type ConversationRecord, type MessageRecord } from "../services/api";
 import { pb } from "../lib/pb";
 import { cn } from "../lib/utils";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format, isToday, isYesterday } from "date-fns";
+import { useChat } from "../contexts/ChatContext";
 
 export function Chat() {
     const [conversations, setConversations] = useState<ConversationRecord[]>([]);
@@ -20,6 +21,7 @@ export function Chat() {
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const activeConversationRef = useRef<ConversationRecord | null>(null);
+    const { subscribeToMessages } = useChat();
     const currentUserId = pb.authStore.model?.id;
 
     const fetchConversations = async () => {
@@ -91,8 +93,8 @@ export function Chat() {
             }
         });
 
-        // Subscribe to messages globally
-        ChatService.subscribeToMessages((e) => {
+        // Use the shared subscription from context to avoid conflict
+        const unsubscribe = subscribeToMessages((e) => {
             if (e.action === "create") {
                 const newMsg = e.record as MessageRecord;
 
@@ -144,7 +146,7 @@ export function Chat() {
 
         return () => {
             ChatService.unsubscribeFromConversations();
-            ChatService.unsubscribeFromMessages();
+            unsubscribe();
         };
     }, []);
 
@@ -405,45 +407,68 @@ export function Chat() {
                                         const showAvatar = !isMine && (index === 0 || messages[index - 1]?.sender !== msg.sender);
                                         const attachmentUrl = ChatService.getAttachmentUrl(msg);
 
+                                        // Date divider logic
+                                        const messageDate = new Date(msg.created);
+                                        const prevMessageDate = index > 0 ? new Date(messages[index - 1].created) : null;
+                                        const showDateDivider = !prevMessageDate ||
+                                            messageDate.toLocaleDateString() !== prevMessageDate.toLocaleDateString();
+
+                                        const getDateLabel = (date: Date) => {
+                                            if (isToday(date)) return "Today";
+                                            if (isYesterday(date)) return "Yesterday";
+                                            return format(date, "MMMM d, yyyy");
+                                        };
+
                                         return (
-                                            <div key={msg.id} className={cn("flex w-full gap-2", isMine ? "justify-end" : "justify-start")}>
-                                                {!isMine && (
-                                                    <div className="w-8 flex-shrink-0">
-                                                        {showAvatar && (
-                                                            msg.expand?.sender?.avatar ? (
-                                                                <img src={UserService.getAvatarUrl(msg.expand.sender, "100x100") || ""} className="w-8 h-8 rounded-full object-cover" alt="avatar" />
-                                                            ) : (
-                                                                <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                                                                    <User className="w-4 h-4 text-slate-500" />
-                                                                </div>
-                                                            )
-                                                        )}
+                                            <div key={msg.id}>
+                                                {showDateDivider && (
+                                                    <div className="flex items-center gap-4 my-8 first:mt-2">
+                                                        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+                                                        <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 whitespace-nowrap">
+                                                            {getDateLabel(messageDate)}
+                                                        </span>
+                                                        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
                                                     </div>
                                                 )}
+                                                <div className={cn("flex w-full gap-2", isMine ? "justify-end" : "justify-start")}>
+                                                    {!isMine && (
+                                                        <div className="w-8 flex-shrink-0">
+                                                            {showAvatar && (
+                                                                msg.expand?.sender?.avatar ? (
+                                                                    <img src={UserService.getAvatarUrl(msg.expand.sender, "100x100") || ""} className="w-8 h-8 rounded-full object-cover" alt="avatar" />
+                                                                ) : (
+                                                                    <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+                                                                        <User className="w-4 h-4 text-slate-500" />
+                                                                    </div>
+                                                                )
+                                                            )}
+                                                        </div>
+                                                    )}
 
-                                                <div className={cn(
-                                                    "max-w-[75%] sm:max-w-[65%] flex flex-col gap-1",
-                                                    isMine ? "items-end" : "items-start"
-                                                )}>
                                                     <div className={cn(
-                                                        "px-4 py-2.5 rounded-2xl text-sm whitespace-pre-wrap break-words",
-                                                        isMine
-                                                            ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 rounded-tr-sm"
-                                                            : "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-tl-sm shadow-sm"
+                                                        "max-w-[75%] sm:max-w-[65%] flex flex-col gap-1",
+                                                        isMine ? "items-end" : "items-start"
                                                     )}>
-                                                        {attachmentUrl && (
-                                                            <a href={attachmentUrl} target="_blank" rel="noopener noreferrer" className={cn("block", msg.content && msg.content !== "[Attachment]" && "mb-2")}>
-                                                                <img src={attachmentUrl} alt="Attachment" className="rounded-lg max-h-60 object-contain" />
-                                                            </a>
-                                                        )}
-                                                        {msg.content && msg.content !== "[Attachment]" && msg.content}
-                                                    </div>
+                                                        <div className={cn(
+                                                            "px-4 py-2.5 rounded-2xl text-sm whitespace-pre-wrap break-words",
+                                                            isMine
+                                                                ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 rounded-tr-sm"
+                                                                : "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-tl-sm shadow-sm"
+                                                        )}>
+                                                            {attachmentUrl && (
+                                                                <a href={attachmentUrl} target="_blank" rel="noopener noreferrer" className={cn("block", msg.content && msg.content !== "[Attachment]" && "mb-2")}>
+                                                                    <img src={attachmentUrl} alt="Attachment" className="rounded-lg max-h-60 object-contain" />
+                                                                </a>
+                                                            )}
+                                                            {msg.content && msg.content !== "[Attachment]" && msg.content}
+                                                        </div>
 
-                                                    <div className="flex items-center gap-1 text-[10px] text-slate-400 px-1">
-                                                        <span>{new Date(msg.created).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                                        {isMine && (
-                                                            msg.read ? <CheckCheck className="w-3 h-3 text-blue-500" /> : <CheckCheck className="w-3 h-3 opacity-50" />
-                                                        )}
+                                                        <div className="flex items-center gap-1 text-[10px] text-slate-400 px-1">
+                                                            <span>{new Date(msg.created).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                            {isMine && (
+                                                                msg.read ? <CheckCheck className="w-3 h-3 text-blue-500" /> : <CheckCheck className="w-3 h-3 opacity-50" />
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

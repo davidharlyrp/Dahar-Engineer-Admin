@@ -1,17 +1,26 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { type MessageRecord } from '../services/api';
 import { pb } from '../lib/pb';
 import toast from 'react-hot-toast';
 
 interface ChatContextType {
     globalUnreadCount: number;
+    subscribeToMessages: (handler: (e: any) => void) => () => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
     const [globalUnreadCount, setGlobalUnreadCount] = useState(0);
+    const listenersRef = useRef<((e: any) => void)[]>([]);
     const currentUserId = pb.authStore.model?.id;
+
+    const subscribeToMessages = (handler: (e: any) => void) => {
+        listenersRef.current.push(handler);
+        return () => {
+            listenersRef.current = listenersRef.current.filter(h => h !== handler);
+        };
+    };
 
     // Initial fetch of unread count
     useEffect(() => {
@@ -39,6 +48,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
         // Since we are not in Chat.tsx, we track globally just to bump numbers/show toasts
         const handleNewMessage = (e: any) => {
+            // Internal logic: Unread count & Notifications
             if (e.action === "create") {
                 const newMsg = e.record as MessageRecord;
 
@@ -46,7 +56,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
                 if (newMsg.sender !== currentUserId && !newMsg.read) {
                     setGlobalUnreadCount(prev => prev + 1);
 
-                    // Show a quick global toast if they're not explicitly ignoring it (or if we had standard window.Notification logic)
+                    // Show a quick global toast
                     const senderName = newMsg.expand?.sender?.name || newMsg.expand?.sender?.username || "Someone";
                     const isMedia = newMsg.content === "[Attachment]";
 
@@ -55,7 +65,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
                         duration: 5000
                     });
 
-                    // Trigger Web Push natively if permission is granted
+                    // Trigger Web Push natively
                     if ("Notification" in window && Notification.permission === "granted") {
                         new Notification(`New Message from ${senderName}`, {
                             body: isMedia ? 'Image attached' : newMsg.content,
@@ -64,21 +74,22 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
                     }
                 }
             } else if (e.action === "update") {
-                // If a message we received got marked as read (e.g. from opening Chat.tsx), decrement the counter
                 const updatedMsg = e.record as MessageRecord;
                 if (updatedMsg.sender !== currentUserId && updatedMsg.read === true) {
-                    // It was mark as read
-                    // We can't guarantee how many got marked read precisely from just one event update easily without refetch, 
-                    // so we do a quick refetch to ensure accuracy
+                    // Refetch global unread count to stay accurate
                     pb.collection("messages").getList(1, 1, {
                         filter: `read = false && sender != "${currentUserId}"`,
                         $autoCancel: false
                     }).then(res => setGlobalUnreadCount(res.totalItems)).catch(console.error);
                 }
             }
+
+            // Distribute to all external listeners
+            listenersRef.current.forEach(handler => handler(e));
         };
 
-        pb.collection("messages").subscribe("*", handleNewMessage, { expand: "sender" }).catch(console.error);
+        // Single shared subscription
+        pb.collection("messages").subscribe("*", handleNewMessage, { expand: "sender,conversation.user" }).catch(console.error);
 
         return () => {
             pb.collection("messages").unsubscribe("*").catch(console.error);
@@ -86,7 +97,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     }, [currentUserId]);
 
     return (
-        <ChatContext.Provider value={{ globalUnreadCount }}>
+        <ChatContext.Provider value={{ globalUnreadCount, subscribeToMessages }}>
             {children}
         </ChatContext.Provider>
     );

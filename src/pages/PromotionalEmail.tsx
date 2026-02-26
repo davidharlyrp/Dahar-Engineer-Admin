@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Search, Send, CheckCircle2, AlertCircle, ChevronRight, ChevronLeft, Loader2, Info, Eye, ArrowLeft } from "lucide-react";
-import { UserService, EmailService, type UserRecord } from "../services/api";
+import { UserService, EmailService, BlogService, type UserRecord, type BlogRecord } from "../services/api";
 import { cn } from "../lib/utils";
 import { emailTemplates, type TemplateFields, type EmailTemplate } from "../lib/emailTemplates";
 
@@ -21,6 +21,11 @@ export function PromotionalEmail() {
 
     const [adminCredentials, setAdminCredentials] = useState({ email: "", password: "" });
 
+    // Blog selection state
+    const [blogs, setBlogs] = useState<BlogRecord[]>([]);
+    const [isLoadingBlogs, setIsLoadingBlogs] = useState(false);
+    const [selectedBlogId, setSelectedBlogId] = useState("");
+
     // Pagination
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -30,6 +35,24 @@ export function PromotionalEmail() {
 
     // Live-rendered HTML
     const renderedHtml = useMemo(() => selectedTemplate.render(templateFields), [selectedTemplate, templateFields]);
+
+    const fetchBlogs = useCallback(async () => {
+        setIsLoadingBlogs(true);
+        try {
+            const res = await BlogService.getBlogs(1, 100, "-created", "is_active = true");
+            setBlogs(res.items);
+        } catch (error) {
+            console.error("Failed to fetch blogs:", error);
+        } finally {
+            setIsLoadingBlogs(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (selectedTemplateId === 'blog' && blogs.length === 0) {
+            fetchBlogs();
+        }
+    }, [selectedTemplateId, blogs.length, fetchBlogs]);
 
     const fetchUsers = useCallback(async () => {
         setIsLoading(true);
@@ -73,6 +96,24 @@ export function PromotionalEmail() {
         setTemplateFields(prev => ({ ...prev, [key]: value }));
     };
 
+    const handleBlogSelect = (blogId: string) => {
+        setSelectedBlogId(blogId);
+        if (!blogId) return;
+
+        const blog = blogs.find(b => b.id === blogId);
+        if (!blog) return;
+
+        setEmailSubject(blog.title);
+        setTemplateFields(prev => ({
+            ...prev,
+            heading: blog.title,
+            subheading: blog.category || `Published on ${new Date(blog.published_date).toLocaleDateString()}`,
+            bodyText: blog.excerpt || "Check out our latest article!",
+            ctaUrl: `https://daharengineer.com/blog/${blog.page_name}`,
+            ctaText: "Read More"
+        }));
+    };
+
     const handleSend = async () => {
         if (!emailSubject || !renderedHtml) return;
         setIsSending(true);
@@ -104,6 +145,7 @@ export function PromotionalEmail() {
         setEmailSubject("");
         setTemplateFields(emailTemplates[0].defaultFields);
         setSelectedTemplateId(emailTemplates[0].id);
+        setSelectedBlogId("");
         setAdminCredentials({ email: "", password: "" });
         setResult(null);
     };
@@ -194,7 +236,7 @@ export function PromotionalEmail() {
                     <div className="flex-1 flex flex-col">
                         {/* Template Selector Bar */}
                         <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Choose Template</p>
+                            <p className="text-xs font-semibold text-slate-400 mb-3">Choose Template</p>
                             <div className="flex gap-3 overflow-x-auto pb-1">
                                 {emailTemplates.map(t => (
                                     <button
@@ -224,6 +266,30 @@ export function PromotionalEmail() {
                                 <div className="flex items-center gap-2 mb-1">
                                     <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Customize Content</span>
                                 </div>
+
+                                {selectedTemplateId === 'blog' && (
+                                    <div className="space-y-4 mb-6 p-4 bg-slate-50 dark:bg-slate-900/30 rounded-xl border border-slate-200 dark:border-slate-700">
+                                        <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">
+                                            <Search className="w-3 h-3" /> Select Blog Post to Populate
+                                        </label>
+                                        <div className="relative">
+                                            <select
+                                                value={selectedBlogId}
+                                                onChange={(e) => handleBlogSelect(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:ring-2 focus:ring-slate-900 outline-none transition-all appearance-none pr-10"
+                                            >
+                                                <option value="">-- Choose an article --</option>
+                                                {blogs.map(b => (
+                                                    <option key={b.id} value={b.id}>{b.title}</option>
+                                                ))}
+                                            </select>
+                                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                {isLoadingBlogs ? <Loader2 className="w-4 h-4 animate-spin text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400 rotate-90" />}
+                                            </div>
+                                        </div>
+                                        <p className="text-[10px] text-slate-500 italic">Picking a blog will automatically fill the fields below.</p>
+                                    </div>
+                                )}
 
                                 <FieldInput label="Email Subject" value={emailSubject} onChange={setEmailSubject} placeholder="Enter the subject line..." />
                                 <div className="h-px bg-slate-100 dark:bg-slate-700" />
@@ -255,7 +321,7 @@ export function PromotionalEmail() {
                             <div className="flex-1 flex flex-col bg-slate-100 dark:bg-slate-900/50 min-h-[400px]">
                                 <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                                     <Eye className="w-4 h-4 text-slate-400" />
-                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Live Preview</span>
+                                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Live Preview</span>
                                 </div>
                                 <div className="flex-1 p-4 overflow-auto">
                                     <iframe
@@ -288,10 +354,7 @@ export function PromotionalEmail() {
                 {step === 3 && (
                     <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
                         {/* Left: Summary & Auth */}
-                        <div className="lg:w-[400px] w-full p-8 flex flex-col justify-center space-y-6 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-700">
-                            <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto lg:mx-0">
-                                <Info className="w-7 h-7 text-slate-500 dark:text-slate-400" />
-                            </div>
+                        <div className="lg:w-[450px] w-full p-8 flex flex-col justify-center space-y-6 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-700">
                             <div className="space-y-2">
                                 <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Ready to send?</h2>
                                 <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -299,9 +362,9 @@ export function PromotionalEmail() {
                                 </p>
                             </div>
                             <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
-                                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Subject</div>
+                                <div className="text-xs font-semibold text-slate-400 tracking-wider mb-1">Subject</div>
                                 <div className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">{emailSubject}</div>
-                                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Template</div>
+                                <div className="text-xs font-semibold text-slate-400 tracking-wider mb-1">Template</div>
                                 <div className="text-sm text-slate-600 dark:text-slate-400">{selectedTemplate.emoji} {selectedTemplate.name}</div>
                             </div>
 
@@ -335,7 +398,7 @@ export function PromotionalEmail() {
                         <div className="flex-1 flex flex-col bg-slate-100 dark:bg-slate-900/50 min-h-[400px]">
                             <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                                 <Eye className="w-4 h-4 text-slate-400" />
-                                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Final Preview</span>
+                                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 tracking-wider">Final Preview</span>
                             </div>
                             <div className="flex-1 p-4 overflow-auto">
                                 <iframe srcDoc={renderedHtml} title="Final Email Preview" className="w-full h-full min-h-[500px] bg-white rounded-lg shadow-inner border border-slate-200 dark:border-slate-700" sandbox="" />

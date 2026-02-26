@@ -170,9 +170,10 @@ export function Courses() {
                                                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Client</th>
                                                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Schedule</th>
                                                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                                                <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Payment Date</th>
-                                                <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Amount</th>
-                                                <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Action</th>
+                                                <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Payment Status</th>
+                                                <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Payment Date</th>
+                                                <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Amount</th>
+                                                <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -414,15 +415,19 @@ function ListRow({ booking, onAction }: { booking: BookingRecord, onAction: () =
                     )}>
                         {booking.booking_status}
                     </span>
+                </div>
+            </td>
+            <td className="px-4 py-4">
+                <div className="flex flex-col gap-1">
                     <span className={cn(
-                        "text-[9px] font-semibold",
-                        booking.payment_status === 'paid' ? 'text-green-600' : 'text-orange-600'
+                        "inline-flex self-center px-2 py-0.5 rounded-full text-[9px] font-semibold",
+                        booking.payment_status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'
                     )}>
                         {booking.payment_status}
                     </span>
                 </div>
             </td>
-            <td className="px-4 py-4">
+            <td className="px-4 py-6 flex items-center justify-center">
                 <div className="flex items-center text-xs text-slate-600 dark:text-slate-400">
                     <Calendar className="w-3 h-3 mr-1.5 opacity-50" />
                     {booking.payment_date ? new Date(booking.payment_date).toLocaleDateString() : '-'}

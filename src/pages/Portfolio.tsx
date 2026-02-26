@@ -99,14 +99,14 @@ export function Portfolio() {
                             )} style={{ backgroundImage: item.thumbnail ? `url(${PortfolioService.getFileUrl(item, item.thumbnail, '400x300')})` : 'none' }}>
                                 {!item.thumbnail && <ImageIcon className="w-12 h-12 text-slate-300 dark:text-slate-700" />}
                                 <div className="absolute top-4 right-4">
-                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-900/80 backdrop-blur-sm text-white border border-white/20">
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-slate-900/80 backdrop-blur-sm text-white border border-white/20">
                                         {item.category || "Project"}
                                     </span>
                                 </div>
                             </div>
 
                             <div className="p-5 flex-1 flex flex-col">
-                                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-lg leading-tight mb-2 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors line-clamp-2">
+                                <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-lg leading-tight mb-2 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors line-clamp-2">
                                     {item.project}
                                 </h3>
 
@@ -274,7 +274,7 @@ function ProjectModal({ id, isOpen: _isOpen, onClose, onSuccess, existingData }:
                         {/* Basic Info */}
                         <div className="space-y-4">
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Project Name</label>
+                                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Project Name</label>
                                 <input
                                     required
                                     type="text"
@@ -287,7 +287,7 @@ function ProjectModal({ id, isOpen: _isOpen, onClose, onSuccess, existingData }:
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Category</label>
+                                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Category</label>
                                     <input
                                         type="text"
                                         value={formData.category}
@@ -297,7 +297,7 @@ function ProjectModal({ id, isOpen: _isOpen, onClose, onSuccess, existingData }:
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Year</label>
+                                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Year</label>
                                     <input
                                         type="number"
                                         value={formData.year}
@@ -308,7 +308,7 @@ function ProjectModal({ id, isOpen: _isOpen, onClose, onSuccess, existingData }:
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Client</label>
+                                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Client</label>
                                 <input
                                     type="text"
                                     value={formData.client}
@@ -320,7 +320,7 @@ function ProjectModal({ id, isOpen: _isOpen, onClose, onSuccess, existingData }:
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Location</label>
+                                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Location</label>
                                     <div className="relative">
                                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                         <input
@@ -333,7 +333,7 @@ function ProjectModal({ id, isOpen: _isOpen, onClose, onSuccess, existingData }:
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Area</label>
+                                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Area</label>
                                     <input
                                         type="text"
                                         value={formData.area}
@@ -345,7 +345,7 @@ function ProjectModal({ id, isOpen: _isOpen, onClose, onSuccess, existingData }:
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Description</label>
+                                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Description</label>
                                 <textarea
                                     value={formData.long_description}
                                     onChange={e => setFormData(p => ({ ...p, long_description: e.target.value }))}
@@ -360,7 +360,7 @@ function ProjectModal({ id, isOpen: _isOpen, onClose, onSuccess, existingData }:
                         <div className="space-y-6">
                             {/* Thumbnail Upload */}
                             <div className="space-y-2">
-                                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Cover Thumbnail</label>
+                                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Cover Thumbnail</label>
                                 <div
                                     onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('border-slate-900', 'dark:border-slate-100'); }}
                                     onDragLeave={e => { e.preventDefault(); e.currentTarget.classList.remove('border-slate-900', 'dark:border-slate-100'); }}
@@ -393,7 +393,7 @@ function ProjectModal({ id, isOpen: _isOpen, onClose, onSuccess, existingData }:
 
                             {/* Previews Upload */}
                             <div className="space-y-2 text-normal">
-                                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Project Gallery (Multiple)</label>
+                                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Project Gallery (Multiple)</label>
                                 <div
                                     onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('border-slate-900', 'dark:border-slate-100'); }}
                                     onDragLeave={e => { e.preventDefault(); e.currentTarget.classList.remove('border-slate-900', 'dark:border-slate-100'); }}

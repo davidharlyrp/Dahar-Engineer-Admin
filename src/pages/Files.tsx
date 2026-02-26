@@ -382,7 +382,7 @@ function FileRequestItem({ request, recipientName, onDelete }: { request: Reques
                         <FileText className="w-6 h-6 text-slate-600 dark:text-slate-400" />
                     </div>
                     <div>
-                        <h4 className="font-bold text-slate-900 dark:text-slate-100">{request.subject}</h4>
+                        <h4 className="font-semibold text-slate-900 dark:text-slate-100">{request.subject}</h4>
                         <div className="text-[10px] text-slate-500 flex flex-wrap gap-x-3 items-center">
                             <span className="flex items-center gap-1 font-medium"><User className="w-3 h-3 text-slate-400" /> {recipientName}</span>
                             <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-slate-400" /> {new Date(request.upload_date).toLocaleString()}</span>

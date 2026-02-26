@@ -157,7 +157,7 @@ export function Products() {
                                     </div>
 
                                     <div className="p-4 flex-1 flex flex-col">
-                                        <h3 className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors mb-1 line-clamp-1">
+                                        <h3 className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors mb-1 line-clamp-1">
                                             {item.name}
                                         </h3>
                                         <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-4 h-8">

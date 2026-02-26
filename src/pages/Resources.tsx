@@ -193,7 +193,7 @@ export function Resources() {
                                     </div>
 
                                     <div className="p-4 flex-1 flex flex-col">
-                                        <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm leading-tight group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors line-clamp-2 mb-1 min-h-[2.5rem]">
+                                        <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-sm leading-tight group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors line-clamp-2 mb-1 min-h-[2.5rem]">
                                             {item.title}
                                         </h3>
                                         <p className="text-[10px] text-slate-400 mb-3">By {item.author || 'Unknown Author'}</p>
@@ -263,10 +263,10 @@ export function Resources() {
                                                             <FileText className="w-6 h-6 text-slate-200 dark:text-slate-700" />
                                                         </div>
                                                         <div className="flex-1 min-w-0">
-                                                            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate mb-1">
+                                                            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate mb-1">
                                                                 {item.title}
                                                             </h3>
-                                                            <div className="flex flex-wrap gap-2 text-[10px] text-slate-400">
+                                                            <div className="flex flex-wrap gap-2 text-[10px] text-slate-400 font-medium tracking-wider">
                                                                 {item.subcategory || 'General'}
                                                             </div>
                                                         </div>

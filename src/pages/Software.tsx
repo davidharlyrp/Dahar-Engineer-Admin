@@ -656,7 +656,7 @@ export function Software() {
                                         </div>
                                     </div>
                                     <div className="p-4 flex-1 flex flex-col">
-                                        <h3 className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors mb-1">
+                                        <h3 className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors mb-1">
                                             {sw.name}
                                         </h3>
                                         <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-4">
@@ -667,7 +667,7 @@ export function Software() {
                                         </a>
                                         <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
                                             <div className="flex flex-col">
-                                                <span className="text-[10px] font-bold text-slate-900 dark:text-slate-100">
+                                                <span className="text-[10px] font-semibold text-slate-900 dark:text-slate-100">
                                                     v{sw.version}
                                                 </span>
                                                 <span className="text-[10px] text-slate-400">
@@ -750,7 +750,7 @@ export function Software() {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-[10px] font-bold">
+                                                    <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-[10px] font-semibold">
                                                         v{sw.version}
                                                     </span>
                                                 </td>

@@ -868,7 +868,7 @@ export function CourseReport() {
                                                     <Star key={s} size={14} fill={s <= Math.round(Number(reviewData.averageRating)) ? "currentColor" : "none"} />
                                                 ))}
                                             </div>
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase">{reviewData.totalReviews} Reviews</p>
+                                            <p className="text-[10px] text-slate-400 font-semibold uppercase">{reviewData.totalReviews} Reviews</p>
                                         </div>
                                         <div className="flex-1 space-y-2">
                                             {[5, 4, 3, 2, 1].map(star => {
