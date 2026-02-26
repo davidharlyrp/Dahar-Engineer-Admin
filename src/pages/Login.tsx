@@ -65,7 +65,7 @@ export function Login() {
                 <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Admin Dashboard Access</p>
             </div>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+            <div className="mt-8 mx-auto w-[80%] md:w-full sm:max-w-md">
                 <div className="bg-white dark:bg-slate-900 py-8 px-4 shadow-xl border border-slate-200 dark:border-slate-800 sm:rounded-xl sm:px-10 transition-colors">
 
                     {error && (

@@ -100,15 +100,39 @@ async function startListening() {
         { name: 'revit_files', title: "New File", body: "A Revit file was uploaded." },
         { name: 'resources', title: "New Resource", body: "A new Resource was uploaded." },
         { name: 'blog_comments', title: "New Comment", body: "A new blog comment was posted." },
-        { name: 'session_reviews', title: "New Review", body: "A new course review was submitted." }
+        { name: 'session_reviews', title: "New Review", body: "A new course review was submitted." },
+        { name: 'messages', title: "New Message", body: "" } // Custom handled below
     ];
 
     try {
         for (const col of collectionsToListen) {
-            await pb.collection(col.name).subscribe('*', function (e) {
+            await pb.collection(col.name).subscribe('*', async function (e) {
                 if (e.action === 'create') {
                     console.log(`Incoming realtime event from [${col.name}]: Create`);
-                    sendPushNotification(col.title, col.body);
+
+                    if (col.name === 'messages') {
+                        // Custom logic for chat messages
+                        const message = e.record;
+                        // Skip if sent by admin (us)
+                        if (message.sender === pb.authStore.model.id) return;
+
+                        try {
+                            // Expand sender to get name
+                            const expanded = await pb.collection('messages').getOne(message.id, {
+                                expand: 'sender'
+                            });
+                            const senderName = expanded.expand?.sender?.name || expanded.expand?.sender?.username || 'Someone';
+                            const body = message.content === '[Attachment]' ? 'Sent an image' : message.content;
+
+                            sendPushNotification(`New message from ${senderName}`, body);
+                        } catch (err) {
+                            console.error("Error expanding message sender:", err);
+                            sendPushNotification("New Message Received", "Click to view");
+                        }
+                    } else {
+                        // Standard generic notification
+                        sendPushNotification(col.title, col.body);
+                    }
                 }
             });
             console.log(`Subscribed to: ${col.name}`);

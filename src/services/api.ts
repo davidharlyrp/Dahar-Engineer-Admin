@@ -148,6 +148,10 @@ export interface RequestedFileRecord {
     recipient_id: string;
     created: string;
     updated: string;
+    expand?: {
+        sender_id?: UserRecord;
+        recipient_id?: UserRecord;
+    };
 }
 
 export interface RequestedFileItemRecord {
@@ -379,6 +383,31 @@ export interface BlogCommentRecord {
     };
 }
 
+export interface ConversationRecord {
+    id: string;
+    user: string;
+    created: string;
+    updated: string;
+    expand?: {
+        user?: UserRecord;
+    };
+}
+
+export interface MessageRecord {
+    id: string;
+    conversation: string;
+    sender: string;
+    content: string;
+    read: boolean;
+    attachment: string;
+    created: string;
+    updated: string;
+    expand?: {
+        conversation?: ConversationRecord;
+        sender?: UserRecord;
+    };
+}
+
 export const UserService = {
     /**
      * Fetch paginated users from the PocketBase collection
@@ -443,7 +472,7 @@ export const UserService = {
      */
     getAvatarUrl(user: UserRecord, thumb = '100x100'): string | null {
         if (!user.avatar) return null;
-        return pb.files.getUrl(user, user.avatar, { thumb });
+        return pb.files.getURL(user, user.avatar, { thumb });
     },
 
     /**
@@ -514,7 +543,7 @@ export const SoftwareService = {
      */
     getFileUrl(record: SoftwareRecord, filename: string, thumb = ''): string | null {
         if (!filename) return null;
-        return pb.files.getUrl(record, filename, thumb ? { thumb } : {});
+        return pb.files.getURL(record, filename, thumb ? { thumb } : {});
     }
 };
 
@@ -590,7 +619,7 @@ export const CourseMonitorService = {
     },
 
     getFileUrl(record: CourseListRecord, filename: string, thumb = ""): string {
-        return pb.files.getUrl(record, filename, { thumb });
+        return pb.files.getURL(record, filename, { thumb });
     }
 };
 
@@ -637,7 +666,7 @@ export const MentorService = {
     },
 
     getFileUrl(record: MentorRecord, filename: string, thumb = ""): string {
-        return pb.files.getUrl(record, filename, { thumb });
+        return pb.files.getURL(record, filename, { thumb });
     }
 };
 
@@ -782,7 +811,10 @@ export const CashflowService = {
 export const FileService = {
     async getRequestedFiles(page = 1, perPage = 10, sort = "-created"): Promise<ListResult<RequestedFileRecord>> {
         try {
-            return await pb.collection("requested_files").getList<RequestedFileRecord>(page, perPage, { sort });
+            return await pb.collection("requested_files").getList<RequestedFileRecord>(page, perPage, {
+                sort,
+                expand: "sender_id,recipient_id"
+            });
         } catch (error) {
             console.error("FileService: Error fetching requested files:", error);
             throw error;
@@ -841,7 +873,7 @@ export const FileService = {
     },
 
     getFileUrl(record: RequestedFileItemRecord, filename: string): string {
-        return pb.files.getUrl(record, filename);
+        return pb.files.getURL(record, filename);
     }
 };
 
@@ -885,7 +917,7 @@ export const BlogService = {
     },
 
     getFileUrl(record: BlogRecord, filename: string, thumb = ""): string {
-        return pb.files.getUrl(record, filename, { thumb });
+        return pb.files.getURL(record, filename, { thumb });
     }
 };
 
@@ -959,7 +991,7 @@ export const PortfolioService = {
     },
 
     getFileUrl(record: PortfolioRecord, filename: string, thumb = ""): string {
-        return pb.files.getUrl(record, filename, { thumb });
+        return pb.files.getURL(record, filename, { thumb });
     }
 };
 
@@ -1006,7 +1038,7 @@ export const ProductService = {
     },
 
     getFileUrl(record: ProductRecord, filename: string, thumb = ""): string {
-        return pb.files.getUrl(record, filename, { thumb });
+        return pb.files.getURL(record, filename, { thumb });
     }
 };
 
@@ -1053,7 +1085,7 @@ export const RevitFileService = {
     },
 
     getFileUrl(record: RevitFileRecord, filename: string, thumb = ""): string {
-        return pb.files.getUrl(record, filename, { thumb });
+        return pb.files.getURL(record, filename, { thumb });
     }
 };
 
@@ -1100,7 +1132,7 @@ export const ResourceService = {
     },
 
     getFileUrl(record: ResourceRecord, filename: string, thumb = ""): string {
-        return pb.files.getUrl(record, filename, { thumb });
+        return pb.files.getURL(record, filename, { thumb });
     }
 };
 
@@ -1174,7 +1206,7 @@ export const TerraSimService = {
     },
 
     getFeedbackImageUrl(record: TerraSimFeedbackRecord, fileName: string): string {
-        return pb.files.getUrl(record, fileName);
+        return pb.files.getURL(record, fileName);
     }
 };
 
@@ -1461,5 +1493,170 @@ export const ReviewService = {
     getDisplayName(user: UserRecord | undefined): string {
         if (!user) return "Student";
         return user.display_name || user.name || "Student";
+    }
+};
+
+export const ChatService = {
+    /**
+     * Get all conversations, newest updated first
+     */
+    async getConversations(page = 1, perPage = 50): Promise<ListResult<ConversationRecord>> {
+        try {
+            return await pb.collection("conversations").getList<ConversationRecord>(page, perPage, {
+                sort: "-updated",
+                expand: "user",
+            });
+        } catch (error) {
+            console.error("ChatService: Error fetching conversations:", error);
+            throw error;
+        }
+    },
+
+    /**
+     * Delete a conversation by its ID
+     */
+    async deleteConversation(id: string): Promise<boolean> {
+        try {
+            await pb.collection("conversations").delete(id);
+            return true;
+        } catch (error) {
+            console.error(`ChatService: Error deleting conversation ${id}:`, error);
+            throw error;
+        }
+    },
+
+    /**
+     * Fetch all messages for a specific conversation
+     */
+    async getMessages(conversationId: string): Promise<MessageRecord[]> {
+        try {
+            return await pb.collection("messages").getFullList<MessageRecord>({
+                filter: `conversation = "${conversationId}"`,
+                sort: "created",
+                expand: "sender,conversation.user",
+            });
+        } catch (error) {
+            console.error("ChatService: Error fetching messages:", error);
+            throw error;
+        }
+    },
+
+    /**
+     * Send a new message or upload an attachment
+     */
+    async sendMessage(data: FormData | Partial<MessageRecord>): Promise<MessageRecord> {
+        try {
+            let record;
+            if (data instanceof FormData) {
+                // Ensure sender is filled out correctly if sending via FormData
+                if (!data.has("sender") && pb.authStore.model?.id) {
+                    data.append("sender", pb.authStore.model.id);
+                }
+                record = await pb.collection("messages").create<MessageRecord>(data);
+            } else {
+                // Basic JSON payload
+                const payload = {
+                    ...data,
+                    sender: data.sender || pb.authStore.model?.id
+                };
+                record = await pb.collection("messages").create<MessageRecord>(payload);
+            }
+
+            // Also bump the 'updated' timestamp of the target conversation
+            try {
+                await pb.collection("conversations").update(record.conversation, {});
+            } catch (e) {
+                console.error("Could not update conversation timestamp", e);
+            }
+
+            return record;
+        } catch (error) {
+            console.error("ChatService: Error sending message:", error);
+            throw error;
+        }
+    },
+
+    /**
+    * Get attachment URL
+    */
+    getAttachmentUrl(record: MessageRecord, thumb = ""): string | null {
+        if (!record.attachment) return null;
+        return pb.files.getURL(record, record.attachment, thumb ? { thumb } : {});
+    },
+
+    /**
+     * Get all unread messages directed to the current user
+     */
+    async getUnreadMessages(): Promise<MessageRecord[]> {
+        const myId = pb.authStore.model?.id;
+        if (!myId) return [];
+        try {
+            return await pb.collection("messages").getFullList<MessageRecord>({
+                filter: `read = false && sender != "${myId}"`,
+                fields: "id,conversation"
+            });
+        } catch (error) {
+            console.error("ChatService: Error fetching unread messages:", error);
+            return [];
+        }
+    },
+
+    /**
+     * Mark all unread messages in a conversation as read
+     */
+    async markAsRead(conversationId: string): Promise<void> {
+        const myId = pb.authStore.model?.id;
+        if (!myId) return;
+        try {
+            const unreadMsgs = await pb.collection("messages").getFullList<{ id: string }>({
+                filter: `conversation = "${conversationId}" && read = false && sender != "${myId}"`,
+                fields: "id"
+            });
+
+            // Note: PocketBase doesn't have a single bulk update API, so we update them individually
+            for (const msg of unreadMsgs) {
+                await pb.collection("messages").update(msg.id, { read: true });
+            }
+        } catch (error) {
+            console.error(`ChatService: Error marking messages as read for conversation ${conversationId}:`, error);
+        }
+    },
+
+    /**
+    * Subscribe to ANY new messages
+    */
+    subscribeToMessages(callback: (e: any) => void) {
+        pb.collection("messages").subscribe("*", callback, { expand: "sender,conversation.user" }).catch(console.error);
+    },
+
+    unsubscribeFromMessages() {
+        pb.collection("messages").unsubscribe("*").catch(console.error);
+    },
+
+    /**
+     * Subscribe to conversation creations/updates
+     */
+    subscribeToConversations(callback: (e: any) => void) {
+        pb.collection("conversations").subscribe("*", callback, { expand: "user" }).catch(console.error);
+    },
+
+    unsubscribeFromConversations() {
+        pb.collection("conversations").unsubscribe("*").catch(console.error);
+    },
+
+    /**
+     * Get the latest single message for a conversation
+     */
+    async getLatestMessage(conversationId: string): Promise<MessageRecord | null> {
+        try {
+            const result = await pb.collection("messages").getList<MessageRecord>(1, 1, {
+                filter: `conversation = "${conversationId}"`,
+                sort: "-created",
+            });
+            return result.items.length > 0 ? result.items[0] : null;
+        } catch (error) {
+            console.error(`ChatService: Error fetching latest message for ${conversationId}:`, error);
+            return null;
+        }
     }
 };

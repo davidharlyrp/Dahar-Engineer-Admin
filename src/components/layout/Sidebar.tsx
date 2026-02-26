@@ -12,6 +12,7 @@ import {
     Settings,
     FileText,
     Activity,
+    MessageSquare,
     CreditCard,
     BarChart3,
     Mail,
@@ -27,6 +28,7 @@ import {
     Layout,
     Layers
 } from "lucide-react";
+import { useChat } from "../../contexts/ChatContext";
 
 interface SidebarProps {
     isOpen: boolean;
@@ -35,10 +37,12 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     const location = useLocation();
+    const { globalUnreadCount } = useChat();
 
     const navItems = [
         { label: "Dashboard", href: "/", icon: LayoutDashboard },
         { label: "User Management", href: "/users", icon: Users },
+        { label: "Messages", href: "/chat", icon: MessageSquare },
         { label: "Course Monitor", href: "/course-monitor", icon: LayoutGrid },
         { label: "Course Booking", href: "/courses", icon: BookOpen },
         { label: "Blog Monitor", href: "/blog-monitor", icon: Layout },
@@ -114,6 +118,11 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                             >
                                 <Icon className={cn("w-4 h-4", isActive ? "text-slate-900 dark:text-slate-100" : "text-slate-500 dark:text-slate-500")} />
                                 {item.label}
+                                {item.label === "Messages" && globalUnreadCount > 0 && (
+                                    <span className="ml-auto bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-4 text-center">
+                                        {globalUnreadCount > 99 ? '99+' : globalUnreadCount}
+                                    </span>
+                                )}
                             </Link>
                         );
                     })}

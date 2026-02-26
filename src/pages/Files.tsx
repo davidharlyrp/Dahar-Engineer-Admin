@@ -132,7 +132,7 @@ export function Files() {
                             <FileRequestItem
                                 key={request.id}
                                 request={request}
-                                recipientName={users.find(u => u.id === request.recipient_id)?.display_name || users.find(u => u.id === request.recipient_id)?.name || "Unknown User"}
+                                recipientName={request.expand?.recipient_id ? (request.expand.recipient_id.display_name || request.expand.recipient_id.name) : "Unknown User"}
                                 onDelete={() => handleDelete(request.id)}
                             />
                         ))}

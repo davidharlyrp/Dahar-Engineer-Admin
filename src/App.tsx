@@ -29,6 +29,8 @@ import { Documentation } from "./pages/Documentation";
 import { SecondBrain } from "./pages/SecondBrain";
 import { GeotechVisualizer } from "./pages/GeotechVisualizer";
 import { BlogMonitor } from "./pages/BlogMonitor";
+import { Chat } from "./pages/Chat";
+import { ChatProvider } from "./contexts/ChatContext";
 
 // Temporary placeholder components for routes
 
@@ -40,7 +42,11 @@ function App() {
 
         {/* Protected Dashboard Routes */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<Layout />}>
+          <Route path="/" element={
+            <ChatProvider>
+              <Layout />
+            </ChatProvider>
+          }>
             <Route index element={<Dashboard />} />
             <Route path="users" element={<Users />} />
             <Route path="course-monitor" element={<CourseMonitor />} />
@@ -67,6 +73,7 @@ function App() {
             <Route path="second-brain" element={<SecondBrain />} />
             <Route path="geotech-visualizer" element={<GeotechVisualizer />} />
             <Route path="blog-monitor" element={<BlogMonitor />} />
+            <Route path="chat" element={<Chat />} />
             <Route path="settings" element={<Settings />} />
           </Route>
         </Route>

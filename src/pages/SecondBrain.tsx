@@ -338,7 +338,7 @@ Berikut contoh penggunaan link eksternal yang rapi:
 
 
     return (
-        <div className="flex flex-col lg:flex-row min-h-[calc(85dvh)] lg:h-[calc(100vh-3rem)] w-full">
+        <div className="flex flex-col lg:flex-row min-h-[calc(85dvh)] lg:h-[calc(100dvh-3rem)] w-full">
 
             {/* LEFT: 3D Force Graph */}
             <div
