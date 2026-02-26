@@ -1542,6 +1542,23 @@ export const ChatService = {
     },
 
     /**
+     * Fetch messages created strictly AFTER a certain date (Delta Sync)
+     */
+    async getMessagesSince(conversationId: string, sinceDate: string): Promise<MessageRecord[]> {
+        try {
+            return await pb.collection("messages").getFullList<MessageRecord>({
+                filter: `conversation = "${conversationId}" && created > "${sinceDate}"`,
+                sort: "created",
+                expand: "sender,conversation.user",
+                $autoCancel: false
+            });
+        } catch (error) {
+            console.error("ChatService: Error fetching new messages:", error);
+            return []; // Fail silently on background polls
+        }
+    },
+
+    /**
      * Send a new message or upload an attachment
      */
     async sendMessage(data: FormData | Partial<MessageRecord>): Promise<MessageRecord> {

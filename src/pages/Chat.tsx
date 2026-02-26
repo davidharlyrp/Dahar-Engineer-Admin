@@ -44,8 +44,8 @@ export function Chat() {
     };
 
     // Load Messages for active conversation
-    const fetchMessages = async (convId: string) => {
-        setIsLoadingMessages(true);
+    const fetchMessages = async (convId: string, silent = false) => {
+        if (!silent) setIsLoadingMessages(true);
         try {
             const msgs = await ChatService.getMessages(convId);
             setMessages(msgs);
@@ -54,9 +54,11 @@ export function Chat() {
         } finally {
             setIsLoadingMessages(false);
             // Wait for React to render the messages into the DOM before instantly scrolling
-            setTimeout(() => {
-                messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
-            }, 50);
+            if (!silent) {
+                setTimeout(() => {
+                    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+                }, 50);
+            }
         }
     };
 
@@ -78,75 +80,94 @@ export function Chat() {
         fetchConversations();
         fetchUnreadCounts();
 
-        // Subscribe to conversation updates (new chats, bump to top)
-        ChatService.subscribeToConversations((e) => {
-            if (e.action === "create" || e.action === "update") {
-                // Re-fetch to guarantee order and expansion, or manually merge
-                fetchConversations();
-            }
-            if (e.action === "delete") {
-                setConversations(prev => prev.filter(c => c.id !== e.record.id));
-                if (activeConversationRef.current?.id === e.record.id) {
-                    setActiveConversation(null);
-                    setMessages([]);
-                }
-            }
-        });
+        let pollingInterval: ReturnType<typeof setInterval>;
 
-        // Use the shared subscription from context to avoid conflict
-        const unsubscribe = subscribeToMessages((e) => {
+        const syncChatData = async () => {
+            // 1. Sync global counters and conversation list (shallow)
+            fetchConversations();
+            fetchUnreadCounts();
+
+            // 2. Smart Delta Sync for active room messages (Bandwidth optimization)
+            if (activeConversationRef.current) {
+                const currentRoomId = activeConversationRef.current.id;
+
+                // Access the most up-to-date messages array state directly by using a callback inside a no-op state setter
+                // This is a React trick to safely read the freshest state inside an interval closure without adding it to dependencies.
+                setMessages(currentMessages => {
+                    const performDeltaSync = async () => {
+                        if (currentMessages.length > 0) {
+                            // We already have history, only ask the server for messages newer than the last one we have
+                            const lastMsgDate = currentMessages[currentMessages.length - 1].created;
+                            const newMsgs = await ChatService.getMessagesSince(currentRoomId, lastMsgDate);
+
+                            if (newMsgs.length > 0) {
+                                // We found new messages! Append them smoothly.
+                                setMessages(prev => {
+                                    // Deduplicate just in case
+                                    const existingIds = new Set(prev.map(m => m.id));
+                                    const uniqueNewMsgs = newMsgs.filter(m => !existingIds.has(m.id));
+                                    if (uniqueNewMsgs.length === 0) return prev;
+                                    return [...prev, ...uniqueNewMsgs];
+                                });
+                                ChatService.markAsRead(currentRoomId);
+                                setTimeout(() => {
+                                    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+                                }, 100);
+                            }
+                        } else {
+                            // We have absolutely zero messages, do a full silent fetch
+                            fetchMessages(currentRoomId, true);
+                        }
+                    };
+
+                    performDeltaSync();
+                    return currentMessages; // don't actually mutate state here, just reading it
+                });
+            }
+        };
+
+        // Aggressive Polling: The most reliable way to guarantee real-time updates without WebSockets
+        pollingInterval = setInterval(() => {
+            syncChatData();
+        }, 3000);
+
+        // Robust reconnect: when user returns to tab or network restores, fetch fresh data instantly
+        const handleReconnect = () => {
+            syncChatData();
+        };
+
+        window.addEventListener("focus", handleReconnect);
+        window.addEventListener("online", handleReconnect);
+
+        // We listen to the Context's global "create" event just for local state injection to avoid full redraws
+        const unsubscribeGlobal = subscribeToMessages((e) => {
             if (e.action === "create") {
                 const newMsg = e.record as MessageRecord;
-
-                // Always update the latest message preview for this conversation
                 setLatestMessages(prev => ({ ...prev, [newMsg.conversation]: newMsg }));
 
-                // Check against the ref, not the stale activeConversation state in this closure
+                // If it belongs to current room, push it instantly before the 3s poll catches it
                 if (activeConversationRef.current?.id === newMsg.conversation) {
                     setMessages(prev => {
-                        // prevent duplicates
-                        if (prev.find(m => m.id === newMsg.id)) return prev;
+                        const exists = prev.some(m => m.id === newMsg.id);
+                        if (exists) return prev;
                         return [...prev, newMsg];
                     });
-                    scrollToBottom();
+                    setTimeout(() => {
+                        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+                    }, 100);
 
-                    // Immediately mark as read if it's not from us
                     if (newMsg.sender !== currentUserId) {
-                        // Mark this exact message specifically to avoid `getFullList` race conditions with Pocketbase index
-                        pb.collection("messages").update(newMsg.id, { read: true }).catch(console.error);
-                        ChatService.markAsRead(newMsg.conversation);
+                        ChatService.markAsRead(activeConversationRef.current.id);
                     }
-                } else {
-                    // It's for a different conversation (or no conversation active), increment unread count
-                    if (newMsg.sender !== currentUserId) {
-                        setUnreadCounts(prev => ({
-                            ...prev,
-                            [newMsg.conversation]: (prev[newMsg.conversation] || 0) + 1
-                        }));
-                        // Also bump the conversation list order by refetching
-                        fetchConversations();
-                    }
-                }
-            } else if (e.action === "update") {
-                const updatedMsg = e.record as MessageRecord;
-
-                // Update latest message preview if it patches the one being displayed
-                setLatestMessages(prev => {
-                    if (prev[updatedMsg.conversation]?.id === updatedMsg.id) {
-                        return { ...prev, [updatedMsg.conversation]: { ...prev[updatedMsg.conversation], ...updatedMsg } };
-                    }
-                    return prev;
-                });
-
-                if (activeConversationRef.current?.id === updatedMsg.conversation) {
-                    setMessages(prev => prev.map(m => m.id === updatedMsg.id ? { ...m, ...updatedMsg, expand: updatedMsg.expand || m.expand } : m));
                 }
             }
         });
 
         return () => {
-            ChatService.unsubscribeFromConversations();
-            unsubscribe();
+            clearInterval(pollingInterval);
+            unsubscribeGlobal();
+            window.removeEventListener("focus", handleReconnect);
+            window.removeEventListener("online", handleReconnect);
         };
     }, []);
 
