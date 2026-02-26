@@ -1,7 +1,8 @@
 import {
-    Menu, LogOut, Sun, Moon, Bell, Check, Users, BookOpen,
-    Wallet, Activity, FileUp, MessageSquare, MessageCircle, Star
-} from "lucide-react";
+    Bell, Menu, Users, LogOut,
+    BookOpen, Sun, Moon,
+    Wallet, Activity, FileUp, MessageSquare, MessageCircle, Star, Check
+} from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { pb } from "../../lib/pb";
 import { useTheme } from "../../context/ThemeContext";
@@ -43,7 +44,10 @@ export function Header({ onMenuClick }: HeaderProps) {
 
     const [isNotifOpen, setIsNotifOpen] = useState(false);
     const notifRef = useRef<HTMLDivElement>(null);
-    const { notifications, unreadCount, markAllAsRead, autoOpenTrigger } = useRealtimeNotifications();
+    const {
+        notifications, unreadCount, markAllAsRead,
+        autoOpenTrigger
+    } = useRealtimeNotifications();
 
     useEffect(() => {
         if (autoOpenTrigger > 0) {
@@ -97,6 +101,11 @@ export function Header({ onMenuClick }: HeaderProps) {
                 >
                     {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
                 </button>
+
+                {/* Desktop Quick Actions */}
+                <div className="hidden lg:flex items-center space-x-4 ml-auto">
+                    {/* Add any other desktop quick actions here in the future */}
+                </div>
 
                 <div className="relative" ref={notifRef}>
                     <button

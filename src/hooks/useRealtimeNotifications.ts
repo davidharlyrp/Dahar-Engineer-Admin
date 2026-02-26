@@ -43,12 +43,86 @@ export function useRealtimeNotifications() {
             audioRef.current.play().catch(e => console.log("Audio play prevented by browser:", e));
         }
 
-        // Native Browser OS Notification
+        // Native Browser OS Notification (existing)
         if ('Notification' in window && Notification.permission === 'granted') {
             new Notification("Dahar Engineer", {
                 body: text,
-                icon: '/Logo.png' // Pastikan logo ini ada di folder public
+                icon: '/Logo.png'
             });
+        }
+    };
+
+    // Helper for VAPID push manager
+    const urlBase64ToUint8Array = (base64String: string) => {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    };
+
+    // Push Subscription Logic
+    const subscribeToPush = async () => {
+        console.log("Attempting to subscribe to push...");
+        if (!('serviceWorker' in navigator)) {
+            console.warn("ServiceWorker is not supported in this browser.");
+            return;
+        }
+        if (!('PushManager' in window)) {
+            console.warn("Push API is not supported in this browser.");
+            return;
+        }
+
+        try {
+            const registration = await navigator.serviceWorker.ready;
+            console.log("Service Worker is ready:", registration);
+
+            const publicVapidKey = "BBf-IIYJJQqTfQRkyjUuF6OtKqAaVhIo51F7WPunPHvH1ss-ByuIPKzXLa3ralKeW7QlqFqm6S1dJ6NW0j5X1Fc";
+
+            // Check existing subscription first
+            let subscription = await registration.pushManager.getSubscription();
+
+            if (!subscription) {
+                console.log("No existing subscription found. Requesting new one...");
+                subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+                });
+            }
+
+            const subJSON = subscription.toJSON();
+            console.log("Push Subscription Object generated/retrieved:", subJSON);
+
+            if (pb.authStore.model) {
+                console.log("Saving subscription directly to pocketbase for user:", pb.authStore.model.id);
+                // Cek dulu apakah token yang sama sudah ada biar ga error unik (p256dh atau endpoint)
+                const existing = await pb.collection('push_subscriptions').getList(1, 1, {
+                    filter: `endpoint = '${subJSON.endpoint}'`
+                });
+
+                if (existing.totalItems === 0) {
+                    await pb.collection('push_subscriptions').create({
+                        user: pb.authStore.model.id,
+                        endpoint: subJSON.endpoint,
+                        p256dh: subJSON.keys?.p256dh,
+                        auth: subJSON.keys?.auth
+                    });
+                    console.log("Subscription saved to database!");
+                    alert("Berhasil mendaftar notifikasi Push!");
+                } else {
+                    console.log("Subscription already exists in database.");
+                }
+            } else {
+                console.warn("User is not logged in. Cannot save subscription to DB.");
+                alert("Gagal menyimpan: Anda belum login.");
+            }
+
+        } catch (error: any) {
+            console.error("Failed to subscribe to push", error);
+            alert(`Push Subscription Failed: ${error.message}`);
         }
     };
 
@@ -211,6 +285,11 @@ export function useRealtimeNotifications() {
             };
 
             await setupSubscriptions();
+
+            // Attempt to subscribe to PWA Push if permission is granted
+            if ('Notification' in window && Notification.permission === 'granted') {
+                await subscribeToPush();
+            }
         };
 
         setup();
@@ -245,5 +324,5 @@ export function useRealtimeNotifications() {
         }
     };
 
-    return { notifications, unreadCount, markAllAsRead, autoOpenTrigger };
+    return { notifications, unreadCount, markAllAsRead, autoOpenTrigger, subscribeToPush };
 }
