@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Search, Send, CheckCircle2, AlertCircle, ChevronRight, ChevronLeft, Loader2, Info, Eye, ArrowLeft } from "lucide-react";
+import { Search, Send, CheckCircle2, AlertCircle, ChevronRight, ChevronLeft, Loader2, Eye, ArrowLeft } from "lucide-react";
 import { UserService, EmailService, BlogService, type UserRecord, type BlogRecord } from "../services/api";
 import { cn } from "../lib/utils";
 import { emailTemplates, type TemplateFields, type EmailTemplate } from "../lib/emailTemplates";
