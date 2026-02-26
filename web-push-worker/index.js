@@ -93,6 +93,7 @@ async function startListening() {
     console.log("Connecting to PocketBase SSE for real-time events...");
 
     const collectionsToListen = [
+        { name: 'messages', title: "New Message", body: "" }, // Custom handled below
         { name: 'bookings', title: "New Booking", body: "Someone booked a session." },
         { name: 'product_payments', title: "New Payment", body: "A product payment was received." },
         { name: 'terrasim_running_history', title: "TerraSim Update", body: "A TerraSim analysis was run." },
@@ -100,34 +101,40 @@ async function startListening() {
         { name: 'revit_files', title: "New File", body: "A Revit file was uploaded." },
         { name: 'resources', title: "New Resource", body: "A new Resource was uploaded." },
         { name: 'blog_comments', title: "New Comment", body: "A new blog comment was posted." },
-        { name: 'session_reviews', title: "New Review", body: "A new course review was submitted." },
-        { name: 'messages', title: "New Message", body: "" } // Custom handled below
+        { name: 'session_reviews', title: "New Review", body: "A new course review was submitted." }
     ];
 
     try {
         for (const col of collectionsToListen) {
             await pb.collection(col.name).subscribe('*', async function (e) {
+                console.log(`[RAW LISTENER] Event received for ${col.name}! Action: ${e.action}`, e.record?.id);
+
                 if (e.action === 'create') {
                     console.log(`Incoming realtime event from [${col.name}]: Create`);
 
                     if (col.name === 'messages') {
                         // Custom logic for chat messages
                         const message = e.record;
-                        // Skip if sent by admin (us)
-                        if (message.sender === pb.authStore.model.id) return;
 
                         try {
-                            // Expand sender to get name
+                            // Expand sender to get name and details
                             const expanded = await pb.collection('messages').getOne(message.id, {
                                 expand: 'sender'
                             });
-                            const senderName = expanded.expand?.sender?.name || expanded.expand?.sender?.username || 'Someone';
-                            const body = message.content === '[Attachment]' ? 'Sent an image' : message.content;
+
+                            const senderData = expanded.expand?.sender || {};
+
+                            // Prevent spam: if the sender's email equals the Admin Email, don't send notification!
+                            if (senderData.email === ADMIN_EMAIL || senderData.role === 'admin' || senderData.is_admin) {
+                                return;
+                            }
+
+                            const senderName = senderData.name || senderData.username || 'Seseorang';
+                            const body = message.content === '[Attachment]' ? 'Mengirim gambar 📷' : message.content;
 
                             sendPushNotification(`New message from ${senderName}`, body);
                         } catch (err) {
                             console.error("Error expanding message sender:", err);
-                            sendPushNotification("New Message Received", "Click to view");
                         }
                     } else {
                         // Standard generic notification

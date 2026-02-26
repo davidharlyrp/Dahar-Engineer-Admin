@@ -58,5 +58,3 @@ onRecordAfterCreateSuccess((e) => {
         console.error("Failed to process n8n webhook payload:", error);
     }
 }, "messages");
-
-conversation.user.id = @request.auth.id || @request.auth.isAdmin = true || @request.auth.collectionName = '_superusers' || sender = @request.auth.id
