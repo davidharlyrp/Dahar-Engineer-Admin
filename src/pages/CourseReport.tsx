@@ -583,7 +583,7 @@ export function CourseReport() {
                                     )}
                                 </div>
                             </div>
-                            <div className="h-[400px] w-full">
+                            <div className="h-[450px] w-full py-12">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <AreaChart data={timeData}>
                                         <defs>

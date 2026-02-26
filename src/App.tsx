@@ -5,6 +5,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { Users } from "./pages/Users";
 import { Courses } from "./pages/Courses";
 import { Files } from "./pages/Files";
+import { CourseMonitor } from "./pages/CourseMonitor";
 import { Portfolio } from "./pages/Portfolio";
 import { Products } from "./pages/Products";
 import { RevitFiles } from "./pages/RevitFiles";
@@ -27,6 +28,7 @@ import { Bibliography } from "./pages/Bibliography";
 import { Documentation } from "./pages/Documentation";
 import { SecondBrain } from "./pages/SecondBrain";
 import { GeotechVisualizer } from "./pages/GeotechVisualizer";
+import { BlogMonitor } from "./pages/BlogMonitor";
 
 // Temporary placeholder components for routes
 
@@ -41,6 +43,7 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path="users" element={<Users />} />
+            <Route path="course-monitor" element={<CourseMonitor />} />
             <Route path="courses" element={<Courses />} />
             <Route path="files" element={<Files />} />
             <Route path="portfolio" element={<Portfolio />} />
@@ -63,6 +66,7 @@ function App() {
             <Route path="documentation" element={<Documentation />} />
             <Route path="second-brain" element={<SecondBrain />} />
             <Route path="geotech-visualizer" element={<GeotechVisualizer />} />
+            <Route path="blog-monitor" element={<BlogMonitor />} />
             <Route path="settings" element={<Settings />} />
           </Route>
         </Route>

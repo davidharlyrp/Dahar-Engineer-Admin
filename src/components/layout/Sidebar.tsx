@@ -23,6 +23,8 @@ import {
     FileCode2,
     Brain,
     Network,
+    LayoutGrid,
+    Layout,
     Layers
 } from "lucide-react";
 
@@ -37,7 +39,9 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     const navItems = [
         { label: "Dashboard", href: "/", icon: LayoutDashboard },
         { label: "User Management", href: "/users", icon: Users },
+        { label: "Course Monitor", href: "/course-monitor", icon: LayoutGrid },
         { label: "Course Booking", href: "/courses", icon: BookOpen },
+        { label: "Blog Monitor", href: "/blog-monitor", icon: Layout },
         { label: "Course Report", href: "/course-report", icon: BarChart3 },
         { label: "Cashflow", href: "/cashflow", icon: Wallet },
         { label: "Cashflow Report", href: "/cashflow-report", icon: BarChart3 },

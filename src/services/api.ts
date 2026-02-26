@@ -80,6 +80,35 @@ export interface BookingRecord {
     updated: string;
 }
 
+export interface CourseListRecord {
+    id: string;
+    title: string;
+    description: string;
+    duration: string;
+    price: number;
+    image: string;
+    tag: string;
+    serviceType: "Course" | "Consultation";
+    isActive: boolean;
+    created: string;
+    updated: string;
+}
+
+export interface MentorRecord {
+    id: string;
+    name: string;
+    specialization: string;
+    email: string;
+    image: string;
+    isActive: boolean;
+    tags: string[];
+    expand?: {
+        tags: CourseListRecord[];
+    };
+    created: string;
+    updated: string;
+}
+
 export interface CashflowItemRecord {
     id: string;
     date: string;
@@ -311,6 +340,43 @@ export interface SessionReviewRecord {
     updated: string;
 }
 
+export interface BlogRecord {
+    id: string;
+    page_name: string;
+    title: string;
+    excerpt: string;
+    content: string; // HTML stored from editor
+    author: string;
+    author_title: string;
+    published_date: string;
+    read_time: string;
+    category: string;
+    tags_keyword: string;
+    is_active: boolean;
+    images: string[];
+    view_count: number;
+    like_count: number;
+    collectionId: string;
+    collectionName: string;
+    created: string;
+    updated: string;
+}
+
+export interface BlogCommentRecord {
+    id: string;
+    user_id: string;
+    blog_id: string;
+    parent: string;
+    content: string;
+    like: number;
+    created: string;
+    updated: string;
+    expand?: {
+        user_id?: UserRecord;
+        blog_id?: BlogRecord;
+    };
+}
+
 export const UserService = {
     /**
      * Fetch paginated users from the PocketBase collection
@@ -468,6 +534,96 @@ export const CourseService = {
             console.error(`CourseService: Error updating booking ${id}:`, error);
             throw error;
         }
+    }
+};
+
+export const CourseMonitorService = {
+    async getCourses(page = 1, perPage = 20, sort = "-created", filter = ""): Promise<ListResult<CourseListRecord>> {
+        try {
+            return await pb.collection("course_list").getList<CourseListRecord>(page, perPage, { sort, filter });
+        } catch (error) {
+            console.error("CourseMonitorService: Error fetching courses:", error);
+            throw error;
+        }
+    },
+
+    async createCourse(data: Partial<CourseListRecord> | FormData): Promise<CourseListRecord> {
+        try {
+            return await pb.collection("course_list").create<CourseListRecord>(data);
+        } catch (error) {
+            console.error("CourseMonitorService: Error creating course:", error);
+            throw error;
+        }
+    },
+
+    async updateCourse(id: string, data: Partial<CourseListRecord> | FormData): Promise<CourseListRecord> {
+        try {
+            return await pb.collection("course_list").update<CourseListRecord>(id, data);
+        } catch (error) {
+            console.error(`CourseMonitorService: Error updating course ${id}:`, error);
+            throw error;
+        }
+    },
+
+    async deleteCourse(id: string): Promise<boolean> {
+        try {
+            await pb.collection("course_list").delete(id);
+            return true;
+        } catch (error) {
+            console.error(`CourseMonitorService: Error deleting course ${id}:`, error);
+            throw error;
+        }
+    },
+
+    getFileUrl(record: CourseListRecord, filename: string, thumb = ""): string {
+        return pb.files.getUrl(record, filename, { thumb });
+    }
+};
+
+export const MentorService = {
+    async getMentors(page = 1, perPage = 20, sort = "-created", filter = ""): Promise<ListResult<MentorRecord>> {
+        try {
+            return await pb.collection("mentor").getList<MentorRecord>(page, perPage, {
+                sort,
+                filter,
+                expand: "tags"
+            });
+        } catch (error) {
+            console.error("MentorService: Error fetching mentors:", error);
+            throw error;
+        }
+    },
+
+    async createMentor(data: Partial<MentorRecord> | FormData): Promise<MentorRecord> {
+        try {
+            return await pb.collection("mentor").create<MentorRecord>(data);
+        } catch (error) {
+            console.error("MentorService: Error creating mentor:", error);
+            throw error;
+        }
+    },
+
+    async updateMentor(id: string, data: Partial<MentorRecord> | FormData): Promise<MentorRecord> {
+        try {
+            return await pb.collection("mentor").update<MentorRecord>(id, data);
+        } catch (error) {
+            console.error(`MentorService: Error updating mentor ${id}:`, error);
+            throw error;
+        }
+    },
+
+    async deleteMentor(id: string): Promise<boolean> {
+        try {
+            await pb.collection("mentor").delete(id);
+            return true;
+        } catch (error) {
+            console.error(`MentorService: Error deleting mentor ${id}:`, error);
+            throw error;
+        }
+    },
+
+    getFileUrl(record: MentorRecord, filename: string, thumb = ""): string {
+        return pb.files.getUrl(record, filename, { thumb });
     }
 };
 
@@ -672,6 +828,71 @@ export const FileService = {
 
     getFileUrl(record: RequestedFileItemRecord, filename: string): string {
         return pb.files.getUrl(record, filename);
+    }
+};
+
+export const BlogService = {
+    async getBlogs(page = 1, perPage = 20, sort = "-created", filter = ""): Promise<ListResult<BlogRecord>> {
+        try {
+            return await pb.collection("dahar_blog").getList<BlogRecord>(page, perPage, { sort, filter });
+        } catch (error) {
+            console.error("BlogService: Error fetching blogs:", error);
+            throw error;
+        }
+    },
+
+    async createBlog(data: Partial<BlogRecord> | FormData): Promise<BlogRecord> {
+        try {
+            return await pb.collection("dahar_blog").create<BlogRecord>(data);
+        } catch (error) {
+            console.error("BlogService: Error creating blog:", error);
+            throw error;
+        }
+    },
+
+    async updateBlog(id: string, data: Partial<BlogRecord> | FormData): Promise<BlogRecord> {
+        try {
+            const record = await pb.collection("dahar_blog").update<BlogRecord>(id, data);
+            return record;
+        } catch (error) {
+            console.error(`BlogService: Error updating blog ${id}:`, error);
+            throw error;
+        }
+    },
+
+    async deleteBlog(id: string): Promise<boolean> {
+        try {
+            await pb.collection("dahar_blog").delete(id);
+            return true;
+        } catch (error) {
+            console.error(`BlogService: Error deleting blog ${id}:`, error);
+            throw error;
+        }
+    },
+
+    getFileUrl(record: BlogRecord, filename: string, thumb = ""): string {
+        return pb.files.getUrl(record, filename, { thumb });
+    }
+};
+
+export const BlogCommentService = {
+    async getComments(page = 1, perPage = 50, sort = "-created", filter = "", expand = "user_id,blog_id"): Promise<ListResult<BlogCommentRecord>> {
+        try {
+            return await pb.collection("dahar_blog_comment").getList<BlogCommentRecord>(page, perPage, { sort, filter, expand });
+        } catch (error) {
+            console.error("BlogCommentService: Error fetching comments:", error);
+            throw error;
+        }
+    },
+
+    async deleteComment(id: string): Promise<boolean> {
+        try {
+            await pb.collection("dahar_blog_comment").delete(id);
+            return true;
+        } catch (error) {
+            console.error(`BlogCommentService: Error deleting comment ${id}:`, error);
+            throw error;
+        }
     }
 };
 

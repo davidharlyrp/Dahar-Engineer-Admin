@@ -32,7 +32,7 @@ export function Courses() {
         setIsLoading(true);
         try {
             const filterString = search ? `(course_title ~ "${search}" || full_name ~ "${search}")` : "";
-            const result = await CourseService.getBookings(page, perPage, "-created", filterString);
+            const result = await CourseService.getBookings(page, perPage, "-session_date", filterString);
             setBookings(result.items);
             setTotalPages(result.totalPages);
         } catch (error) {
