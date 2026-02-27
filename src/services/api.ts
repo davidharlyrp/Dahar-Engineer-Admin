@@ -408,6 +408,43 @@ export interface MessageRecord {
     };
 }
 
+export interface DELinkRecord {
+    id: string;
+    user_id: string;
+    content: string;
+    read: boolean;
+    attachment: string[]; // collection schema says maxSelect 4
+    parents: string;
+    is_edited: boolean;
+    edited_date: string;
+    hashtag: string;
+    likes: string[];
+    is_takedown: boolean;
+    created: string;
+    updated: string;
+    expand?: {
+        user_id?: UserRecord;
+        parents?: DELinkRecord;
+    };
+}
+
+export interface DELinkUserRecord {
+    id: string;
+    user_id: string; // Relation to _pb_users_auth_
+    connections: string[]; // Relation to _pb_users_auth_
+    is_active: boolean;
+    role: string;
+    description: string;
+    display_name: string;
+    institution: string;
+    created: string;
+    updated: string;
+    expand?: {
+        user_id?: UserRecord;
+        connections?: UserRecord[];
+    };
+}
+
 export const UserService = {
     /**
      * Fetch paginated users from the PocketBase collection
@@ -1675,5 +1712,122 @@ export const ChatService = {
             console.error(`ChatService: Error fetching latest message for ${conversationId}:`, error);
             return null;
         }
+    }
+};
+
+export const DELinkService = {
+    /**
+     * Fetch posts (supports search and pagination)
+     */
+    async getPosts(page = 1, perPage = 20, filter = "", sort = "-created"): Promise<ListResult<DELinkRecord>> {
+        try {
+            return await pb.collection("delink").getList<DELinkRecord>(page, perPage, {
+                filter: filter,
+                sort: sort,
+                expand: "user_id",
+            });
+        } catch (error) {
+            console.error("DELinkService: Error fetching posts:", error);
+            throw error;
+        }
+    },
+
+    /**
+     * Update a post's content and other fields
+     */
+    async updatePost(id: string, data: Partial<DELinkRecord>): Promise<DELinkRecord> {
+        try {
+            return await pb.collection("delink").update<DELinkRecord>(id, data);
+        } catch (error) {
+            console.error(`DELinkService: Error updating post ${id}:`, error);
+            throw error;
+        }
+    },
+
+    /**
+     * Get reply count for a specific post
+     */
+    async getReplyCount(postId: string): Promise<number> {
+        try {
+            const result = await pb.collection("delink").getList(1, 1, {
+                filter: `parents = "${postId}"`,
+                fields: "id",
+            });
+            return result.totalItems;
+        } catch (error) {
+            console.error(`DELinkService: Error getting reply count for ${postId}:`, error);
+            return 0;
+        }
+    },
+
+    /**
+     * Fetch DELink users (supports search and pagination)
+     */
+    async getDELinkUsers(page = 1, perPage = 20, filter = "", sort = "-created"): Promise<ListResult<DELinkUserRecord>> {
+        try {
+            return await pb.collection("delink_users").getList<DELinkUserRecord>(page, perPage, {
+                filter: filter,
+                sort: sort,
+                expand: "user_id",
+            });
+        } catch (error) {
+            console.error("DELinkService: Error fetching DELink users:", error);
+            throw error;
+        }
+    },
+
+    /**
+     * Get supports count (who connects to this user)
+     */
+    async getSupportCount(userId: string): Promise<number> {
+        try {
+            const result = await pb.collection("delink_users").getList(1, 1, {
+                filter: `connections ~ "${userId}"`,
+                fields: "id",
+            });
+            return result.totalItems;
+        } catch (error) {
+            console.error(`DELinkService: Error getting support count for ${userId}:`, error);
+            return 0;
+        }
+    },
+
+    /**
+     * Get total posts count for a user
+     */
+    async getUserPostCount(userId: string): Promise<number> {
+        try {
+            const result = await pb.collection("delink").getList(1, 1, {
+                filter: `user_id = "${userId}"`,
+                fields: "id",
+            });
+            return result.totalItems;
+        } catch (error) {
+            console.error(`DELinkService: Error getting post count for ${userId}:`, error);
+            return 0;
+        }
+    },
+
+    /**
+     * Get total likes received by a user across all nodes
+     */
+    async getUserTotalLikes(userId: string): Promise<number> {
+        try {
+            const result = await pb.collection("delink").getFullList<DELinkRecord>({
+                filter: `user_id = "${userId}" && is_takedown = false`,
+                fields: "likes",
+            });
+            return result.reduce((acc, post) => acc + (post.likes?.length || 0), 0);
+        } catch (error) {
+            console.error(`DELinkService: Error getting total likes for ${userId}:`, error);
+            return 0;
+        }
+    },
+
+    /**
+     * Helper to get file URLs for attachments
+     */
+    getFileUrl(record: DELinkRecord, filename: string, thumb = ""): string {
+        return pb.files.getURL(record, filename, { thumb });
     }
 };
