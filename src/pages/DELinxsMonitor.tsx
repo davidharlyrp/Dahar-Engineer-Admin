@@ -407,7 +407,7 @@ function DELinxsContentTab({ perPage }: { perPage: number }) {
                         </thead>
                         <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
                             {posts.map(post => {
-                                const publicUrl = `https://delink.daharengineer.com/${post.id}`;
+                                const publicUrl = `https://delinxs.com/${post.id}`;
                                 const isTakedown = post.is_takedown;
 
                                 return (
