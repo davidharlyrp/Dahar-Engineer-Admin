@@ -47,7 +47,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         { label: "Course Monitor", href: "/course-monitor", icon: LayoutGrid },
         { label: "Course Booking", href: "/courses", icon: BookOpen },
         { label: "Blog Monitor", href: "/blog-monitor", icon: Layout },
-        { label: "DELink Monitor", href: "/delink-monitor", icon: Share2 },
+        { label: "DELinxs Monitor", href: "/delinxs-monitor", icon: Share2 },
         { label: "Course Report", href: "/course-report", icon: BarChart3 },
         { label: "Cashflow", href: "/cashflow", icon: Wallet },
         { label: "Cashflow Report", href: "/cashflow-report", icon: BarChart3 },

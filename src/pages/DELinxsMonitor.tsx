@@ -15,13 +15,13 @@ import {
     RefreshCw,
     RotateCcw
 } from "lucide-react";
-import { DELinkService, UserService, type DELinkRecord, type DELinkUserRecord } from "../services/api";
+import { DELinxsService, UserService, type DELinkRecord, type DELinkUserRecord } from "../services/api";
 import { useAdminSettings } from "../hooks/useAdminSettings";
 import { cn } from "../lib/utils";
 
 type TabType = "analytics" | "users" | "content";
 
-export function DELinkMonitor() {
+export function DELinxsMonitor() {
     const [activeTab, setActiveTab] = useState<TabType>("analytics");
     const { perPage } = useAdminSettings();
 
@@ -33,7 +33,7 @@ export function DELinkMonitor() {
                 </div>
                 <div className="flex gap-2">
                     <a
-                        href="https://delink.daharengineer.com"
+                        href="https://delinxs.com"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shadow-sm active:scale-95"
@@ -85,16 +85,16 @@ export function DELinkMonitor() {
                 </div>
 
                 <div className="p-6 flex-1">
-                    {activeTab === "analytics" && <DELinkAnalyticsTab />}
-                    {activeTab === "users" && <DELinkUsersTab perPage={perPage} />}
-                    {activeTab === "content" && <DELinkContentTab perPage={perPage} />}
+                    {activeTab === "analytics" && <DELinxsAnalyticsTab />}
+                    {activeTab === "users" && <DELinxsUsersTab perPage={perPage} />}
+                    {activeTab === "content" && <DELinxsContentTab perPage={perPage} />}
                 </div>
             </div>
         </div>
     );
 }
 
-function DELinkAnalyticsTab() {
+function DELinxsAnalyticsTab() {
     const [stats, setStats] = useState({ totalPosts: 0, totalUsers: 0, totalLikes: 0 });
     const [isLoading, setIsLoading] = useState(true);
 
@@ -102,8 +102,8 @@ function DELinkAnalyticsTab() {
         setIsLoading(true);
         try {
             // In actual production, these would be calls to aggregate endpoints or filtered counts
-            const posts = await DELinkService.getPosts(1, 1);
-            const users = await DELinkService.getDELinkUsers(1, 1);
+            const posts = await DELinxsService.getPosts(1, 1);
+            const users = await DELinxsService.getDELinxsUsers(1, 1);
 
             setStats({
                 totalPosts: posts.totalItems,
@@ -178,7 +178,7 @@ function DELinkAnalyticsTab() {
     );
 }
 
-function DELinkUsersTab({ perPage }: { perPage: number }) {
+function DELinxsUsersTab({ perPage }: { perPage: number }) {
     const [users, setUsers] = useState<DELinkUserRecord[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -189,11 +189,11 @@ function DELinkUsersTab({ perPage }: { perPage: number }) {
         setIsLoading(true);
         try {
             const filter = searchTerm ? `display_name ~ "${searchTerm}" || institution ~ "${searchTerm}" || role ~ "${searchTerm}"` : "";
-            const result = await DELinkService.getDELinkUsers(page, perPage, filter);
+            const result = await DELinxsService.getDELinxsUsers(page, perPage, filter);
             setUsers(result.items);
             setTotalPages(result.totalPages);
         } catch (error) {
-            console.error("Failed to fetch DELink users:", error);
+            console.error("Failed to fetch DELinxs users:", error);
         } finally {
             setIsLoading(false);
         }
@@ -312,7 +312,7 @@ function DELinkUsersTab({ perPage }: { perPage: number }) {
     );
 }
 
-function DELinkContentTab({ perPage }: { perPage: number }) {
+function DELinxsContentTab({ perPage }: { perPage: number }) {
     const [posts, setPosts] = useState<DELinkRecord[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -324,11 +324,11 @@ function DELinkContentTab({ perPage }: { perPage: number }) {
         setIsLoading(true);
         try {
             const filter = searchTerm ? `content ~ "${searchTerm}" || hashtag ~ "${searchTerm}"` : "";
-            const result = await DELinkService.getPosts(page, perPage, filter);
+            const result = await DELinxsService.getPosts(page, perPage, filter);
             setPosts(result.items);
             setTotalPages(result.totalPages);
         } catch (error) {
-            console.error("Failed to fetch DELink posts:", error);
+            console.error("Failed to fetch DELinxs posts:", error);
         } finally {
             setIsLoading(false);
         }
@@ -347,7 +347,7 @@ function DELinkContentTab({ perPage }: { perPage: number }) {
 
         setIsUpdating(post.id);
         try {
-            await DELinkService.updatePost(post.id, {
+            await DELinxsService.updatePost(post.id, {
                 is_takedown: !isRestoring,
                 is_edited: true,
                 edited_date: new Date().toISOString()
@@ -448,7 +448,7 @@ function DELinkContentTab({ perPage }: { perPage: number }) {
                                             {post.attachment && post.attachment.length > 0 ? (
                                                 <div className="inline-flex relative">
                                                     <img
-                                                        src={DELinkService.getFileUrl(post, post.attachment[0], "100x100") || undefined}
+                                                        src={DELinxsService.getFileUrl(post, post.attachment[0], "100x100") || undefined}
                                                         className="w-8 h-8 rounded object-cover border border-slate-200 dark:border-slate-700"
                                                     />
                                                     {post.attachment.length > 1 && (
@@ -532,7 +532,7 @@ function DELinkContentTab({ perPage }: { perPage: number }) {
 function SupportCounter({ userId }: { userId: string }) {
     const [count, setCount] = useState<number | null>(null);
     useEffect(() => {
-        DELinkService.getSupportCount(userId).then(setCount);
+        DELinxsService.getSupportCount(userId).then(setCount);
     }, [userId]);
     return <span>{count ?? "..."}</span>;
 }
@@ -540,7 +540,7 @@ function SupportCounter({ userId }: { userId: string }) {
 function UserPostCounter({ userId }: { userId: string }) {
     const [count, setCount] = useState<number | null>(null);
     useEffect(() => {
-        DELinkService.getUserPostCount(userId).then(setCount);
+        DELinxsService.getUserPostCount(userId).then(setCount);
     }, [userId]);
     return <span>{count ?? "..."}</span>;
 }
@@ -548,7 +548,7 @@ function UserPostCounter({ userId }: { userId: string }) {
 function UserLikeCounter({ userId }: { userId: string }) {
     const [count, setCount] = useState<number | null>(null);
     useEffect(() => {
-        DELinkService.getUserTotalLikes(userId).then(setCount);
+        DELinxsService.getUserTotalLikes(userId).then(setCount);
     }, [userId]);
     return <span>{count ?? "..."}</span>;
 }
@@ -556,7 +556,7 @@ function UserLikeCounter({ userId }: { userId: string }) {
 function ReplyCounter({ postId }: { postId: string }) {
     const [count, setCount] = useState<number | null>(null);
     useEffect(() => {
-        DELinkService.getReplyCount(postId).then(setCount);
+        DELinxsService.getReplyCount(postId).then(setCount);
     }, [postId]);
     return <><MessageCircle className="w-3 h-3" /> {count ?? "..."}</>;
 }

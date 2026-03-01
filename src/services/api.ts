@@ -1715,13 +1715,13 @@ export const ChatService = {
     }
 };
 
-export const DELinkService = {
+export const DELinxsService = {
     /**
      * Fetch posts (supports search and pagination)
      */
     async getPosts(page = 1, perPage = 20, filter = "", sort = "-created"): Promise<ListResult<DELinkRecord>> {
         try {
-            return await pb.collection("delink").getList<DELinkRecord>(page, perPage, {
+            return await pb.collection("delinxs").getList<DELinkRecord>(page, perPage, {
                 filter: filter,
                 sort: sort,
                 expand: "user_id",
@@ -1737,7 +1737,7 @@ export const DELinkService = {
      */
     async updatePost(id: string, data: Partial<DELinkRecord>): Promise<DELinkRecord> {
         try {
-            return await pb.collection("delink").update<DELinkRecord>(id, data);
+            return await pb.collection("delinxs").update<DELinkRecord>(id, data);
         } catch (error) {
             console.error(`DELinkService: Error updating post ${id}:`, error);
             throw error;
@@ -1749,7 +1749,7 @@ export const DELinkService = {
      */
     async getReplyCount(postId: string): Promise<number> {
         try {
-            const result = await pb.collection("delink").getList(1, 1, {
+            const result = await pb.collection("delinxs").getList(1, 1, {
                 filter: `parents = "${postId}"`,
                 fields: "id",
             });
@@ -1761,17 +1761,17 @@ export const DELinkService = {
     },
 
     /**
-     * Fetch DELink users (supports search and pagination)
+     * Fetch DELinxs users (supports search and pagination)
      */
-    async getDELinkUsers(page = 1, perPage = 20, filter = "", sort = "-created"): Promise<ListResult<DELinkUserRecord>> {
+    async getDELinxsUsers(page = 1, perPage = 20, filter = "", sort = "-created"): Promise<ListResult<DELinkUserRecord>> {
         try {
-            return await pb.collection("delink_users").getList<DELinkUserRecord>(page, perPage, {
+            return await pb.collection("delinxs_users").getList<DELinkUserRecord>(page, perPage, {
                 filter: filter,
                 sort: sort,
                 expand: "user_id",
             });
         } catch (error) {
-            console.error("DELinkService: Error fetching DELink users:", error);
+            console.error("DELinkService: Error fetching DELinxs users:", error);
             throw error;
         }
     },
@@ -1781,7 +1781,7 @@ export const DELinkService = {
      */
     async getSupportCount(userId: string): Promise<number> {
         try {
-            const result = await pb.collection("delink_users").getList(1, 1, {
+            const result = await pb.collection("delinxs_users").getList(1, 1, {
                 filter: `connections ~ "${userId}"`,
                 fields: "id",
             });
@@ -1797,7 +1797,7 @@ export const DELinkService = {
      */
     async getUserPostCount(userId: string): Promise<number> {
         try {
-            const result = await pb.collection("delink").getList(1, 1, {
+            const result = await pb.collection("delinxs").getList(1, 1, {
                 filter: `user_id = "${userId}"`,
                 fields: "id",
             });
@@ -1813,7 +1813,7 @@ export const DELinkService = {
      */
     async getUserTotalLikes(userId: string): Promise<number> {
         try {
-            const result = await pb.collection("delink").getFullList<DELinkRecord>({
+            const result = await pb.collection("delinxs").getFullList<DELinkRecord>({
                 filter: `user_id = "${userId}" && is_takedown = false`,
                 fields: "likes",
             });

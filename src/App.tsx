@@ -29,7 +29,7 @@ import { Documentation } from "./pages/Documentation";
 import { SecondBrain } from "./pages/SecondBrain";
 import { GeotechVisualizer } from "./pages/GeotechVisualizer";
 import { BlogMonitor } from "./pages/BlogMonitor";
-import { DELinkMonitor } from "./pages/DELinkMonitor";
+import { DELinxsMonitor } from "./pages/DELinxsMonitor";
 import { Chat } from "./pages/Chat";
 import { ChatProvider } from "./contexts/ChatContext";
 
@@ -74,7 +74,7 @@ function App() {
             <Route path="second-brain" element={<SecondBrain />} />
             <Route path="geotech-visualizer" element={<GeotechVisualizer />} />
             <Route path="blog-monitor" element={<BlogMonitor />} />
-            <Route path="delink-monitor" element={<DELinkMonitor />} />
+            <Route path="delinxs-monitor" element={<DELinxsMonitor />} />
             <Route path="chat" element={<Chat />} />
             <Route path="settings" element={<Settings />} />
           </Route>
