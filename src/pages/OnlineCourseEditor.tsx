@@ -27,7 +27,7 @@ import { TableHeader } from "@tiptap/extension-table-header";
 import { Mathematics } from "../components/blog/MathematicsExtension";
 import { Video } from "../components/course/VideoExtension";
 import { FileAttachmentExtension } from "../components/course/FileAttachmentExtension";
-import { OnlineCourseService, type OnlineCourseRecord, type OnlineCourseModuleRecord, type OnlineCourseStepRecord } from "../services/api";
+import { OnlineCourseService, MentorService, type OnlineCourseRecord, type OnlineCourseModuleRecord, type OnlineCourseStepRecord, type MentorRecord } from "../services/api";
 import { cn } from "../lib/utils";
 import 'katex/dist/katex.min.css';
 
@@ -48,6 +48,7 @@ export function OnlineCourseEditor() {
     const [selectedLevel, setSelectedLevel] = useState<EditorMode>("course");
     const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
     const [selectedStepId, setSelectedStepId] = useState<string | null>(null);
+    const [mentors, setMentors] = useState<MentorRecord[]>([]);
 
     // Form State (Dynamic based on selection)
     const [formData, setFormData] = useState<any>({});
@@ -91,6 +92,19 @@ export function OnlineCourseEditor() {
             setLoading(false);
         }
     };
+
+    const fetchMentors = async () => {
+        try {
+            const result = await MentorService.getMentors(1, 100, "name");
+            setMentors(result.items);
+        } catch (error) {
+            console.error("Error fetching mentors:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchMentors();
+    }, []);
 
     // Tiptap Editor Setup
     const editor = useEditor({
@@ -381,20 +395,27 @@ export function OnlineCourseEditor() {
         setSaving(true);
         try {
             if (selectedLevel === "course" && course) {
-                // Whitelist only valid course fields
-                const payload: Record<string, any> = {};
-                if (formData.title !== undefined) payload.title = formData.title;
-                if (formData.description !== undefined) payload.description = formData.description;
-                if (formData.features !== undefined) payload.features = formData.features;
-                if (formData.deliverables !== undefined) payload.deliverables = formData.deliverables;
-                if (formData.thumbnail !== undefined) payload.thumbnail = formData.thumbnail;
-                if (formData.status !== undefined) payload.status = formData.status;
-                if (formData.price !== undefined) payload.price = formData.price;
-                if (formData.discountPrice !== undefined) payload.discountPrice = formData.discountPrice;
-                if (formData.duration !== undefined) payload.duration = formData.duration;
-                if (formData.category !== undefined) payload.category = formData.category;
-                const updatedCourse = await OnlineCourseService.updateOnlineCourse(course.id, payload);
+                const formDataToUpload = new FormData();
+                if (formData.title !== undefined) formDataToUpload.append("title", formData.title);
+                if (formData.description !== undefined) formDataToUpload.append("description", formData.description);
+                if (formData.features !== undefined) formDataToUpload.append("features", formData.features);
+                if (formData.deliverables !== undefined) formDataToUpload.append("deliverables", formData.deliverables);
+                if (formData.status !== undefined) formDataToUpload.append("status", formData.status);
+                if (formData.price !== undefined && !isNaN(formData.price)) formDataToUpload.append("price", String(formData.price));
+                if (formData.discountPrice !== undefined && !isNaN(formData.discountPrice)) formDataToUpload.append("discountPrice", String(formData.discountPrice));
+                if (formData.duration !== undefined) formDataToUpload.append("duration", formData.duration);
+                if (formData.category !== undefined) formDataToUpload.append("category", formData.category);
+                if (formData.instructor !== undefined) formDataToUpload.append("instructor", formData.instructor);
+                if (formData.level !== undefined) formDataToUpload.append("level", formData.level);
+
+                // Handle Thumbnail File
+                if (formData.thumbnail instanceof File) {
+                    formDataToUpload.append("thumbnail", formData.thumbnail);
+                }
+
+                const updatedCourse = await OnlineCourseService.updateOnlineCourse(course.id, formDataToUpload);
                 setCourse(updatedCourse);
+                setFormData(updatedCourse);
             } else if (selectedLevel === "module" && selectedModuleId) {
                 // Whitelist only valid module fields
                 const payload: Record<string, any> = {};
@@ -961,17 +982,17 @@ export function OnlineCourseEditor() {
                                                     <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Price (IDR)</label>
                                                     <input
                                                         type="number"
-                                                        value={formData?.price || 0}
-                                                        onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) })}
+                                                        value={formData?.price ?? 0}
+                                                        onChange={(e) => setFormData({ ...formData, price: e.target.value === "" ? 0 : parseInt(e.target.value) })}
                                                         className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md text-sm font-semibold outline-none"
                                                     />
                                                 </div>
                                                 <div className="space-y-1">
-                                                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Discount (IDR)</label>
+                                                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Discount Price (IDR)</label>
                                                     <input
                                                         type="number"
-                                                        value={formData?.discountPrice || 0}
-                                                        onChange={(e) => setFormData({ ...formData, discountPrice: parseInt(e.target.value) })}
+                                                        value={formData?.discountPrice ?? 0}
+                                                        onChange={(e) => setFormData({ ...formData, discountPrice: e.target.value === "" ? 0 : parseInt(e.target.value) })}
                                                         className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md text-sm font-semibold outline-none"
                                                     />
                                                 </div>
@@ -985,6 +1006,57 @@ export function OnlineCourseEditor() {
                                                         className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md text-sm font-semibold outline-none"
                                                     />
                                                 </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Instructor</label>
+                                                    <select
+                                                        value={formData?.instructor || ""}
+                                                        onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
+                                                        className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md text-sm font-semibold outline-none"
+                                                    >
+                                                        <option value="">Select Instructor</option>
+                                                        {mentors.map(mentor => (
+                                                            <option key={mentor.id} value={mentor.id}>{mentor.name}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest block">Thumbnail</label>
+                                                <div className="flex items-start gap-4">
+                                                    <div className="w-40 h-24 bg-slate-100 dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 overflow-hidden flex items-center justify-center shrink-0">
+                                                        {formData.thumbnail ? (
+                                                            <img
+                                                                src={formData.thumbnail instanceof File ? URL.createObjectURL(formData.thumbnail) : OnlineCourseService.getFileUrl(course, formData.thumbnail)}
+                                                                alt="Thumbnail Preview"
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        ) : (
+                                                            <ImageIcon className="w-8 h-8 text-slate-300" />
+                                                        )}
+                                                    </div>
+                                                    <div className="flex-1 space-y-2">
+                                                        <p className="text-[10px] text-slate-500">Recommended size: 1280x720px.</p>
+                                                        <button
+                                                            onClick={() => {
+                                                                const input = document.createElement('input');
+                                                                input.type = 'file';
+                                                                input.accept = 'image/*';
+                                                                input.onchange = (e: any) => {
+                                                                    const file = e.target.files?.[0];
+                                                                    if (file) {
+                                                                        setFormData({ ...formData, thumbnail: file });
+                                                                    }
+                                                                };
+                                                                input.click();
+                                                            }}
+                                                            className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-[11px] font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+                                                        >
+                                                            <Upload className="w-3.5 h-3.5" />
+                                                            {formData.thumbnail ? "Change Image" : "Upload Image"}
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div className="space-y-1">
                                                 <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Description</label>
@@ -992,7 +1064,7 @@ export function OnlineCourseEditor() {
                                                     rows={4}
                                                     value={formData?.description || ""}
                                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                                    className="w-full px-3 h-60 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md text-sm font-semibold focus:ring-1 focus:ring-slate-400 transition-all outline-none resize-none"
+                                                    className="w-full px-3 h-32 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md text-sm font-semibold focus:ring-1 focus:ring-slate-400 transition-all outline-none resize-none"
                                                 />
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
