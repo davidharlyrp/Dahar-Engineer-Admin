@@ -1,0 +1,8 @@
+
+> frontend@0.0.0 build
+> tsc -b && vite build
+
+src/pages/OnlineCourseEditor.tsx(11,31): error TS6133: 'Download' is declared but its value is never read.
+src/pages/OnlineCourseEditor.tsx(11,41): error TS6133: 'Copy' is declared but its value is never read.
+src/pages/OnlineCourseEditor.tsx(154,37): error TS6133: 'slice' is declared but its value is never read.
+src/pages/OnlineCourseEditor.tsx(154,44): error TS6133: 'moved' is declared but its value is never read.

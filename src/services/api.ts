@@ -110,6 +110,93 @@ export interface MentorRecord {
     updated: string;
 }
 
+export interface OnlineCourseRecord {
+    id: string;
+    title: string;
+    slug: string;
+    thumbnail: string;
+    instructor: string;
+    duration: string;
+    level: "beginner" | "intermediate" | "advanced";
+    totalModules: number;
+    totalSteps: number;
+    price: number;
+    description: string;
+    features: string;
+    deliverables: string;
+    isActive: boolean;
+    discountPrice: number;
+    isNew: boolean;
+    created: string;
+    updated: string;
+    expand?: {
+        instructor?: MentorRecord;
+    };
+}
+
+export interface OnlineCourseModuleRecord {
+    id: string;
+    courseId: string;
+    title: string;
+    description: string;
+    order: number;
+    created: string;
+    updated: string;
+}
+
+export interface OnlineCourseStepRecord {
+    id: string;
+    moduleId: string;
+    title: string;
+    content: string;
+    type: "video" | "text" | "quiz";
+    files?: string[];
+    order: number;
+    created: string;
+    updated: string;
+}
+
+export interface OnlineCourseAccessRecord {
+    id: string;
+    user_id: string;
+    online_course_id: string;
+    payment_status: string;
+    course_name: string;
+    access_granted_at: string;
+    payment_amount: number;
+    payment_currency: string;
+    xendit_payment_id: string;
+    external_id: string;
+    created: string;
+    updated: string;
+    expand?: {
+        user_id?: UserRecord;
+        online_course_id?: OnlineCourseRecord;
+    };
+}
+
+export interface OnlineCourseProgressRecord {
+    id: string;
+    userId: string;
+    courseId: string;
+    certificateId: string;
+    certificate: string;
+    completedSteps: string[];
+    completedModules: string[];
+    currentStepId: string;
+    startedAt: string;
+    completedAt: string;
+    created: string;
+    updated: string;
+    expand?: {
+        userId?: UserRecord;
+        courseId?: OnlineCourseRecord;
+        completedSteps?: OnlineCourseStepRecord[];
+        completedModules?: OnlineCourseModuleRecord[];
+        currentStepId?: OnlineCourseStepRecord;
+    };
+}
+
 export interface CashflowItemRecord {
     id: string;
     date: string;
@@ -703,6 +790,160 @@ export const MentorService = {
     },
 
     getFileUrl(record: MentorRecord, filename: string, thumb = ""): string {
+        return pb.files.getURL(record, filename, { thumb });
+    }
+};
+
+export const OnlineCourseService = {
+    // Online Courses
+    async getOnlineCourses(page = 1, perPage = 20, sort = "-created", filter = ""): Promise<ListResult<OnlineCourseRecord>> {
+        try {
+            return await pb.collection("online_courses").getList<OnlineCourseRecord>(page, perPage, { sort, filter, expand: "instructor" });
+        } catch (error) {
+            console.error("OnlineCourseService: Error fetching courses:", error);
+            throw error;
+        }
+    },
+
+    async createOnlineCourse(data: Partial<OnlineCourseRecord> | FormData): Promise<OnlineCourseRecord> {
+        try {
+            return await pb.collection("online_courses").create<OnlineCourseRecord>(data);
+        } catch (error) {
+            console.error("OnlineCourseService: Error creating course:", error);
+            throw error;
+        }
+    },
+
+    async updateOnlineCourse(id: string, data: Partial<OnlineCourseRecord> | FormData): Promise<OnlineCourseRecord> {
+        try {
+            return await pb.collection("online_courses").update<OnlineCourseRecord>(id, data);
+        } catch (error) {
+            console.error(`OnlineCourseService: Error updating course ${id}:`, error);
+            throw error;
+        }
+    },
+
+    async deleteOnlineCourse(id: string): Promise<boolean> {
+        try {
+            await pb.collection("online_courses").delete(id);
+            return true;
+        } catch (error) {
+            console.error(`OnlineCourseService: Error deleting course ${id}:`, error);
+            throw error;
+        }
+    },
+
+    // Online Course Modules
+    async getModules(courseId: string): Promise<OnlineCourseModuleRecord[]> {
+        try {
+            return await pb.collection("online_course_modules").getFullList<OnlineCourseModuleRecord>({
+                filter: `courseId = "${courseId}"`,
+                sort: "order"
+            });
+        } catch (error) {
+            console.error("OnlineCourseService: Error fetching modules:", error);
+            throw error;
+        }
+    },
+
+    async createModule(data: Partial<OnlineCourseModuleRecord>): Promise<OnlineCourseModuleRecord> {
+        try {
+            return await pb.collection("online_course_modules").create<OnlineCourseModuleRecord>(data);
+        } catch (error) {
+            console.error("OnlineCourseService: Error creating module:", error);
+            throw error;
+        }
+    },
+
+    async updateModule(id: string, data: Partial<OnlineCourseModuleRecord>): Promise<OnlineCourseModuleRecord> {
+        try {
+            return await pb.collection("online_course_modules").update<OnlineCourseModuleRecord>(id, data);
+        } catch (error) {
+            console.error(`OnlineCourseService: Error updating module ${id}:`, error);
+            throw error;
+        }
+    },
+
+    async deleteModule(id: string): Promise<boolean> {
+        try {
+            await pb.collection("online_course_modules").delete(id);
+            return true;
+        } catch (error) {
+            console.error(`OnlineCourseService: Error deleting module ${id}:`, error);
+            throw error;
+        }
+    },
+
+    // Online Course Steps
+    async getSteps(moduleId: string): Promise<OnlineCourseStepRecord[]> {
+        try {
+            return await pb.collection("online_course_steps").getFullList<OnlineCourseStepRecord>({
+                filter: `moduleId = "${moduleId}"`,
+                sort: "order"
+            });
+        } catch (error) {
+            console.error("OnlineCourseService: Error fetching steps:", error);
+            throw error;
+        }
+    },
+
+    async createStep(data: Partial<OnlineCourseStepRecord> | FormData): Promise<OnlineCourseStepRecord> {
+        try {
+            return await pb.collection("online_course_steps").create<OnlineCourseStepRecord>(data);
+        } catch (error) {
+            console.error("OnlineCourseService: Error creating step:", error);
+            throw error;
+        }
+    },
+
+    async updateStep(id: string, data: Partial<OnlineCourseStepRecord> | FormData): Promise<OnlineCourseStepRecord> {
+        try {
+            return await pb.collection("online_course_steps").update<OnlineCourseStepRecord>(id, data);
+        } catch (error) {
+            console.error(`OnlineCourseService: Error updating step ${id}:`, error);
+            throw error;
+        }
+    },
+
+    async deleteStep(id: string): Promise<boolean> {
+        try {
+            await pb.collection("online_course_steps").delete(id);
+            return true;
+        } catch (error) {
+            console.error(`OnlineCourseService: Error deleting step ${id}:`, error);
+            throw error;
+        }
+    },
+
+    // Online Course Access
+    async getAccessRecords(page = 1, perPage = 20, sort = "-created", filter = ""): Promise<ListResult<OnlineCourseAccessRecord>> {
+        try {
+            return await pb.collection("online_course_access").getList<OnlineCourseAccessRecord>(page, perPage, {
+                sort,
+                filter,
+                expand: "user_id,online_course_id"
+            });
+        } catch (error) {
+            console.error("OnlineCourseService: Error fetching access records:", error);
+            throw error;
+        }
+    },
+
+    // Online Course Progress
+    async getProgressRecords(page = 1, perPage = 20, sort = "-created", filter = ""): Promise<ListResult<OnlineCourseProgressRecord>> {
+        try {
+            return await pb.collection("online_course_progress").getList<OnlineCourseProgressRecord>(page, perPage, {
+                sort,
+                filter,
+                expand: "userId,courseId"
+            });
+        } catch (error) {
+            console.error("OnlineCourseService: Error fetching progress records:", error);
+            throw error;
+        }
+    },
+
+    getFileUrl(record: any, filename: string, thumb = ""): string {
         return pb.files.getURL(record, filename, { thumb });
     }
 };

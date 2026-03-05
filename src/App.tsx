@@ -30,6 +30,8 @@ import { SecondBrain } from "./pages/SecondBrain";
 import { GeotechVisualizer } from "./pages/GeotechVisualizer";
 import { BlogMonitor } from "./pages/BlogMonitor";
 import { DELinxsMonitor } from "./pages/DELinxsMonitor";
+import { OnlineCourse } from "./pages/OnlineCourse";
+import { OnlineCourseEditor } from "./pages/OnlineCourseEditor";
 import { Chat } from "./pages/Chat";
 import { ChatProvider } from "./contexts/ChatContext";
 
@@ -75,6 +77,8 @@ function App() {
             <Route path="geotech-visualizer" element={<GeotechVisualizer />} />
             <Route path="blog-monitor" element={<BlogMonitor />} />
             <Route path="delinxs-monitor" element={<DELinxsMonitor />} />
+            <Route path="online-course" element={<OnlineCourse />} />
+            <Route path="online-course/edit/:id" element={<OnlineCourseEditor />} />
             <Route path="chat" element={<Chat />} />
             <Route path="settings" element={<Settings />} />
           </Route>

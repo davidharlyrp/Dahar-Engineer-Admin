@@ -12,7 +12,7 @@ import {
     Settings,
     FileText,
     Activity,
-    MessageSquare,
+    // MessageSquare,
     Share2,
     CreditCard,
     BarChart3,
@@ -27,7 +27,8 @@ import {
     Network,
     LayoutGrid,
     Layout,
-    Layers
+    Layers,
+    GraduationCap
 } from "lucide-react";
 import { useChat } from "../../contexts/ChatContext";
 
@@ -43,11 +44,12 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     const navItems = [
         { label: "Dashboard", href: "/", icon: LayoutDashboard },
         { label: "User Management", href: "/users", icon: Users },
-        { label: "Messages", href: "/chat", icon: MessageSquare },
+        // { label: "Messages", href: "/chat", icon: MessageSquare },
         { label: "Course Monitor", href: "/course-monitor", icon: LayoutGrid },
         { label: "Course Booking", href: "/courses", icon: BookOpen },
         { label: "Blog Monitor", href: "/blog-monitor", icon: Layout },
         { label: "DELinxs Monitor", href: "/delinxs-monitor", icon: Share2 },
+        { label: "Online Course", href: "/online-course", icon: GraduationCap },
         { label: "Course Report", href: "/course-report", icon: BarChart3 },
         { label: "Cashflow", href: "/cashflow", icon: Wallet },
         { label: "Cashflow Report", href: "/cashflow-report", icon: BarChart3 },
