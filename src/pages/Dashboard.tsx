@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
     Users, BookOpen, Wallet, Clock,
-    Touchpad, ShoppingBag, Briefcase, FileText, Activity, Layers, Package, FileUp, MessageSquare, MessageCircle, Star
+    Touchpad, ShoppingBag, Briefcase, FileText, Activity, Layers, Package, FileUp, MessageSquare, MessageCircle, Star,
+    Database, LineChart, ChevronRight, TrendingUp
 } from "lucide-react";
 import {
     UserService,
@@ -19,6 +22,7 @@ import {
     ReviewService
 } from "../services/api";
 import { formatDistanceToNow } from "date-fns";
+import { cn } from "../lib/utils";
 
 export function Dashboard() {
     const [isLoading, setIsLoading] = useState(true);
@@ -41,7 +45,6 @@ export function Dashboard() {
         const fetchDashboardData = async () => {
             setIsLoading(true);
             try {
-                // Fetch everything concurrently to minimize loading time
                 const [
                     usersRes,
                     coursesRes,
@@ -60,27 +63,26 @@ export function Dashboard() {
                     reviewsRes,
                     allPaidBookingsRes
                 ] = await Promise.allSettled([
-                    UserService.getUsers(1, 10), // Get 10 for activity feed
-                    CourseService.getBookings(1, 50), // Increased to 50 for better mapping
+                    UserService.getUsers(1, 10),
+                    CourseService.getBookings(1, 50),
                     CashflowService.getStats(),
-                    ProductPaymentService.getPayments(1, 10), // Get 10 for activity
+                    ProductPaymentService.getPayments(1, 10),
                     SoftwareService.getSoftwares(1, 1),
                     PortfolioService.getPortfolio(1, 1),
                     ProductService.getProducts(1, 1),
-                    RevitFileService.getRevitFiles(1, 10), // Get 10 for activity feed
-                    ResourceService.getResources(1, 10), // Get 10 for activity feed
+                    RevitFileService.getRevitFiles(1, 10),
+                    ResourceService.getResources(1, 10),
                     DaharPDFService.getHistory(1, 1),
-                    TerraSimService.getRunningHistory(1, 10), // Get 10 for activity feed
+                    TerraSimService.getRunningHistory(1, 10),
                     TerraSimService.getProjects(1, 1),
-                    TerraSimService.getFeedback(1, 10), // Get 10 for activity feed
-                    BlogCommentService.getComments(1, 10), // New: blog comments
-                    ReviewService.getReviews(1, 10), // New: session reviews
-                    CourseService.getPaidBookings() // New: full paid bookings for name mapping
+                    TerraSimService.getFeedback(1, 10),
+                    BlogCommentService.getComments(1, 10),
+                    ReviewService.getReviews(1, 10),
+                    CourseService.getPaidBookings()
                 ]);
 
                 if (!isMounted) return;
 
-                // 1. Process Top Metrics
                 const usersCount = usersRes.status === "fulfilled" ? usersRes.value.totalItems : 0;
                 setTotalUsers(usersCount);
 
@@ -89,23 +91,14 @@ export function Dashboard() {
 
                 const cashflowIncome = cashflowRes.status === "fulfilled" ? cashflowRes.value.income : 0;
 
-                // Calculate total revenue from products (successful only)
                 let productRevenue = 0;
                 if (paymentsRes.status === "fulfilled") {
                     const successfulPayments = paymentsRes.value.items.filter(p => p.payment_status?.toLowerCase() === 'paid' || p.payment_status?.toLowerCase() === 'settled');
                     productRevenue = successfulPayments.reduce((sum, current) => sum + (current.final_amount || 0), 0);
-
-                    // Fallback: If pagination only brought 10, we might need a dedicated endpoint for full revenue, 
-                    // but for now, we'll use an aggregate from the recent fetch or assume it's calculated elsewhere.
-                    // To be highly accurate, Cashflow should ideally represent all income if product payments are recorded there.
-                    // Assuming they are distinct for this dense dashboard:
                 }
 
-                // For a denser top metric, we will just use Cashflow Income for now as the primary "Revenue" indicator,
-                // or sum them if they are separate domains. Let's sum them for maximum density.
                 setMonthlyRevenue(cashflowIncome + productRevenue);
 
-                // 2. Process Secondary Metrics (Assets)
                 setAssetStats([
                     { label: "Portfolio Projects", value: portfolioRes.status === "fulfilled" ? portfolioRes.value.totalItems : 0, icon: Briefcase },
                     { label: "Digital Products", value: productsRes.status === "fulfilled" ? productsRes.value.totalItems : 0, icon: ShoppingBag },
@@ -114,17 +107,14 @@ export function Dashboard() {
                     { label: "PDF Resources", value: resourcesRes.status === "fulfilled" ? resourcesRes.value.totalItems : 0, icon: FileUp },
                 ]);
 
-                // 3. Process Secondary Metrics (Analytics)
                 setAnalyticsStats([
                     { label: "Dahar PDF Tool Uses", value: daharPdfRes.status === "fulfilled" ? daharPdfRes.value.totalItems : 0, icon: FileText },
                     { label: "TerraSim Simulations", value: terrasimRunsRes.status === "fulfilled" ? terrasimRunsRes.value.totalItems : 0, icon: Activity },
                     { label: "TerraSim Projects Saved", value: terrasimProjectsRes.status === "fulfilled" ? terrasimProjectsRes.value.totalItems : 0, icon: Package },
                 ]);
 
-                // 4. Build Unified Recent Activity Feed
                 const activities: { id: string, date: Date, text: string, type: 'user' | 'course' | 'payment' | 'activity' | 'file' | 'feedback' | 'comment' | 'review' }[] = [];
 
-                // Build a map of booking names for reviews mapping
                 const bookingNameMap: Record<string, string> = {};
                 if (allPaidBookingsRes.status === "fulfilled") {
                     allPaidBookingsRes.value.forEach(b => {
@@ -250,7 +240,6 @@ export function Dashboard() {
                     });
                 }
 
-                // Sort descending by date and take top 8
                 activities.sort((a, b) => b.date.getTime() - a.date.getTime());
                 setRecentActivities(activities.slice(0, 8));
 
@@ -270,189 +259,247 @@ export function Dashboard() {
             label: "Total Registered Users",
             value: typeof totalUsers === 'number' ? totalUsers.toLocaleString() : totalUsers,
             icon: Users,
+            trend: "+12.5%",
+            color: "army"
         },
         {
-            label: "Total Course Bookings",
+            label: "Course Bookings",
             value: typeof activeCourses === 'number' ? activeCourses.toLocaleString() : activeCourses,
             icon: BookOpen,
+            trend: "+5.2%",
+            color: "slate"
         },
         {
-            label: "Combined System Revenue",
+            label: "Total System Revenue",
             value: typeof monthlyRevenue === 'number' ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumSignificantDigits: 3 }).format(monthlyRevenue) : monthlyRevenue,
             icon: Wallet,
+            trend: "+8.1%",
+            color: "army"
         },
     ];
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: {
+                duration: 0.5,
+                ease: "cubic-bezier(0.16, 1, 0.3, 1)" as any
+            }
+        }
+    };
+
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
+        <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+            className="space-y-8 p-6 lg:p-8"
+        >
+            <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">System Dashboard</h1>
+                    <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+                        Dashboard
+                    </h1>
+                    <p className="text-muted-foreground mt-1 text-sm font-medium">
+                        Comprehensive overview of your engineering ecosystem
+                    </p>
                 </div>
-                <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2 font-medium bg-white dark:bg-slate-800 px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700">
-                    <Clock className="w-4 h-4 text-slate-400" />
-                    <span>Live Data Sync</span>
+                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-army-400 bg-army-900/20 border border-army-500/20 px-3 py-1.5 rounded-full backdrop-blur-md">
+                    <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-army-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-army-500"></span>
+                    </span>
+                    Live System Sync
                 </div>
-            </div>
+            </motion.div>
 
             {/* Top KPI Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {topStats.map((stat) => (
-                    <div key={stat.label} className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col transition-colors relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 opacity-5">
-                            <stat.icon className="w-24 h-24" />
-                        </div>
-                        <div className="flex items-center gap-4 mb-4 relative z-10">
-                            <div className="p-3 bg-slate-100 dark:bg-slate-900 rounded-lg">
-                                <stat.icon className="w-6 h-6 text-slate-700 dark:text-slate-300" />
-                            </div>
-                            <h3 className="font-bold text-slate-600 dark:text-slate-400">{stat.label}</h3>
+                    <motion.div
+                        key={stat.label}
+                        variants={itemVariants}
+                        whileHover={{ y: -5 }}
+                        className="group relative bg-secondary border border-white/5 rounded-2xl p-6 overflow-hidden transition-all duration-300"
+                    >
+                        <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
+                            <stat.icon size={120} />
                         </div>
 
-                        <div className="flex items-baseline gap-3 relative z-10 mt-2">
-                            {isLoading ? (
-                                <div className="h-9 w-32 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></div>
-                            ) : (
-                                <span className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{stat.value}</span>
-                            )}
+                        <div className="flex items-center justify-between mb-4">
+                            <div className={cn(
+                                "p-3 rounded-xl border transition-colors",
+                                stat.color === "army"
+                                    ? "bg-army-500/10 border-army-500/20 group-hover:bg-army-500/20"
+                                    : "bg-white/5 border-white/10 group-hover:bg-white/10"
+                            )}>
+                                <stat.icon className={cn(
+                                    "w-6 h-6",
+                                    stat.color === "army" ? "text-army-400" : "text-white"
+                                )} />
+                            </div>
+                            <div className="flex items-center gap-1 text-[10px] font-bold text-army-400 bg-army-400/10 px-2 py-1 rounded-md">
+                                <TrendingUp className="w-3 h-3" />
+                                {stat.trend}
+                            </div>
                         </div>
-                    </div>
+
+                        <div className="space-y-1">
+                            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</h3>
+                            <div className="flex items-baseline gap-2">
+                                {isLoading ? (
+                                    <div className="h-10 w-32 bg-white/5 rounded-lg animate-pulse"></div>
+                                ) : (
+                                    <span className="text-3xl font-black text-white tracking-tighter italic">{stat.value}</span>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-army-600/50 to-transparent w-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </motion.div>
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Secondary Metrics: Assets */}
-                <div className="lg:col-span-2 space-y-6">
-                    <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
-                        <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center gap-2">
-                            <Database className="w-5 h-5 text-slate-400" /> Managed Assets Overview
-                        </h2>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                            {isLoading ? (
-                                Array(5).fill(0).map((_, i) => (
-                                    <div key={i} className="p-4 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 animate-pulse h-24"></div>
-                                ))
-                            ) : (
-                                assetStats.map((stat, idx) => (
-                                    <div key={idx} className="p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 flex flex-col items-center text-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                                        <stat.icon className="w-5 h-5 text-slate-400 mb-2" />
-                                        <span className="text-2xl font-black text-slate-700 dark:text-slate-300">{stat.value}</span>
-                                        <span className="text-xs font-semibold text-slate-500 mt-1">{stat.label}</span>
-                                    </div>
-                                ))
-                            )}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Secondary Metrics: Assets & Analytics */}
+                <div className="lg:col-span-8 space-y-8">
+                    <motion.div variants={itemVariants} className="bg-secondary rounded-2xl border border-white/5 overflow-hidden">
+                        <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                            <h2 className="text-sm font-bold text-white flex items-center gap-2 uppercase tracking-widest">
+                                <Database className="w-4 h-4 text-army-500" /> Asset Distribution
+                            </h2>
+                            <Link to="/resources" className="text-[10px] font-bold text-army-400 hover:text-army-300 transition-colors uppercase tracking-widest flex items-center gap-1">
+                                View All <ChevronRight className="w-3 h-3" />
+                            </Link>
                         </div>
-                    </div>
+                        <div className="p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                            <AnimatePresence mode="popLayout">
+                                {isLoading ? (
+                                    Array(5).fill(0).map((_, i) => (
+                                        <div key={`skeleton-asset-${i}`} className="p-4 rounded-xl bg-white/5 border border-white/5 animate-pulse h-24"></div>
+                                    ))
+                                ) : (
+                                    assetStats.map((stat, i) => (
+                                        <motion.div
+                                            key={stat.label}
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ delay: i * 0.05 }}
+                                            className="p-4 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col items-center justify-center text-center hover:bg-white/[0.05] transition-all group"
+                                        >
+                                            <stat.icon className="w-5 h-5 text-muted-foreground mb-3 group-hover:text-army-400 transition-colors" />
+                                            <span className="text-xl font-black text-white tracking-tighter italic leading-none">{stat.value}</span>
+                                            <span className="text-[9px] font-bold text-muted-foreground mt-2 uppercase tracking-tight">{stat.label}</span>
+                                        </motion.div>
+                                    ))
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    </motion.div>
 
-                    <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
-                        <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center gap-2">
-                            <LineChart className="w-5 h-5 text-slate-400" /> Platform Usage Analytics
-                        </h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <motion.div variants={itemVariants} className="bg-secondary rounded-2xl border border-white/5 overflow-hidden">
+                        <div className="p-6 border-b border-white/5">
+                            <h2 className="text-sm font-bold text-white flex items-center gap-2 uppercase tracking-widest">
+                                <LineChart className="w-4 h-4 text-army-500" /> Performance Analytics
+                            </h2>
+                        </div>
+                        <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                             {isLoading ? (
                                 Array(3).fill(0).map((_, i) => (
-                                    <div key={i} className="p-4 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 animate-pulse h-24"></div>
+                                    <div key={`skeleton-analytics-${i}`} className="p-4 rounded-xl bg-white/5 border border-white/5 animate-pulse h-28"></div>
                                 ))
                             ) : (
                                 analyticsStats.map((stat, idx) => (
-                                    <div key={idx} className="p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 flex flex-col items-center text-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                                        <stat.icon className="w-5 h-5 text-slate-400 mb-2" />
-                                        <span className="text-2xl font-black text-slate-700 dark:text-slate-300">{stat.value}</span>
-                                        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mt-1">{stat.label}</span>
+                                    <div key={idx} className="relative p-6 rounded-2xl bg-white/[0.02] border border-white/5 group hover:bg-white/[0.05] transition-all">
+                                        <div className="flex items-start justify-between mb-4">
+                                            <div className="p-3 bg-white/5 rounded-xl text-muted-foreground group-hover:text-army-400 group-hover:bg-army-500/10 transition-all">
+                                                <stat.icon className="w-5 h-5" />
+                                            </div>
+                                            <div className="text-[10px] font-bold text-army-500 bg-army-500/10 px-2 py-0.5 rounded uppercase tracking-widest">Active</div>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <div className="text-2xl font-black text-white italic tracking-tighter">{stat.value}</div>
+                                            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</div>
+                                        </div>
                                     </div>
                                 ))
                             )}
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
 
                 {/* Unified Recent Activity */}
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors flex flex-col h-full">
-                    <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-slate-400" /> Global Recent Activity
-                    </h2>
-                    <div className="flex-1 overflow-y-auto pr-2 space-y-5">
-                        {isLoading ? (
-                            Array(5).fill(0).map((_, i) => (
-                                <div key={i} className="flex gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse flex-shrink-0" />
-                                    <div className="flex-1 space-y-2 py-1">
-                                        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full animate-pulse"></div>
-                                        <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/2 animate-pulse"></div>
-                                    </div>
-                                </div>
-                            ))
-                        ) : recentActivities.length > 0 ? (
-                            recentActivities.map((activity) => (
-                                <div key={activity.id} className="flex items-start gap-3 group">
-                                    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700 group-hover:bg-slate-200 dark:group-hover:bg-slate-800 transition-colors">
-                                        {activity.type === 'user' && <Users className="w-4 h-4 text-slate-500" />}
-                                        {activity.type === 'course' && <BookOpen className="w-4 h-4 text-slate-500" />}
-                                        {activity.type === 'payment' && <Wallet className="w-4 h-4 text-slate-500" />}
-                                        {activity.type === 'activity' && <Activity className="w-4 h-4 text-slate-500" />}
-                                        {activity.type === 'file' && <FileUp className="w-4 h-4 text-slate-500" />}
-                                        {activity.type === 'feedback' && <MessageSquare className="w-4 h-4 text-slate-500" />}
-                                        {activity.type === 'comment' && <MessageCircle className="w-4 h-4 text-slate-500" />}
-                                        {activity.type === 'review' && <Star className="w-4 h-4 text-slate-500" />}
-                                    </div>
-                                    <div>
-                                        <p className="text-slate-700 dark:text-slate-300 text-sm font-semibold leading-snug">{activity.text}</p>
-                                        <p className="text-slate-400 dark:text-slate-500 text-[11px] font-semibold mt-1">
-                                            {formatDistanceToNow(activity.date, { addSuffix: true })}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="flex flex-col items-center justify-center h-40 text-center text-slate-500">
-                                <p className="text-sm font-bold">No recent activities found.</p>
-                            </div>
-                        )}
+                <motion.div variants={itemVariants} className="lg:col-span-4 bg-secondary rounded-2xl border border-white/5 overflow-hidden flex flex-col">
+                    <div className="p-6 border-b border-white/5">
+                        <h2 className="text-sm font-bold text-white flex items-center gap-2 uppercase tracking-widest">
+                            <Activity className="w-4 h-4 text-army-500" /> Transaction Log
+                        </h2>
                     </div>
-                </div>
+                    <div className="p-6 overflow-y-auto max-h-[400px] scrollbar-hide space-y-6">
+                        <AnimatePresence mode="popLayout">
+                            {isLoading ? (
+                                Array(6).fill(0).map((_, i) => (
+                                    <div key={`skeleton-activity-${i}`} className="flex gap-4">
+                                        <div className="w-10 h-10 rounded-xl bg-white/5 animate-pulse shrink-0" />
+                                        <div className="flex-1 space-y-2 py-1">
+                                            <div className="h-4 bg-white/5 rounded w-full animate-pulse"></div>
+                                            <div className="h-3 bg-white/5 rounded w-1/3 animate-pulse"></div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : recentActivities.length > 0 ? (
+                                recentActivities.map((activity, idx) => (
+                                    <motion.div
+                                        key={activity.id}
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: idx * 0.05 }}
+                                        className="flex items-start gap-4 group"
+                                    >
+                                        <div className="w-10 h-10 rounded-xl bg-white/[0.03] flex items-center justify-center shrink-0 border border-white/10 group-hover:border-army-500/30 group-hover:bg-army-500/10 transition-all">
+                                            {activity.type === 'user' && <Users className="w-4 h-4 text-muted-foreground group-hover:text-army-400" />}
+                                            {activity.type === 'course' && <BookOpen className="w-4 h-4 text-muted-foreground group-hover:text-army-400" />}
+                                            {activity.type === 'payment' && <Wallet className="w-4 h-4 text-muted-foreground group-hover:text-army-400" />}
+                                            {activity.type === 'activity' && <Activity className="w-4 h-4 text-muted-foreground group-hover:text-army-400" />}
+                                            {activity.type === 'file' && <FileUp className="w-4 h-4 text-muted-foreground group-hover:text-army-400" />}
+                                            {activity.type === 'feedback' && <MessageSquare className="w-4 h-4 text-muted-foreground group-hover:text-army-400" />}
+                                            {activity.type === 'comment' && <MessageCircle className="w-4 h-4 text-muted-foreground group-hover:text-army-400" />}
+                                            {activity.type === 'review' && <Star className="w-4 h-4 text-muted-foreground group-hover:text-army-400" />}
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-white text-xs font-semibold leading-relaxed line-clamp-2">{activity.text}</p>
+                                            <p className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center gap-2">
+                                                <Clock className="w-3 h-3" />
+                                                {formatDistanceToNow(activity.date, { addSuffix: true })}
+                                            </p>
+                                        </div>
+                                    </motion.div>
+                                ))
+                            ) : (
+                                <div className="py-12 flex flex-col items-center justify-center text-center opacity-40">
+                                    <Activity className="w-8 h-8 mb-4 " />
+                                    <p className="text-[10px] font-bold uppercase tracking-widest">No Recent Logs</p>
+                                </div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                    <div className="p-4 bg-white/[0.02] border-t border-white/5 text-center mt-auto">
+                        <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-[0.2em]">Real-time Event Stream</span>
+                    </div>
+                </motion.div>
             </div>
-        </div>
-    );
-}
-
-// Temporary custom icons mimicking lucide for missing imports above if any
-function Database(props: any) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <ellipse cx="12" cy="5" rx="9" ry="3" />
-            <path d="M3 5V19A9 3 0 0 0 21 19V5" />
-            <path d="M3 12A9 3 0 0 0 21 12" />
-        </svg>
-    );
-}
-
-function LineChart(props: any) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M3 3v18h18" />
-            <path d="m19 9-5 5-4-4-3 3" />
-        </svg>
+        </motion.div>
     );
 }

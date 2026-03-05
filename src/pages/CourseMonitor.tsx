@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from "react";
-import { Search, Edit2, Trash2, Clock, Image as ImageIcon, Briefcase, Mail, AlertCircle, Tag, Plus, Upload, X } from "lucide-react";
+import { Search, Edit2, Trash2, Clock, Image as ImageIcon, Briefcase, Mail, AlertCircle, Tag, Plus, Upload, X, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { CourseMonitorService, MentorService, type CourseListRecord, type MentorRecord } from "../services/api";
 import { useAdminSettings } from "../hooks/useAdminSettings";
 import { cn } from "../lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 type TabType = "course" | "mentor";
 
@@ -120,9 +121,9 @@ export function CourseMonitor() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Course Monitor</h1>
+                <h1 className="text-2xl font-bold text-white tracking-tight">Course Monitor</h1>
                 <button
                     onClick={() => {
                         if (activeTab === "course") {
@@ -133,22 +134,22 @@ export function CourseMonitor() {
                             setIsMentorModalOpen(true);
                         }
                     }}
-                    className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
+                    className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-lg text-xs tracking-widest uppercase font-semibold hover:bg-white/90 transition-all shadow-lg"
                 >
                     <Plus className="w-4 h-4" /> Add {activeTab === "course" ? "Course" : "Mentor"}
                 </button>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden flex flex-col transition-colors min-h-[500px]">
-                <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex bg-slate-100 dark:bg-slate-700 p-1 rounded-lg w-full sm:w-auto">
+            <div className="bg-secondary border border-white/5 rounded-2xl shadow-sm overflow-hidden flex flex-col transition-colors min-h-[500px]">
+                <div className="p-5 border-b border-white/5 bg-white/[0.02] flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex bg-black/40 p-1.5 rounded-xl w-full sm:w-auto border border-white/5">
                         <button
                             onClick={() => { setActiveTab("course"); setSearch(""); setCoursePage(1); }}
                             className={cn(
-                                "flex-1 sm:flex-none px-4 py-1.5 rounded-md text-sm font-medium transition-all text-center",
+                                "flex-1 sm:flex-none px-5 py-2 rounded-lg text-[10px] font-bold tracking-widest uppercase transition-all text-center",
                                 activeTab === "course"
-                                    ? "bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-slate-100"
-                                    : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                                    ? "bg-white/10 text-white"
+                                    : "text-white/40 hover:text-white hover:bg-white/5"
                             )}
                         >
                             Courses
@@ -156,143 +157,185 @@ export function CourseMonitor() {
                         <button
                             onClick={() => { setActiveTab("mentor"); setSearch(""); setMentorPage(1); }}
                             className={cn(
-                                "flex-1 sm:flex-none px-4 py-1.5 rounded-md text-sm font-medium transition-all text-center",
+                                "flex-1 sm:flex-none px-5 py-2 rounded-lg text-[10px] font-bold tracking-widest uppercase transition-all text-center",
                                 activeTab === "mentor"
-                                    ? "bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-slate-100"
-                                    : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                                    ? "bg-white/10 text-white"
+                                    : "text-white/40 hover:text-white hover:bg-white/5"
                             )}
                         >
                             Mentors
                         </button>
                     </div>
 
-                    <div className="relative max-w-sm w-full">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <div className="relative max-w-md w-full">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                         <input
                             type="text"
-                            placeholder="Search..."
+                            placeholder={"Search " + (activeTab === "course" ? "courses" : "mentors") + "..."}
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
+                            className="w-full pl-11 pr-4 py-2.5 text-sm bg-black/40 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-army-500 focus:border-army-500 transition-all font-medium placeholder:text-white/20"
                         />
                     </div>
                 </div>
 
-                <div className="p-4 flex-1">
+                <div className="p-6 flex-1 bg-black/20">
                     {activeTab === "course" && isCoursesLoading && (
-                        <div className="h-full py-24 flex flex-col items-center justify-center text-slate-500">
-                            <Clock className="w-8 h-8 mb-4 animate-spin opacity-20" />
-                            <span>Loading courses...</span>
+                        <div className="h-full py-24 flex flex-col items-center justify-center text-white/40">
+                            <Clock className="w-8 h-8 mb-4 animate-spin opacity-50" />
+                            <span className="text-[10px] font-bold tracking-widest uppercase">Loading courses...</span>
                         </div>
                     )}
                     {activeTab === "course" && !isCoursesLoading && courses.length === 0 && (
-                        <div className="h-full py-24 flex flex-col items-center justify-center text-slate-500">
-                            <AlertCircle className="w-8 h-8 mb-4 opacity-20" />
-                            <span>No courses found.</span>
+                        <div className="h-full py-24 flex flex-col items-center justify-center text-white/40">
+                            <AlertCircle className="w-8 h-8 mb-4 opacity-50" />
+                            <span className="text-[10px] font-bold tracking-widest uppercase">No courses found.</span>
                         </div>
                     )}
                     {activeTab === "course" && !isCoursesLoading && courses.length > 0 && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                            {courses.map(course => (
-                                <CourseCard
-                                    key={course.id}
-                                    course={course}
-                                    onEdit={() => { setEditingCourse(course); setIsCourseModalOpen(true); }}
-                                    onDelete={() => deleteCourse(course.id)}
-                                    onToggle={() => handleToggleCourseActive(course)}
-                                />
-                            ))}
-                        </div>
+                        <motion.div
+                            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <AnimatePresence mode="popLayout">
+                                {courses.map((course, i) => (
+                                    <motion.div
+                                        key={course.id}
+                                        layout
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ duration: 0.4, ease: "circOut", delay: i * 0.05 }}
+                                    >
+                                        <CourseCard
+                                            course={course}
+                                            onEdit={() => { setEditingCourse(course); setIsCourseModalOpen(true); }}
+                                            onDelete={() => deleteCourse(course.id)}
+                                            onToggle={() => handleToggleCourseActive(course)}
+                                        />
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </motion.div>
                     )}
 
                     {activeTab === "mentor" && isMentorsLoading && (
-                        <div className="h-full py-24 flex flex-col items-center justify-center text-slate-500">
-                            <Clock className="w-8 h-8 mb-4 animate-spin opacity-20" />
-                            <span>Loading mentors...</span>
+                        <div className="h-full py-24 flex flex-col items-center justify-center text-white/40">
+                            <Clock className="w-8 h-8 mb-4 animate-spin opacity-50" />
+                            <span className="text-[10px] font-bold tracking-widest uppercase">Loading mentors...</span>
                         </div>
                     )}
                     {activeTab === "mentor" && !isMentorsLoading && mentors.length === 0 && (
-                        <div className="h-full py-24 flex flex-col items-center justify-center text-slate-500">
-                            <AlertCircle className="w-8 h-8 mb-4 opacity-20" />
-                            <span>No mentors found.</span>
+                        <div className="h-full py-24 flex flex-col items-center justify-center text-white/40">
+                            <AlertCircle className="w-8 h-8 mb-4 opacity-50" />
+                            <span className="text-[10px] font-bold tracking-widest uppercase">No mentors found.</span>
                         </div>
                     )}
                     {activeTab === "mentor" && !isMentorsLoading && mentors.length > 0 && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {mentors.map(mentor => (
-                                <MentorCard
-                                    key={mentor.id}
-                                    mentor={mentor}
-                                    onEdit={() => { setEditingMentor(mentor); setIsMentorModalOpen(true); }}
-                                    onDelete={() => deleteMentor(mentor.id)}
-                                    onToggle={() => handleToggleMentorActive(mentor)}
-                                />
-                            ))}
-                        </div>
+                        <motion.div
+                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <AnimatePresence mode="popLayout">
+                                {mentors.map((mentor, i) => (
+                                    <motion.div
+                                        key={mentor.id}
+                                        layout
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ duration: 0.4, ease: "circOut", delay: i * 0.05 }}
+                                    >
+                                        <MentorCard
+                                            mentor={mentor}
+                                            onEdit={() => { setEditingMentor(mentor); setIsMentorModalOpen(true); }}
+                                            onDelete={() => deleteMentor(mentor.id)}
+                                            onToggle={() => handleToggleMentorActive(mentor)}
+                                        />
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </motion.div>
                     )}
                 </div>
 
-                <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 flex items-center justify-center gap-2">
+                <div className="p-4 border-t border-white/5 flex items-center justify-between bg-black/20">
                     {activeTab === "course" && courseTotalPages > 1 && (
                         <>
-                            <button
-                                onClick={() => setCoursePage(p => Math.max(1, p - 1))}
-                                disabled={coursePage === 1}
-                                className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-50 disabled:opacity-50"
-                            >
-                                Previous
-                            </button>
-                            <span className="text-sm text-slate-500 font-medium">Page {coursePage} of {courseTotalPages}</span>
-                            <button
-                                onClick={() => setCoursePage(p => Math.min(courseTotalPages, p + 1))}
-                                disabled={coursePage === courseTotalPages}
-                                className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-50 disabled:opacity-50"
-                            >
-                                Next
-                            </button>
+                            <div className="text-xs font-bold uppercase tracking-widest text-white/40">
+                                Page <span className="text-white">{coursePage}</span> of <span className="text-white">{courseTotalPages}</span>
+                            </div>
+                            <div className="flex flex-1 items-center justify-end gap-2">
+                                <button
+                                    onClick={() => setCoursePage(p => Math.max(1, p - 1))}
+                                    disabled={coursePage === 1}
+                                    className="p-2 rounded-xl text-white/50 hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+                                >
+                                    <ChevronLeft className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() => setCoursePage(p => Math.min(courseTotalPages, p + 1))}
+                                    disabled={coursePage === courseTotalPages}
+                                    className="p-2 rounded-xl text-white/50 hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                </button>
+                            </div>
                         </>
                     )}
                     {activeTab === "mentor" && mentorTotalPages > 1 && (
                         <>
-                            <button
-                                onClick={() => setMentorPage(p => Math.max(1, p - 1))}
-                                disabled={mentorPage === 1}
-                                className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-50 disabled:opacity-50"
-                            >
-                                Previous
-                            </button>
-                            <span className="text-sm text-slate-500 font-medium">Page {mentorPage} of {mentorTotalPages}</span>
-                            <button
-                                onClick={() => setMentorPage(p => Math.min(mentorTotalPages, p + 1))}
-                                disabled={mentorPage === mentorTotalPages}
-                                className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-50 disabled:opacity-50"
-                            >
-                                Next
-                            </button>
+                            <div className="text-xs font-bold uppercase tracking-widest text-white/40">
+                                Page <span className="text-white">{mentorPage}</span> of <span className="text-white">{mentorTotalPages}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setMentorPage(p => Math.max(1, p - 1))}
+                                    disabled={mentorPage === 1}
+                                    className="p-2 rounded-xl text-white/50 hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+                                >
+                                    <ChevronLeft className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() => setMentorPage(p => Math.min(mentorTotalPages, p + 1))}
+                                    disabled={mentorPage === mentorTotalPages}
+                                    className="p-2 rounded-xl text-white/50 hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                </button>
+                            </div>
                         </>
                     )}
                 </div>
             </div>
 
             {/* Modals */}
-            {isCourseModalOpen && (
-                <CourseFormModal
-                    isOpen={isCourseModalOpen}
-                    onClose={() => setIsCourseModalOpen(false)}
-                    onSuccess={() => { setIsCourseModalOpen(false); fetchCourses(); fetchAllCourses(); }}
-                    editingCourse={editingCourse}
-                />
-            )}
+            <AnimatePresence>
+                {isCourseModalOpen && (
+                    <CourseFormModal
+                        isOpen={isCourseModalOpen}
+                        onClose={() => setIsCourseModalOpen(false)}
+                        onSuccess={() => { setIsCourseModalOpen(false); fetchCourses(); fetchAllCourses(); }}
+                        editingCourse={editingCourse}
+                    />
+                )}
+            </AnimatePresence>
 
-            {isMentorModalOpen && (
-                <MentorFormModal
-                    isOpen={isMentorModalOpen}
-                    onClose={() => setIsMentorModalOpen(false)}
-                    onSuccess={() => { setIsMentorModalOpen(false); fetchMentors(); }}
-                    editingMentor={editingMentor}
-                    allCourses={allCourses}
-                />
-            )}
+            <AnimatePresence>
+                {isMentorModalOpen && (
+                    <MentorFormModal
+                        isOpen={isMentorModalOpen}
+                        onClose={() => setIsMentorModalOpen(false)}
+                        onSuccess={() => { setIsMentorModalOpen(false); fetchMentors(); }}
+                        editingMentor={editingMentor}
+                        allCourses={allCourses}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 }
@@ -350,153 +393,168 @@ function CourseFormModal({ onClose, onSuccess, editingCourse }: { isOpen: boolea
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white dark:bg-slate-800 rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-xl border border-slate-200 dark:border-slate-700">
-                <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center sticky top-0 bg-white dark:bg-slate-800 z-10">
-                    <h2 className="text-xl font-bold dark:text-white">{editingCourse ? "Edit Course" : "Add New Course"}</h2>
-                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
-                        <X className="w-6 h-6" />
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[100] flex justify-end p-0 sm:p-4 bg-black/60 backdrop-blur-sm"
+        >
+            <motion.div
+                initial={{ x: "100%", opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: "100%", opacity: 0 }}
+                transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                className="bg-secondary sm:rounded-2xl w-full max-w-lg h-full sm:h-auto sm:max-h-[90vh] overflow-hidden shadow-2xl border-l sm:border border-white/10 flex flex-col"
+            >
+                <div className="p-5 border-b border-white/5 flex justify-between items-center bg-white/[0.02] shrink-0">
+                    <h2 className="text-sm font-bold uppercase tracking-widest text-white">{editingCourse ? "Edit Course" : "Add New Course"}</h2>
+                    <button onClick={onClose} className="p-1.5 text-white/40 hover:bg-white/10 hover:text-white rounded-xl transition-all">
+                        <X className="w-4 h-4" />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    <div className="space-y-4">
-                        {/* Image Upload */}
-                        <div className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg p-4 bg-slate-50 dark:bg-slate-900/50 transition-colors">
-                            {imagePreview ? (
-                                <div className="relative w-full aspect-video bg-slate-100 dark:bg-slate-800 rounded-lg overflow-hidden mb-4">
-                                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                <div className="overflow-y-auto flex-1 p-6 custom-scrollbar">
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-4">
+                            {/* Image Upload */}
+                            <div className="flex flex-col items-center justify-center border-2 border-dashed border-white/10 rounded-xl p-4 bg-black/20 hover:bg-black/30 transition-colors">
+                                {imagePreview ? (
+                                    <div className="relative w-full aspect-video bg-black/40 rounded-lg overflow-hidden mb-4 border border-white/10">
+                                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                        <button
+                                            type="button"
+                                            onClick={() => { setImagePreview(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                                            className="absolute top-2 right-2 p-1.5 bg-red-500/80 text-white rounded-full hover:bg-red-500 transition-colors shadow-sm backdrop-blur-sm"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                ) : (
                                     <button
                                         type="button"
-                                        onClick={() => { setImagePreview(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
-                                        className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-sm"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="flex flex-col items-center justify-center py-6 w-full text-white/40 hover:text-white transition-colors"
                                     >
-                                        <X className="w-4 h-4" />
+                                        <Upload className="w-8 h-8 mb-2 opacity-50" />
+                                        <span className="text-xs font-semibold tracking-relaxed">Upload thumbnail image</span>
                                     </button>
-                                </div>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="flex flex-col items-center justify-center py-6 w-full text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-                                >
-                                    <Upload className="w-8 h-8 mb-2 opacity-50" />
-                                    <span className="text-sm font-medium">Upload thumbnail image</span>
-                                </button>
-                            )}
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                className="hidden"
-                                accept="image/*"
-                                onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) {
-                                        const reader = new FileReader();
-                                        reader.onloadend = () => setImagePreview(reader.result as string);
-                                        reader.readAsDataURL(file);
-                                    }
-                                }}
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Course Title</label>
-                            <input
-                                required
-                                type="text"
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-sm placeholder-slate-400"
-                                placeholder="Enter course title..."
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Service Type</label>
-                                <select
-                                    value={formData.serviceType}
-                                    onChange={(e) => setFormData({ ...formData, serviceType: e.target.value as "Course" | "Consultation" })}
-                                    className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-sm"
-                                >
-                                    <option value="Course">Course</option>
-                                    <option value="Consultation">Consultation</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Duration</label>
+                                )}
                                 <input
-                                    type="text"
-                                    value={formData.duration}
-                                    onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                                    className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-sm placeholder-slate-400"
-                                    placeholder="e.g. 3 hours"
+                                    type="file"
+                                    ref={fileInputRef}
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => setImagePreview(reader.result as string);
+                                            reader.readAsDataURL(file);
+                                        }
+                                    }}
                                 />
                             </div>
-                        </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Price (IDR)</label>
+                            <div className="space-y-1.5">
+                                <label className="block text-xs font-semibold tracking-relaxed text-white/60">Course Title</label>
                                 <input
                                     required
-                                    type="number"
-                                    value={formData.price}
-                                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                    className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-sm placeholder-slate-400"
-                                    placeholder="0"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Category Tag</label>
-                                <input
                                     type="text"
-                                    value={formData.tag}
-                                    onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
-                                    className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-sm placeholder-slate-400"
-                                    placeholder="e.g. SketchUp"
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    className="w-full px-4 py-2.5 text-sm border border-white/10 bg-black/40 text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-army-500 focus:border-army-500 transition-all font-medium"
+                                    placeholder="Enter course title..."
                                 />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="block text-xs font-semibold tracking-relaxed text-white/60">Service Type</label>
+                                    <select
+                                        value={formData.serviceType}
+                                        onChange={(e) => setFormData({ ...formData, serviceType: e.target.value as "Course" | "Consultation" })}
+                                        className="w-full px-4 py-2.5 text-sm border border-white/10 bg-black/40 text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-army-500 focus:border-army-500 transition-all font-medium appearance-none"
+                                    >
+                                        <option value="Course" className="bg-secondary">Course</option>
+                                        <option value="Consultation" className="bg-secondary">Consultation</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="block text-xs font-semibold tracking-relaxed text-white/60">Duration</label>
+                                    <input
+                                        type="text"
+                                        value={formData.duration}
+                                        onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                                        className="w-full px-4 py-2.5 text-sm border border-white/10 bg-black/40 text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-army-500 focus:border-army-500 transition-all font-medium"
+                                        placeholder="e.g. 3 hours"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="block text-xs font-semibold tracking-relaxed text-white/60">Price (IDR)</label>
+                                    <input
+                                        required
+                                        type="number"
+                                        value={formData.price}
+                                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                        className="w-full px-4 py-2.5 text-sm border border-white/10 bg-black/40 text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-army-500 focus:border-army-500 transition-all font-medium"
+                                        placeholder="0"
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="block text-xs font-semibold tracking-relaxed text-white/60">Category Tag</label>
+                                    <input
+                                        type="text"
+                                        value={formData.tag}
+                                        onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
+                                        className="w-full px-4 py-2.5 text-sm border border-white/10 bg-black/40 text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-army-500 focus:border-army-500 transition-all font-medium"
+                                        placeholder="e.g. SketchUp"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="block text-xs font-semibold tracking-relaxed text-white/60">Description</label>
+                                <textarea
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    rows={3}
+                                    className="w-full px-4 py-2.5 text-sm border border-white/10 bg-black/40 text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-army-500 focus:border-army-500 transition-all font-medium"
+                                    placeholder="Brief description of the course..."
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-3 bg-black/20 p-3 rounded-xl border border-white/5">
+                                <StatusToggle isActive={formData.isActive} onToggle={() => setFormData({ ...formData, isActive: !formData.isActive })} />
+                                <span className="text-xs font-semibold tracking-relaxed text-white/60">Active Status</span>
                             </div>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
-                            <textarea
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                rows={3}
-                                className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-sm placeholder-slate-400"
-                                placeholder="Brief description of the course..."
-                            />
+                        <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-white/5">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                disabled={loading}
+                                className="px-5 py-2.5 text-xs font-semibold tracking-relaxed text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="inline-flex items-center px-5 py-2.5 text-xs font-semibold tracking-relaxed text-black bg-white hover:bg-white/90 rounded-xl transition-all disabled:opacity-50 shadow-lg"
+                            >
+                                {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                                {editingCourse ? "Update Course" : "Create Course"}
+                            </button>
                         </div>
-
-                        <div className="flex items-center gap-2">
-                            <StatusToggle isActive={formData.isActive} onToggle={() => setFormData({ ...formData, isActive: !formData.isActive })} />
-                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Active Status</span>
-                        </div>
-                    </div>
-
-                    <div className="pt-6 mt-6 border-t border-slate-200 dark:border-slate-700 flex gap-3">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            disabled={loading}
-                            className="flex-1 px-4 py-2 bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-all border border-slate-200 dark:border-slate-600"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="flex-1 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-semibold rounded-lg hover:opacity-90 disabled:opacity-50 transition-all shadow-lg"
-                        >
-                            {loading ? "Saving..." : editingCourse ? "Update Course" : "Create Course"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                    </form>
+                </div>
+            </motion.div>
+        </motion.div>
     );
 }
 
@@ -561,129 +619,144 @@ function MentorFormModal({ onClose, onSuccess, editingMentor, allCourses }: { is
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white dark:bg-slate-800 rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-xl border border-slate-200 dark:border-slate-700">
-                <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center sticky top-0 bg-white dark:bg-slate-800 z-10">
-                    <h2 className="text-xl font-bold dark:text-white">{editingMentor ? "Edit Mentor" : "Add New Mentor"}</h2>
-                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
-                        <X className="w-6 h-6" />
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[100] flex justify-end p-0 sm:p-4 bg-black/60 backdrop-blur-sm"
+        >
+            <motion.div
+                initial={{ x: "100%", opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: "100%", opacity: 0 }}
+                transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                className="bg-secondary sm:rounded-2xl w-full max-w-lg h-full sm:h-auto sm:max-h-[90vh] overflow-hidden shadow-2xl border-l sm:border border-white/10 flex flex-col"
+            >
+                <div className="p-5 border-b border-white/5 flex justify-between items-center bg-white/[0.02] shrink-0">
+                    <h2 className="text-sm font-bold uppercase tracking-widest text-white">{editingMentor ? "Edit Mentor" : "Add New Mentor"}</h2>
+                    <button onClick={onClose} className="p-1.5 text-white/40 hover:bg-white/10 hover:text-white rounded-xl transition-all">
+                        <X className="w-4 h-4" />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    {/* Avatar Upload */}
-                    <div className="flex flex-col items-center gap-4">
-                        <div className="relative group">
-                            <div className="w-24 h-24 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center">
-                                {imagePreview ? (
-                                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                                ) : (
-                                    <ImageIcon className="w-8 h-8 text-slate-300" />
-                                )}
+                <div className="overflow-y-auto flex-1 p-6 custom-scrollbar">
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        {/* Avatar Upload */}
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="relative group">
+                                <div className="w-24 h-24 rounded-full overflow-hidden bg-black/40 border-2 border-white/10 shadow-sm flex items-center justify-center">
+                                    {imagePreview ? (
+                                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <ImageIcon className="w-8 h-8 text-white/20" />
+                                    )}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="absolute inset-0 flex items-center justify-center bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-full backdrop-blur-sm"
+                                >
+                                    <Upload className="w-6 h-6" />
+                                </button>
                             </div>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                className="hidden"
+                                accept="image/*"
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                        const reader = new FileReader();
+                                        reader.onloadend = () => setImagePreview(reader.result as string);
+                                        reader.readAsDataURL(file);
+                                    }
+                                }}
+                            />
+                            <span className="text-xs font-semibold tracking-relaxed text-white/60">Profile Picture</span>
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="block text-xs font-semibold tracking-relaxed text-white/60">Full Name</label>
+                            <input
+                                required
+                                type="text"
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                className="w-full px-4 py-2.5 text-sm border border-white/10 bg-black/40 text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-army-500 focus:border-army-500 transition-all font-medium"
+                                placeholder="Enter full name..."
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="block text-xs font-semibold tracking-relaxed text-white/60">Email Address</label>
+                            <input
+                                required
+                                type="email"
+                                value={formData.email}
+                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                className="w-full px-4 py-2.5 text-sm border border-white/10 bg-black/40 text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-army-500 focus:border-army-500 transition-all font-medium"
+                                placeholder="email@example.com"
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="block text-xs font-semibold tracking-relaxed text-white/60">Specialization</label>
+                            <input
+                                required
+                                type="text"
+                                value={formData.specialization}
+                                onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
+                                className="w-full px-4 py-2.5 text-sm border border-white/10 bg-black/40 text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-army-500 focus:border-army-500 transition-all font-medium"
+                                placeholder="e.g. Geotechnical Engineer"
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="block text-xs font-semibold tracking-relaxed text-white/60 mb-2">Mentor Tags (Courses)</label>
+                            <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-3 bg-black/20 rounded-xl border border-white/10 text-left">
+                                {allCourses.map(course => (
+                                    <label key={course.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 transition-colors cursor-pointer border border-transparent group">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.tags.includes(course.id)}
+                                            onChange={() => toggleCourseTag(course.id)}
+                                            className="w-4 h-4 rounded border-white/20 bg-black/50 text-army-500 focus:ring-army-500/50 transition-all cursor-pointer"
+                                        />
+                                        <span className="text-xs font-semibold text-white truncate">{course.title}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 bg-black/20 p-3 rounded-xl border border-white/5">
+                            <StatusToggle isActive={formData.isActive} onToggle={() => setFormData({ ...formData, isActive: !formData.isActive })} />
+                            <span className="text-[10px] font-semibold uppercase tracking-widest text-white/60">Active Status</span>
+                        </div>
+
+                        <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-white/5">
                             <button
                                 type="button"
-                                onClick={() => fileInputRef.current?.click()}
-                                className="absolute inset-0 flex items-center justify-center bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-full backdrop-blur-[1px]"
+                                onClick={onClose}
+                                disabled={loading}
+                                className="px-5 py-2.5 text-xs font-semibold tracking-light text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
                             >
-                                <Upload className="w-6 h-6" />
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="inline-flex items-center px-5 py-2.5 text-xs font-semibold tracking-light text-black bg-white hover:bg-white/90 rounded-xl transition-all disabled:opacity-50 shadow-lg"
+                            >
+                                {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                                {editingMentor ? "Update Mentor" : "Create Mentor"}
                             </button>
                         </div>
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            className="hidden"
-                            accept="image/*"
-                            onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                    const reader = new FileReader();
-                                    reader.onloadend = () => setImagePreview(reader.result as string);
-                                    reader.readAsDataURL(file);
-                                }
-                            }}
-                        />
-                        <span className="text-xs text-slate-500 font-medium tracking-tight">Profile Picture</span>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
-                        <input
-                            required
-                            type="text"
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-sm placeholder-slate-400"
-                            placeholder="Enter full name..."
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
-                        <input
-                            required
-                            type="email"
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-sm placeholder-slate-400"
-                            placeholder="email@example.com"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Specialization</label>
-                        <input
-                            required
-                            type="text"
-                            value={formData.specialization}
-                            onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
-                            className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-sm placeholder-slate-400"
-                            placeholder="e.g. Geotechnical Engineer"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Mentor Tags (Courses)</label>
-                        <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700 text-left">
-                            {allCourses.map(course => (
-                                <label key={course.id} className="flex items-center gap-2 p-2 rounded hover:bg-white dark:hover:bg-slate-800 transition-colors cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-slate-700 group">
-                                    <input
-                                        type="checkbox"
-                                        checked={formData.tags.includes(course.id)}
-                                        onChange={() => toggleCourseTag(course.id)}
-                                        className="w-4 h-4 rounded border-slate-300 text-slate-900 focus:ring-slate-950 transition-all cursor-pointer"
-                                    />
-                                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate">{course.title}</span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <StatusToggle isActive={formData.isActive} onToggle={() => setFormData({ ...formData, isActive: !formData.isActive })} />
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Active Status</span>
-                    </div>
-
-                    <div className="pt-6 mt-6 border-t border-slate-200 dark:border-slate-700 flex gap-3">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            disabled={loading}
-                            className="flex-1 px-4 py-2 bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-all border border-slate-200 dark:border-slate-600"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="flex-1 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-semibold rounded-lg hover:opacity-90 disabled:opacity-50 transition-all shadow-lg"
-                        >
-                            {loading ? "Saving..." : editingMentor ? "Update Mentor" : "Create Mentor"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                    </form>
+                </div>
+            </motion.div>
+        </motion.div>
     );
 }
 
@@ -692,14 +765,14 @@ function StatusToggle({ isActive, onToggle }: { isActive: boolean, onToggle: () 
         <button
             onClick={(e) => { e.stopPropagation(); onToggle(); }}
             className={cn(
-                "relative inline-flex h-6 w-16 items-center rounded-full transition-colors",
-                isActive ? "bg-slate-900 dark:bg-slate-200" : "bg-slate-200 dark:bg-slate-600"
+                "relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0",
+                isActive ? "bg-army-500" : "bg-white/10"
             )}
         >
             <span
                 className={cn(
-                    "inline-block h-5 w-5 transform rounded-full bg-white transition-transform shadow-sm",
-                    isActive ? "translate-x-10" : "translate-x-1"
+                    "inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform shadow-sm",
+                    isActive ? "translate-x-4.5" : "translate-x-1"
                 )}
             />
         </button>
@@ -708,19 +781,27 @@ function StatusToggle({ isActive, onToggle }: { isActive: boolean, onToggle: () 
 
 function CourseCard({ course, onEdit, onDelete, onToggle }: { course: CourseListRecord, onEdit: () => void, onDelete: () => void, onToggle: () => void }) {
     return (
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden shrink-0 group shadow-sm hover:border-slate-300 dark:hover:border-slate-600 transition-all flex flex-col">
-            <div className="h-48 bg-slate-100 dark:bg-slate-900/50 flex items-center justify-center shrink-0 border-b border-slate-100 dark:border-slate-700/50 relative overflow-hidden">
+        <div className="bg-secondary border border-white/5 rounded-2xl overflow-hidden shrink-0 group hover:border-army-500/50 transition-all flex flex-col relative">
+            <div className="h-40 bg-black/40 flex items-center justify-center shrink-0 border-b border-white/5 relative overflow-hidden">
                 {course.image ? (
-                    <img src={CourseMonitorService.getFileUrl(course, course.image, '400x400')} alt={course.title} className="w-full h-full object-cover" />
+                    <img src={CourseMonitorService.getFileUrl(course, course.image, '400x400')} alt={course.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                 ) : (
-                    <ImageIcon className="w-8 h-8 text-slate-300 dark:text-slate-600" />
+                    <ImageIcon className="w-8 h-8 text-white/20" />
                 )}
-                <div className="absolute top-3 left-3 flex gap-1 items-center">
-                    <span className="px-2 py-1 text-xs font-semibold bg-white/90 backdrop-blur-sm text-slate-800 rounded shadow-sm">
+                <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-bl from-black/80 via-black/40 to-transparent flex gap-1">
+                    <button onClick={onEdit} className="p-1.5 bg-black/50 hover:bg-army-500 text-white rounded-lg backdrop-blur-sm transition-colors border border-white/10">
+                        <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={onDelete} className="p-1.5 bg-black/50 hover:bg-red-500 text-white rounded-lg backdrop-blur-sm transition-colors border border-white/10">
+                        <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                </div>
+                <div className="absolute bottom-3 left-3 flex gap-2 items-center">
+                    <span className="px-2 py-1 text-[9px] font-semibold uppercase tracking-widest bg-black/80 backdrop-blur-sm text-white rounded-md border border-white/10 shadow-sm">
                         {course.serviceType}
                     </span>
                     {course.tag && (
-                        <span className="px-2 py-1 text-xs font-semibold bg-slate-900/90 backdrop-blur-sm text-white rounded shadow-sm">
+                        <span className="px-2 py-1 text-[9px] font-semibold uppercase tracking-widest bg-army-500/90 backdrop-blur-sm text-white rounded-md shadow-sm">
                             {course.tag}
                         </span>
                     )}
@@ -728,30 +809,31 @@ function CourseCard({ course, onEdit, onDelete, onToggle }: { course: CourseList
             </div>
 
             <div className="p-5 flex-1 flex flex-col">
-                <h3 className="font-semibold text-slate-900 dark:text-slate-100 leading-tight line-clamp-2 mb-2">{course.title}</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-4 flex-1">
+                <div className="flex justify-between items-start gap-3 mb-2">
+                    <h3 className="font-bold text-white leading-tight line-clamp-2">{course.title}</h3>
+                </div>
+                <p className="text-xs text-white/60 line-clamp-2 mb-4 flex-1">
                     {course.description || "No description provided."}
                 </p>
 
-                <div className="space-y-1.5 mb-5 mt-auto">
-                    <div className="flex items-center text-xs text-slate-600 dark:text-slate-400">
-                        <Clock className="w-3.5 h-3.5 mr-2 opacity-60" />
+                <div className="space-y-2 mb-4 mt-auto">
+                    <div className="flex items-center text-[10px] font-semibold uppercase tracking-widest text-white/40">
+                        <Clock className="w-3 h-3 mr-2" />
                         {course.duration || "-"}
                     </div>
-                    <div className="flex items-center text-xs text-slate-600 dark:text-slate-400">
-                        <Briefcase className="w-3.5 h-3.5 mr-2 opacity-60" />
+                    <div className="flex items-center text-[10px] font-semibold uppercase tracking-widest text-white/40">
+                        <Briefcase className="w-3 h-3 mr-2" />
                         {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(course.price || 0)}
                     </div>
                 </div>
 
-                <div className="flex gap-2 items-center border-t border-slate-100 dark:border-slate-700 pt-4">
-                    <StatusToggle isActive={course.isActive} onToggle={onToggle} />
-                    <button onClick={onEdit} className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium rounded transition-colors">
-                        <Edit2 className="w-3.5 h-3.5" /> Edit
-                    </button>
-                    <button onClick={onDelete} className="flex items-center justify-center px-4 py-2 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 text-sm font-medium rounded transition-colors">
-                        <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                <div className="flex justify-between items-center border-t border-white/5 pt-4">
+                    <div className="flex items-center gap-2">
+                        <StatusToggle isActive={course.isActive} onToggle={onToggle} />
+                        <span className="text-[10px] font-semibold uppercase tracking-widest text-white/40">
+                            {course.isActive ? "Active" : "Hidden"}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -760,48 +842,56 @@ function CourseCard({ course, onEdit, onDelete, onToggle }: { course: CourseList
 
 function MentorCard({ mentor, onEdit, onDelete, onToggle }: { mentor: MentorRecord, onEdit: () => void, onDelete: () => void, onToggle: () => void }) {
     return (
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden shrink-0 group shadow-sm hover:border-slate-300 dark:hover:border-slate-600 transition-all flex flex-col p-5">
-            <div className="flex justify-between items-start mb-4">
+        <div className="bg-secondary border border-white/5 rounded-2xl overflow-hidden shrink-0 group hover:border-army-500/50 transition-all flex flex-col p-5 relative">
+            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                <button onClick={onEdit} className="p-1.5 bg-black/50 hover:bg-army-500 text-white rounded-lg backdrop-blur-sm transition-colors border border-white/10">
+                    <Edit2 className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={onDelete} className="p-1.5 bg-black/50 hover:bg-red-500 text-white rounded-lg backdrop-blur-sm transition-colors border border-white/10">
+                    <Trash2 className="w-3.5 h-3.5" />
+                </button>
+            </div>
+
+            <div className="flex justify-between items-start mb-4 pr-8">
                 <div className="flex gap-4 items-center">
-                    <div className="w-14 h-14 rounded-full overflow-hidden shrink-0 bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center border border-slate-200 dark:border-slate-600">
+                    <div className="w-14 h-14 rounded-full overflow-hidden shrink-0 bg-black/40 flex items-center justify-center border border-white/10">
                         {mentor.image ?
-                            <img src={MentorService.getFileUrl(mentor, mentor.image, '100x100')} alt={mentor.name} className="w-full h-full object-cover" />
-                            : <ImageIcon className="w-5 h-5 text-slate-300 dark:text-slate-500" />
+                            <img src={MentorService.getFileUrl(mentor, mentor.image, '100x100')} alt={mentor.name} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                            : <ImageIcon className="w-5 h-5 text-white/20" />
                         }
                     </div>
                     <div>
-                        <h3 className="font-semibold text-slate-900 dark:text-slate-100 leading-tight mb-0.5">{mentor.name}</h3>
-                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{mentor.specialization || "Specialization N/A"}</p>
+                        <h3 className="font-bold text-white leading-tight mb-0.5">{mentor.name}</h3>
+                        <p className="text-[10px] font-semibold uppercase tracking-light text-army-500">{mentor.specialization || "Specialization N/A"}</p>
                     </div>
                 </div>
             </div>
 
-            <div className="flex flex-col gap-2 mb-4 flex-1">
-                <div className="flex items-center text-xs text-slate-600 dark:text-slate-400">
-                    <Mail className="w-3.5 h-3.5 mr-2 opacity-60" />
+            <div className="flex flex-col gap-3 mb-4 flex-1">
+                <div className="flex items-center text-[10px] font-semibold tracking-light text-white/40">
+                    <Mail className="w-3 h-3 mr-2" />
                     {mentor.email || "No email"}
                 </div>
                 {mentor.expand?.tags && mentor.expand.tags.length > 0 && (
-                    <div className="flex items-start text-xs text-slate-600 dark:text-slate-400 mt-1">
-                        <Tag className="w-3.5 h-3.5 mr-2 opacity-60 shrink-0 mt-0.5" />
-                        <div className="flex flex-wrap gap-1">
+                    <div className="flex items-start text-xs text-white/60 mt-1">
+                        <Tag className="w-3.5 h-3.5 mr-2 opacity-40 shrink-0 mt-0.5" />
+                        <div className="flex flex-wrap gap-1.5">
                             {mentor.expand.tags.map(t => (
-                                <span key={t.id} className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px]">{t.title}</span>
+                                <span key={t.id} className="px-2 py-0.5 bg-white/5 border border-white/10 rounded-md text-[9px] font-semibold tracking-light text-white/80">{t.title}</span>
                             ))}
                         </div>
                     </div>
                 )}
             </div>
 
-            <div className="flex gap-2 items-center border-t border-slate-100 dark:border-slate-700 pt-4 mt-auto">
-                <StatusToggle isActive={mentor.isActive} onToggle={onToggle} />
-                <button onClick={onEdit} className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium rounded transition-colors">
-                    <Edit2 className="w-3.5 h-3.5" /> Edit
-                </button>
-                <button onClick={onDelete} className="flex items-center justify-center px-4 py-2 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 text-sm font-medium rounded transition-colors">
-                    <Trash2 className="w-3.5 h-3.5" />
-                </button>
+            <div className="flex justify-between items-center border-t border-white/5 pt-4 mt-auto">
+                <div className="flex items-center gap-2">
+                    <StatusToggle isActive={mentor.isActive} onToggle={onToggle} />
+                    <span className="text-[10px] font-semibold uppercase tracking-widest text-white/40">
+                        {mentor.isActive ? "Active" : "Inactive"}
+                    </span>
+                </div>
             </div>
         </div>
-    )
+    );
 }

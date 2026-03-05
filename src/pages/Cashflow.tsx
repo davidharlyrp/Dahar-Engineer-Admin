@@ -36,17 +36,17 @@ function CheckboxFilter({ options, selected, onChange, isOpen, onToggle }: Check
             <button
                 onClick={(e) => { e.stopPropagation(); onToggle(); }}
                 className={cn(
-                    "p-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors",
-                    selected.length > 0 ? "text-slate-900 dark:text-white" : "text-slate-400"
+                    "p-0.5 rounded hover:bg-white/10 transition-colors",
+                    selected.length > 0 ? "text-white" : "text-white/40"
                 )}
             >
                 <Filter className={cn("w-3 h-3", selected.length > 0 && "fill-current")} />
             </button>
             {isOpen && (
-                <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-xl z-[100] p-2 normal-case font-normal text-xs overflow-hidden">
+                <div className="absolute left-0 mt-2 w-48 bg-secondary border border-white/10 rounded-xl shadow-xl z-[100] p-2 normal-case font-normal text-xs overflow-hidden">
                     <div className="max-h-48 overflow-y-auto space-y-1 py-1">
                         {options.map(option => (
-                            <label key={option} className="flex items-center gap-2 px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded cursor-pointer transition-colors">
+                            <label key={option} className="flex items-center gap-2 px-2 py-1 hover:bg-white/5 rounded cursor-pointer transition-colors">
                                 <input
                                     type="checkbox"
                                     checked={selected.includes(option)}
@@ -56,17 +56,17 @@ function CheckboxFilter({ options, selected, onChange, isOpen, onToggle }: Check
                                             : [...selected, option];
                                         onChange(next);
                                     }}
-                                    className="rounded border-slate-300 dark:border-slate-600 text-slate-900 focus:ring-slate-900 dark:focus:ring-slate-100"
+                                    className="rounded border-white/20 bg-black/40 text-army-500 focus:ring-army-500/40"
                                 />
-                                <span className="truncate text-slate-700 dark:text-slate-300">{option}</span>
+                                <span className="truncate text-white/60">{option}</span>
                             </label>
                         ))}
                     </div>
                     {selected.length > 0 && (
-                        <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+                        <div className="mt-2 pt-2 border-t border-white/5">
                             <button
                                 onClick={() => onChange([])}
-                                className="w-full py-1 text-[10px] text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                                className="w-full py-1 text-[10px] text-white/40 hover:text-white transition-colors"
                             >
                                 Clear All
                             </button>
@@ -348,12 +348,12 @@ export function Cashflow() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Cashflow Management</h1>
+                <h1 className="text-2xl font-bold tracking-tight text-white">Cashflow Management</h1>
                 <button
                     onClick={handleAddNewRow}
-                    className="inline-flex items-center justify-center rounded-md bg-slate-900 dark:bg-slate-100 px-4 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-black dark:hover:bg-white transition-colors shadow-sm"
+                    className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90 transition-colors shadow-sm"
                 >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Transaction
@@ -362,31 +362,31 @@ export function Cashflow() {
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
+                <div className="bg-secondary p-6 rounded-2xl border border-white/5 shadow-sm transition-colors">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-medium text-slate-600 dark:text-slate-400">Total Income</h3>
-                        <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                            <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
+                        <h3 className="font-medium text-white/50">Total Income</h3>
+                        <div className="p-2 bg-green-500/10 rounded-lg">
+                            <TrendingUp className="w-5 h-5 text-green-400" />
                         </div>
                     </div>
-                    <span className="text-2xl font-bold text-slate-900 dark:text-slate-100">{formatCurrency(stats.income)}</span>
+                    <span className="text-2xl font-bold text-white">{formatCurrency(stats.income)}</span>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
+                <div className="bg-secondary p-6 rounded-2xl border border-white/5 shadow-sm transition-colors">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-medium text-slate-600 dark:text-slate-400">Total Expense</h3>
-                        <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                            <TrendingDown className="w-5 h-5 text-red-600 dark:text-red-400" />
+                        <h3 className="font-medium text-white/50">Total Expense</h3>
+                        <div className="p-2 bg-red-500/10 rounded-lg">
+                            <TrendingDown className="w-5 h-5 text-red-400" />
                         </div>
                     </div>
-                    <span className="text-2xl font-bold text-slate-900 dark:text-slate-100">{formatCurrency(stats.expense)}</span>
+                    <span className="text-2xl font-bold text-white">{formatCurrency(stats.expense)}</span>
                 </div>
 
-                <div className="bg-slate-900 dark:bg-slate-100 p-6 rounded-xl shadow-lg text-white dark:text-slate-900 transition-colors">
+                <div className="bg-white p-6 rounded-2xl shadow-lg text-black transition-colors">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-medium text-slate-300 dark:text-slate-500">Net Balance</h3>
-                        <div className="p-2 bg-slate-800 dark:bg-slate-200 rounded-lg">
-                            <DollarSign className="w-5 h-5 text-slate-300 dark:text-slate-500" />
+                        <h3 className="font-medium text-black/50">Net Balance</h3>
+                        <div className="p-2 bg-black/5 rounded-lg">
+                            <DollarSign className="w-5 h-5 text-black/50" />
                         </div>
                     </div>
                     <span className="text-2xl font-bold">{formatCurrency(stats.balance)}</span>
@@ -394,30 +394,30 @@ export function Cashflow() {
             </div>
 
             {/* Transactions Table */}
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden flex flex-col transition-colors min-h-[400px]">
-                <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="bg-secondary border border-white/5 rounded-2xl shadow-sm overflow-hidden flex flex-col transition-colors min-h-[400px]">
+                <div className="p-4 border-b border-white/5 bg-white/[0.02] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="relative max-w-sm w-full">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                         <input
                             type="text"
                             placeholder="Search transactions..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 focus:border-transparent transition-all"
+                            className="w-full pl-9 pr-4 py-2 text-sm border border-white/10 bg-black/40 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-army-500/40 focus:border-transparent transition-all placeholder:text-white/30"
                         />
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="relative">
                             <button
                                 onClick={() => setIsDateFilterOpen(!isDateFilterOpen)}
-                                className="inline-flex items-center px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-md text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+                                className="inline-flex items-center px-3 py-2 border border-white/10 rounded-xl text-sm font-medium text-white/60 bg-black/40 hover:bg-white/5 transition-colors shadow-sm"
                             >
                                 <Filter className="w-4 h-4 mr-2" />
                                 {dateFilter === 'all' ? 'All Time' : dateFilter.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                             </button>
 
                             {isDateFilterOpen && (
-                                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-lg z-[70] py-1 overflow-hidden">
+                                <div className="absolute right-0 mt-2 w-64 bg-secondary border border-white/10 rounded-xl shadow-lg z-[70] py-1 overflow-hidden">
                                     <div className="max-h-60 overflow-y-auto">
                                         {[
                                             { id: 'all', label: 'All Time' },
@@ -440,8 +440,8 @@ export function Cashflow() {
                                                     }
                                                 }}
                                                 className={cn(
-                                                    "w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors",
-                                                    dateFilter === preset.id ? "font-bold text-slate-900 dark:text-white" : "text-slate-600 dark:text-slate-400"
+                                                    "w-full px-4 py-2 text-left text-sm hover:bg-white/5 transition-colors",
+                                                    dateFilter === preset.id ? "font-bold text-white" : "text-white/50"
                                                 )}
                                             >
                                                 {preset.label}
@@ -450,23 +450,23 @@ export function Cashflow() {
                                     </div>
 
                                     {dateFilter === 'custom' && (
-                                        <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 space-y-3">
+                                        <div className="px-4 py-3 border-t border-white/5 bg-black/40 space-y-3">
                                             <div className="space-y-1">
-                                                <label className="text-[10px] uppercase font-bold text-slate-400">From</label>
+                                                <label className="text-[10px] uppercase font-bold text-white/40">From</label>
                                                 <input
                                                     type="date"
                                                     value={customStartDate}
                                                     onChange={(e) => setCustomStartDate(e.target.value)}
-                                                    className="w-full px-2 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:ring-1 focus:ring-slate-400 outline-none"
+                                                    className="w-full px-2 py-1.5 text-xs bg-black/40 border border-white/10 rounded focus:ring-1 focus:ring-army-500/40 outline-none text-white"
                                                 />
                                             </div>
                                             <div className="space-y-1">
-                                                <label className="text-[10px] uppercase font-bold text-slate-400">To</label>
+                                                <label className="text-[10px] uppercase font-bold text-white/40">To</label>
                                                 <input
                                                     type="date"
                                                     value={customEndDate}
                                                     onChange={(e) => setCustomEndDate(e.target.value)}
-                                                    className="w-full px-2 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:ring-1 focus:ring-slate-400 outline-none"
+                                                    className="w-full px-2 py-1.5 text-xs bg-black/40 border border-white/10 rounded focus:ring-1 focus:ring-army-500/40 outline-none text-white"
                                                 />
                                             </div>
                                             <div className="flex gap-2 pt-1">
@@ -475,7 +475,7 @@ export function Cashflow() {
                                                         setIsDateFilterOpen(false);
                                                         setCurrentPage(1);
                                                     }}
-                                                    className="flex-1 px-3 py-1.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold rounded hover:opacity-90 transition-opacity"
+                                                    className="flex-1 px-3 py-1.5 bg-white text-black text-xs font-bold rounded hover:opacity-90 transition-opacity"
                                                 >
                                                     Apply
                                                 </button>
@@ -487,7 +487,7 @@ export function Cashflow() {
                                                         setIsDateFilterOpen(false);
                                                         setCurrentPage(1);
                                                     }}
-                                                    className="px-3 py-1.5 border border-slate-200 dark:border-slate-700 text-xs text-slate-500 rounded hover:bg-slate-100 dark:hover:bg-slate-800"
+                                                    className="px-3 py-1.5 border border-white/10 text-xs text-white/40 rounded hover:bg-white/5"
                                                 >
                                                     Reset
                                                 </button>
@@ -501,20 +501,20 @@ export function Cashflow() {
                 </div>
 
                 {isLoading ? (
-                    <div className="py-24 flex flex-col items-center justify-center text-slate-500">
+                    <div className="py-24 flex flex-col items-center justify-center text-white/40">
                         <Clock className="w-8 h-8 mb-4 animate-spin opacity-20" />
                         <span>Loading transactions...</span>
                     </div>
                 ) : items.length === 0 ? (
-                    <div className="py-24 flex flex-col items-center justify-center text-slate-500 text-center px-4">
+                    <div className="py-24 flex flex-col items-center justify-center text-white/40 text-center px-4">
                         <DollarSign className="w-12 h-12 mb-4 opacity-10" />
-                        <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-1">No transactions found</h3>
+                        <h3 className="text-lg font-medium text-white mb-1">No transactions found</h3>
                         <p className="text-sm">Add a new transaction to see it in the record.</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left whitespace-nowrap">
-                            <thead className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 uppercase">
+                            <thead className="text-xs text-white/40 bg-white/[0.02] border-b border-white/5 uppercase">
                                 <tr>
                                     <th className="px-4 py-3 font-bold">Date</th>
                                     <th className="px-4 py-3 font-bold">Time</th>
@@ -560,15 +560,15 @@ export function Cashflow() {
                                     <th className="px-4 py-3 font-bold text-center">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                            <tbody className="divide-y divide-white/5">
                                 {editingId === "new" && (
-                                    <tr className="bg-slate-50/80 dark:bg-slate-900/40">
+                                    <tr className="bg-white/[0.02]">
                                         <td className="px-2 py-2">
                                             <input
                                                 type="date"
                                                 value={editFormData.date}
                                                 onChange={e => setEditFormData(prev => ({ ...prev, date: e.target.value }))}
-                                                className="w-28 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs"
+                                                className="w-28 bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white"
                                             />
                                         </td>
                                         <td className="px-2 py-2">
@@ -576,7 +576,7 @@ export function Cashflow() {
                                                 type="time"
                                                 value={editFormData.time}
                                                 onChange={e => setEditFormData(prev => ({ ...prev, time: e.target.value }))}
-                                                className="w-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs"
+                                                className="w-20 bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white"
                                             />
                                         </td>
                                         <td className="px-2 py-2 relative">
@@ -591,10 +591,10 @@ export function Cashflow() {
                                                         setEditFormData(prev => ({ ...prev, name: e.target.value }));
                                                         setIsNameDropdownOpen(true);
                                                     }}
-                                                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs"
+                                                    className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white placeholder:text-white/30"
                                                 />
                                                 {isNameDropdownOpen && (
-                                                    <div className="absolute flex flex-col top-full left-0 h-200 w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-lg z-50 max-h-32 overflow-y-auto">
+                                                    <div className="absolute flex flex-col top-full left-0 h-200 w-full bg-secondary border border-white/10 rounded shadow-lg z-50 max-h-32 overflow-y-auto">
                                                         {availableNames.filter(n => n.name.toLowerCase().includes(nameSearch.toLowerCase())).map(n => (
                                                             <button
                                                                 key={n.id}
@@ -603,7 +603,7 @@ export function Cashflow() {
                                                                     setNameSearch(n.name);
                                                                     setIsNameDropdownOpen(false);
                                                                 }}
-                                                                className="w-full px-2 py-1 text-left text-xs hover:bg-slate-100 dark:hover:bg-slate-700"
+                                                                className="w-full px-2 py-1 text-left text-xs text-white/60 hover:bg-white/5"
                                                             >
                                                                 {n.name}
                                                             </button>
@@ -624,10 +624,10 @@ export function Cashflow() {
                                                         setEditFormData(prev => ({ ...prev, type: e.target.value }));
                                                         setIsTagDropdownOpen(true);
                                                     }}
-                                                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs"
+                                                    className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white placeholder:text-white/30"
                                                 />
                                                 {isTagDropdownOpen && (
-                                                    <div className="absolute flex flex-col top-full left-0 h-200 w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-lg z-50 max-h-32 overflow-y-auto">
+                                                    <div className="absolute flex flex-col top-full left-0 h-200 w-full bg-secondary border border-white/10 rounded shadow-lg z-50 max-h-32 overflow-y-auto">
                                                         {availableTags.filter(t => t.tag.toLowerCase().includes(tagSearch.toLowerCase())).map(t => (
                                                             <button
                                                                 key={t.id}
@@ -636,7 +636,7 @@ export function Cashflow() {
                                                                     setTagSearch(t.tag);
                                                                     setIsTagDropdownOpen(false);
                                                                 }}
-                                                                className="w-full px-2 py-1 text-left text-xs hover:bg-slate-100 dark:hover:bg-slate-700"
+                                                                className="w-full px-2 py-1 text-left text-xs text-white/60 hover:bg-white/5"
                                                             >
                                                                 {t.tag}
                                                             </button>
@@ -651,21 +651,21 @@ export function Cashflow() {
                                                 placeholder="Description..."
                                                 value={editFormData.description}
                                                 onChange={e => setEditFormData(prev => ({ ...prev, description: e.target.value }))}
-                                                className="w-40 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs"
+                                                className="w-40 bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white placeholder:text-white/30"
                                             />
                                         </td>
                                         <div className="flex gap-1">
-                                            <button onClick={() => setEditFormData(prev => ({ ...prev, category: 'income' }))} className={cn("px-2 py-0.5 text-[9px] rounded font-bold", editFormData.category === 'income' ? 'bg-green-600 text-white' : 'bg-slate-200 dark:bg-slate-700')}>IN</button>
-                                            <button onClick={() => setEditFormData(prev => ({ ...prev, category: 'expense' }))} className={cn("px-2 py-0.5 text-[9px] rounded font-bold", editFormData.category === 'expense' ? 'bg-red-600 text-white' : 'bg-slate-200 dark:bg-slate-700')}>OUT</button>
+                                            <button onClick={() => setEditFormData(prev => ({ ...prev, category: 'income' }))} className={cn("px-2 py-0.5 text-[9px] rounded font-bold", editFormData.category === 'income' ? 'bg-green-600 text-white' : 'bg-white/5 text-white/40')}>IN</button>
+                                            <button onClick={() => setEditFormData(prev => ({ ...prev, category: 'expense' }))} className={cn("px-2 py-0.5 text-[9px] rounded font-bold", editFormData.category === 'expense' ? 'bg-red-600 text-white' : 'bg-white/5 text-white/40')}>OUT</button>
                                         </div>
                                         <td className="px-2 py-2">
                                             <div className="flex items-center gap-1 w-32">
-                                                <span className="text-[10px] text-slate-400">Rp</span>
+                                                <span className="text-[10px] text-white/30">Rp</span>
                                                 <input
                                                     type="number"
                                                     value={editFormData.amount}
                                                     onChange={e => setEditFormData(prev => ({ ...prev, amount: Number(e.target.value) }))}
-                                                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs text-right"
+                                                    className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-right text-white"
                                                 />
                                             </div>
                                         </td>
@@ -675,14 +675,14 @@ export function Cashflow() {
                                                 placeholder="Notes..."
                                                 value={editFormData.notes}
                                                 onChange={e => setEditFormData(prev => ({ ...prev, notes: e.target.value }))}
-                                                className="w-40 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs"
+                                                className="w-40 bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white placeholder:text-white/30"
                                             />
                                         </td>
                                         <td className="px-2 py-2 text-center flex items-center justify-center gap-2 h-full">
-                                            <button onClick={handleSaveRow} disabled={isSubmitting} className="p-1.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded hover:opacity-80 transition-opacity">
+                                            <button onClick={handleSaveRow} disabled={isSubmitting} className="p-1.5 bg-white text-black rounded hover:opacity-80 transition-opacity">
                                                 {isSubmitting ? <Clock className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
                                             </button>
-                                            <button onClick={() => setEditingId(null)} className="p-1.5 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-400">
+                                            <button onClick={() => setEditingId(null)} className="p-1.5 border border-white/10 rounded hover:bg-white/5 transition-colors text-white/40">
                                                 <RotateCcw className="w-3 h-3" />
                                             </button>
                                         </td>
@@ -691,13 +691,13 @@ export function Cashflow() {
 
                                 {items.map((tx) => (
                                     editingId === tx.id ? (
-                                        <tr key={tx.id} className="bg-slate-50/80 dark:bg-slate-900/40">
+                                        <tr key={tx.id} className="bg-white/[0.02]">
                                             <td className="px-2 py-2">
                                                 <input
                                                     type="date"
                                                     value={editFormData.date}
                                                     onChange={e => setEditFormData(prev => ({ ...prev, date: e.target.value }))}
-                                                    className="w-28 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs"
+                                                    className="w-28 bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white"
                                                 />
                                             </td>
                                             <td className="px-2 py-2">
@@ -705,7 +705,7 @@ export function Cashflow() {
                                                     type="time"
                                                     value={editFormData.time}
                                                     onChange={e => setEditFormData(prev => ({ ...prev, time: e.target.value }))}
-                                                    className="w-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs"
+                                                    className="w-20 bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white"
                                                 />
                                             </td>
                                             <td className="px-2 py-2 relative">
@@ -718,10 +718,10 @@ export function Cashflow() {
                                                         setEditFormData(prev => ({ ...prev, name: e.target.value }));
                                                         setIsNameDropdownOpen(true);
                                                     }}
-                                                    className="w-40 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs"
+                                                    className="w-40 bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white"
                                                 />
                                                 {isNameDropdownOpen && (
-                                                    <div className="absolute flex flex-col top-full left-0 h-200 w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-lg z-50 max-h-32 overflow-y-auto">
+                                                    <div className="absolute flex flex-col top-full left-0 h-200 w-full bg-secondary border border-white/10 rounded shadow-lg z-50 max-h-32 overflow-y-auto">
                                                         {availableNames.filter(n => n.name.toLowerCase().includes(nameSearch.toLowerCase())).map(n => (
                                                             <button
                                                                 key={n.id}
@@ -730,7 +730,7 @@ export function Cashflow() {
                                                                     setNameSearch(n.name);
                                                                     setIsNameDropdownOpen(false);
                                                                 }}
-                                                                className="w-full px-2 py-1 text-left text-xs hover:bg-slate-100 dark:hover:bg-slate-700"
+                                                                className="w-full px-2 py-1 text-left text-xs text-white/60 hover:bg-white/5"
                                                             >
                                                                 {n.name}
                                                             </button>
@@ -749,10 +749,10 @@ export function Cashflow() {
                                                             setEditFormData(prev => ({ ...prev, category: e.target.value }));
                                                             setIsTagDropdownOpen(true);
                                                         }}
-                                                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs"
+                                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white"
                                                     />
                                                     {isTagDropdownOpen && (
-                                                        <div className="absolute flex flex-col top-full left-0 h-200 w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-lg z-50 max-h-32 overflow-y-auto">
+                                                        <div className="absolute flex flex-col top-full left-0 h-200 w-full bg-secondary border border-white/10 rounded shadow-lg z-50 max-h-32 overflow-y-auto">
                                                             {availableTags.filter(t => t.tag.toLowerCase().includes(tagSearch.toLowerCase())).map(t => (
                                                                 <button
                                                                     key={t.id}
@@ -761,7 +761,7 @@ export function Cashflow() {
                                                                         setTagSearch(t.tag);
                                                                         setIsTagDropdownOpen(false);
                                                                     }}
-                                                                    className="w-full px-2 py-1 text-left text-xs hover:bg-slate-100 dark:hover:bg-slate-700"
+                                                                    className="w-full px-2 py-1 text-left text-xs text-white/60 hover:bg-white/5"
                                                                 >
                                                                     {t.tag}
                                                                 </button>
@@ -775,23 +775,23 @@ export function Cashflow() {
                                                     type="text"
                                                     value={editFormData.description}
                                                     onChange={e => setEditFormData(prev => ({ ...prev, description: e.target.value }))}
-                                                    className="w-40 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs"
+                                                    className="w-40 bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white"
                                                 />
                                             </td>
                                             <td className="px-2 py-2">
                                                 <div className="flex gap-1">
-                                                    <button onClick={() => setEditFormData(prev => ({ ...prev, type: 'income' }))} className={cn("px-2 py-1 text-[10px] rounded font-bold transition-colors", editFormData.type === 'income' ? 'bg-green-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500')}>IN</button>
-                                                    <button onClick={() => setEditFormData(prev => ({ ...prev, type: 'expense' }))} className={cn("px-2 py-1 text-[10px] rounded font-bold transition-colors", editFormData.type === 'expense' ? 'bg-red-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500')}>OUT</button>
+                                                    <button onClick={() => setEditFormData(prev => ({ ...prev, type: 'income' }))} className={cn("px-2 py-1 text-[10px] rounded font-bold transition-colors", editFormData.type === 'income' ? 'bg-green-600 text-white' : 'bg-white/5 text-white/40')}>IN</button>
+                                                    <button onClick={() => setEditFormData(prev => ({ ...prev, type: 'expense' }))} className={cn("px-2 py-1 text-[10px] rounded font-bold transition-colors", editFormData.type === 'expense' ? 'bg-red-600 text-white' : 'bg-white/5 text-white/40')}>OUT</button>
                                                 </div>
                                             </td>
                                             <td className="px-2 py-2">
                                                 <div className="flex items-center gap-1 w-32">
-                                                    <span className="text-[10px] text-slate-400">Rp</span>
+                                                    <span className="text-[10px] text-white/30">Rp</span>
                                                     <input
                                                         type="number"
                                                         value={editFormData.amount}
                                                         onChange={e => setEditFormData(prev => ({ ...prev, amount: Number(e.target.value) }))}
-                                                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs text-right"
+                                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-right text-white"
                                                     />
                                                 </div>
                                             </td>
@@ -800,35 +800,35 @@ export function Cashflow() {
                                                     type="text"
                                                     value={editFormData.notes}
                                                     onChange={e => setEditFormData(prev => ({ ...prev, notes: e.target.value }))}
-                                                    className="w-40 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs"
+                                                    className="w-40 bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white"
                                                 />
                                             </td>
                                             <td className="px-2 py-2 text-center flex items-center justify-center gap-2">
-                                                <button onClick={handleSaveRow} disabled={isSubmitting} className="p-1.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded hover:opacity-80 transition-opacity">
+                                                <button onClick={handleSaveRow} disabled={isSubmitting} className="p-1.5 bg-white text-black rounded hover:opacity-80 transition-opacity">
                                                     {isSubmitting ? <Clock className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
                                                 </button>
-                                                <button onClick={() => setEditingId(null)} className="p-1.5 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-400">
+                                                <button onClick={() => setEditingId(null)} className="p-1.5 border border-white/10 rounded hover:bg-white/5 transition-colors text-white/40">
                                                     <RotateCcw className="w-3 h-3" />
                                                 </button>
                                             </td>
                                         </tr>
                                     ) : (
-                                        <tr key={tx.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors group">
-                                            <td className="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                                        <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors group">
+                                            <td className="px-4 py-3 text-white/40 text-xs">
                                                 {new Date(tx.date).toLocaleDateString("id-ID")}
                                             </td>
-                                            <td className="px-4 py-3 text-slate-500 dark:text-slate-500 text-xs">
+                                            <td className="px-4 py-3 text-white/30 text-xs">
                                                 {tx.time ? new Date(tx.time).toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' }) : "-"}
                                             </td>
-                                            <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100 max-w-[150px] truncate" title={tx.name}>
+                                            <td className="px-4 py-3 font-medium text-white max-w-[150px] truncate" title={tx.name}>
                                                 {tx.name}
                                             </td>
                                             <td className="px-4 py-3">
-                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 uppercase tracking-tight">
+                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-white/5 text-white/50 uppercase tracking-tight">
                                                     {tx.type || "-"}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs max-w-[200px] truncate" title={tx.description}>
+                                            <td className="px-4 py-3 text-white/40 text-xs max-w-[200px] truncate" title={tx.description}>
                                                 {tx.description || "-"}
                                             </td>
                                             <td className="px-4 py-3">
@@ -840,9 +840,9 @@ export function Cashflow() {
                                                     return (
                                                         <span className={cn(
                                                             "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold",
-                                                            isInc ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
-                                                                isExp ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' :
-                                                                    'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                                                            isInc ? 'bg-green-500/10 text-green-400' :
+                                                                isExp ? 'bg-red-500/10 text-red-400' :
+                                                                    'bg-white/5 text-white/40'
                                                         )}>
                                                             {tx.category || tx.type}
                                                         </span>
@@ -855,7 +855,7 @@ export function Cashflow() {
                                                     const tVal = (tx.type || "").toLowerCase();
                                                     const cVal = (tx.category || "").toLowerCase();
                                                     return tVal === 'income' || cVal === 'income' || tVal === 'masuk' || cVal === 'masuk';
-                                                })() ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                                                })() ? 'text-green-400' : 'text-red-400'
                                             )}>
                                                 {(() => {
                                                     const tVal = (tx.type || "").toLowerCase();
@@ -863,14 +863,14 @@ export function Cashflow() {
                                                     return tVal === 'income' || cVal === 'income' || tVal === 'masuk' || cVal === 'masuk' ? '+' : '-';
                                                 })()}{formatCurrency(tx.amount)}
                                             </td>
-                                            <td className="px-4 py-3 text-slate-500 dark:text-slate-500 text-xs max-w-[200px] truncate" title={tx.notes}>
+                                            <td className="px-4 py-3 text-white/30 text-xs max-w-[200px] truncate" title={tx.notes}>
                                                 {tx.notes || "-"}
                                             </td>
                                             <td className="px-4 py-3 text-center opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                <button onClick={() => handleEditRow(tx)} className="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+                                                <button onClick={() => handleEditRow(tx)} className="p-1.5 text-white/40 hover:text-white transition-colors">
                                                     <Edit2 className="w-3.5 h-3.5" />
                                                 </button>
-                                                <button onClick={() => handleDeleteRow(tx.id)} className="p-1.5 text-slate-400 hover:text-red-600 transition-colors">
+                                                <button onClick={() => handleDeleteRow(tx.id)} className="p-1.5 text-white/40 hover:text-red-400 transition-colors">
                                                     <Trash2 className="w-3.5 h-3.5" />
                                                 </button>
                                             </td>
@@ -884,22 +884,22 @@ export function Cashflow() {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                    <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/30 dark:bg-slate-900/10 mt-auto">
-                        <p className="text-xs text-slate-500 font-medium tracking-tight">
-                            Page <span className="text-slate-900 dark:text-slate-100">{currentPage}</span> of <span className="text-slate-900 dark:text-slate-100">{totalPages}</span>
+                    <div className="p-4 border-t border-white/5 flex items-center justify-between bg-white/[0.02] mt-auto">
+                        <p className="text-xs text-white/40 font-medium tracking-tight">
+                            Page <span className="text-white">{currentPage}</span> of <span className="text-white">{totalPages}</span>
                         </p>
                         <div className="flex gap-2">
                             <button
                                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                                 disabled={currentPage === 1 || isLoading}
-                                className="p-2 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                className="p-2 rounded-xl border border-white/10 bg-secondary text-white/40 disabled:opacity-50 hover:bg-white/5 transition-colors"
                             >
                                 <ChevronLeft className="w-4 h-4" />
                             </button>
                             <button
                                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                                 disabled={currentPage === totalPages || isLoading}
-                                className="p-2 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                className="p-2 rounded-xl border border-white/10 bg-secondary text-white/40 disabled:opacity-50 hover:bg-white/5 transition-colors"
                             >
                                 <ChevronRight className="w-4 h-4" />
                             </button>

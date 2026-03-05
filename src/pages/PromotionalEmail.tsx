@@ -59,7 +59,7 @@ export function PromotionalEmail() {
         try {
             let filter = "newsletter = true";
             if (search) {
-                filter += ` && (name ~ "${search}" || email ~ "${search}" || display_name ~ "${search}")`;
+                filter += ` && (name ~"${search}"|| email ~"${search}"|| display_name ~"${search}")`;
             }
             const res = await UserService.getUsers(page, perPage, "-created", filter);
             setUsers(res.items);
@@ -151,80 +151,80 @@ export function PromotionalEmail() {
     };
 
     return (
-        <div className="w-full mx-auto space-y-6">
+        <div className="w-full mx-auto space-y-6 p-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Promotional Email</h1>
+                    <h1 className="text-2xl font-bold tracking-tight text-white">Promotional Email</h1>
                 </div>
             </div>
 
             {/* Stepper */}
-            <div className="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <div className="flex items-center gap-4 bg-secondary/20 p-4 rounded-xl border border-white/5 shadow-sm">
                 <StepItem num={1} label="Recipients" active={step === 1} completed={step > 1} />
-                <div className="h-px w-8 bg-slate-200 dark:bg-slate-700" />
+                <div className="h-px w-8 bg-white/5" />
                 <StepItem num={2} label="Design" active={step === 2} completed={step > 2} />
-                <div className="h-px w-8 bg-slate-200 dark:bg-slate-700" />
+                <div className="h-px w-8 bg-white/5" />
                 <StepItem num={3} label="Confirm" active={step === 3} completed={step > 3} />
-                <div className="h-px w-8 bg-slate-200 dark:bg-slate-700" />
+                <div className="h-px w-8 bg-white/5" />
                 <StepItem num={4} label="Result" active={step === 4} completed={false} />
             </div>
 
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden min-h-[500px] flex flex-col">
+            <div className="bg-secondary/20 border border-white/5 rounded-xl shadow-sm overflow-hidden min-h-[500px] flex flex-col">
 
                 {/* ─── Step 1: Recipients ─── */}
                 {step === 1 && (
                     <div className="flex-1 flex flex-col">
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="p-4 border-b border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
                             <div className="relative w-full max-w-sm">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                                 <input
                                     type="text" placeholder="Search users..."
                                     value={search} onChange={(e) => setSearch(e.target.value)}
-                                    className="w-full pl-9 pr-4 py-2 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 transition-all outline-none"
+                                    className="w-full pl-9 pr-4 py-2 text-sm border border-white/5 bg-secondary text-white rounded-md focus:ring-2 focus:ring-army-500 transition-all outline-none"
                                 />
                             </div>
                             <div className="flex items-center gap-4 text-sm font-medium">
-                                <span className="text-slate-500 dark:text-slate-400">{selectedUserIds.size} selected</span>
-                                <button onClick={handleSelectAll} className="text-slate-900 dark:text-slate-100 hover:underline">
+                                <span className="text-white/40">{selectedUserIds.size} selected</span>
+                                <button onClick={handleSelectAll} className="text-white hover:underline">
                                     {selectAll ? "Deselect All" : "Select All Page"}
                                 </button>
                             </div>
                         </div>
                         <div className="flex-1 overflow-y-auto max-h-[600px]">
                             {isLoading ? (
-                                <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+                                <div className="flex flex-col items-center justify-center py-20 text-white/40">
                                     <Loader2 className="w-8 h-8 animate-spin mb-2" /><span>Fetching users...</span>
                                 </div>
                             ) : (
                                 <table className="w-full text-left text-sm">
-                                    <thead className="sticky top-0 bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border-b dark:border-slate-700">
+                                    <thead className="sticky top-0 bg-white/[0.02] text-white/40 border-b">
                                         <tr>
                                             <th className="px-6 py-3 w-10">
                                                 <input type="checkbox" checked={selectAll} onChange={handleSelectAll}
-                                                    className="rounded border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 focus:ring-slate-900" />
+                                                    className="rounded border-white/5 text-white focus:ring-army-500" />
                                             </th>
                                             <th className="px-6 py-3">Name</th>
                                             <th className="px-6 py-3">Email</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                    <tbody className="divide-y divide-white/5">
                                         {users.map(user => (
-                                            <tr key={user.id} className={cn("hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer", selectedUserIds.has(user.id) && "bg-slate-50 dark:bg-slate-700/50")} onClick={() => toggleUser(user.id)}>
-                                                <td className="px-6 py-4"><input type="checkbox" checked={selectedUserIds.has(user.id)} onChange={() => { }} className="rounded border-slate-300 dark:border-slate-600 text-slate-900" /></td>
-                                                <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">{user.name || user.display_name || "N/A"}</td>
-                                                <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{user.email}</td>
+                                            <tr key={user.id} className={cn("hover:bg-white/5 transition-colors cursor-pointer", selectedUserIds.has(user.id) && "bg-white/[0.02]")} onClick={() => toggleUser(user.id)}>
+                                                <td className="px-6 py-4"><input type="checkbox" checked={selectedUserIds.has(user.id)} onChange={() => { }} className="rounded border-white/5 text-white" /></td>
+                                                <td className="px-6 py-4 font-medium text-white">{user.name || user.display_name || "N/A"}</td>
+                                                <td className="px-6 py-4 text-white/40">{user.email}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             )}
                         </div>
-                        <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                        <div className="p-4 border-t border-white/5 flex items-center justify-between">
                             <div className="flex gap-2">
-                                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-                                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+                                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-1.5 rounded-md hover:bg-white/5 disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
+                                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-1.5 rounded-md hover:bg-white/5 disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
                             </div>
-                            <button onClick={() => setStep(2)} disabled={selectedUserIds.size === 0} className="px-6 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-md font-medium hover:bg-black dark:hover:bg-white transition-colors disabled:opacity-50">
+                            <button onClick={() => setStep(2)} disabled={selectedUserIds.size === 0} className="px-6 py-2 bg-white/5 text-white rounded-md font-medium hover:bg-black transition-colors disabled:opacity-50">
                                 Next: Design Email
                             </button>
                         </div>
@@ -235,8 +235,8 @@ export function PromotionalEmail() {
                 {step === 2 && (
                     <div className="flex-1 flex flex-col">
                         {/* Template Selector Bar */}
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-                            <p className="text-xs font-semibold text-slate-400 mb-3">Choose Template</p>
+                        <div className="p-4 border-b border-white/5">
+                            <p className="text-xs font-semibold text-white/40 mb-3">Choose Template</p>
                             <div className="flex gap-3 overflow-x-auto pb-1">
                                 {emailTemplates.map(t => (
                                     <button
@@ -245,14 +245,14 @@ export function PromotionalEmail() {
                                         className={cn(
                                             "flex items-center gap-2.5 px-4 py-2.5 rounded-lg border-2 text-left transition-all whitespace-nowrap",
                                             selectedTemplateId === t.id
-                                                ? "border-slate-900 dark:border-slate-100 bg-slate-50 dark:bg-slate-700/50 shadow-sm"
-                                                : "border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500"
+                                                ? "border-white/5 bg-white/[0.02] shadow-sm"
+                                                : "border-white/5 hover:border-white/5"
                                         )}
                                     >
                                         <span className="text-2xl">{t.emoji}</span>
                                         <div>
-                                            <div className="text-sm font-bold text-slate-900 dark:text-slate-100">{t.name}</div>
-                                            <div className="text-[11px] text-slate-500 dark:text-slate-400">{t.description}</div>
+                                            <div className="text-sm font-bold text-white">{t.name}</div>
+                                            <div className="text-[11px] text-white/40">{t.description}</div>
                                         </div>
                                     </button>
                                 ))}
@@ -262,21 +262,21 @@ export function PromotionalEmail() {
                         {/* Editor + Preview Split */}
                         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
                             {/* Left: Fields Editor */}
-                            <div className="lg:w-[380px] w-full p-5 space-y-4 overflow-y-auto border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-700">
+                            <div className="lg:w-[380px] w-full p-5 space-y-4 overflow-y-auto border-b lg:border-b-0 lg:border-r border-white/5">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Customize Content</span>
+                                    <span className="text-sm font-bold text-white/80">Customize Content</span>
                                 </div>
 
                                 {selectedTemplateId === 'blog' && (
-                                    <div className="space-y-4 mb-6 p-4 bg-slate-50 dark:bg-slate-900/30 rounded-xl border border-slate-200 dark:border-slate-700">
-                                        <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">
+                                    <div className="space-y-4 mb-6 p-4 bg-white/5/30 rounded-xl border border-white/5">
+                                        <label className="block text-xs font-semibold text-white/40 mb-2 flex items-center gap-2">
                                             <Search className="w-3 h-3" /> Select Blog Post to Populate
                                         </label>
                                         <div className="relative">
                                             <select
                                                 value={selectedBlogId}
                                                 onChange={(e) => handleBlogSelect(e.target.value)}
-                                                className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:ring-2 focus:ring-slate-900 outline-none transition-all appearance-none pr-10"
+                                                className="w-full px-3 py-2 text-sm border border-white/5 bg-secondary text-white rounded-md focus:ring-2 focus:ring-army-500 outline-none transition-all appearance-none pr-10"
                                             >
                                                 <option value="">-- Choose an article --</option>
                                                 {blogs.map(b => (
@@ -284,15 +284,15 @@ export function PromotionalEmail() {
                                                 ))}
                                             </select>
                                             <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                                                {isLoadingBlogs ? <Loader2 className="w-4 h-4 animate-spin text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400 rotate-90" />}
+                                                {isLoadingBlogs ? <Loader2 className="w-4 h-4 animate-spin text-white/40" /> : <ChevronRight className="w-4 h-4 text-white/40 rotate-90" />}
                                             </div>
                                         </div>
-                                        <p className="text-[10px] text-slate-500 italic">Picking a blog will automatically fill the fields below.</p>
+                                        <p className="text-[10px] text-white/40 italic">Picking a blog will automatically fill the fields below.</p>
                                     </div>
                                 )}
 
                                 <FieldInput label="Email Subject" value={emailSubject} onChange={setEmailSubject} placeholder="Enter the subject line..." />
-                                <div className="h-px bg-slate-100 dark:bg-slate-700" />
+                                <div className="h-px bg-white/5" />
                                 <FieldInput label="Heading" value={templateFields.heading} onChange={v => updateField("heading", v)} />
                                 <FieldInput label="Subheading" value={templateFields.subheading} onChange={v => updateField("subheading", v)} />
                                 <FieldInput label="Body Text" value={templateFields.bodyText} onChange={v => updateField("bodyText", v)} multiline />
@@ -302,15 +302,15 @@ export function PromotionalEmail() {
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Accent Color</label>
+                                        <label className="block text-xs font-semibold text-white/40 mb-1">Accent Color</label>
                                         <div className="flex items-center gap-2">
                                             <input
                                                 type="color"
                                                 value={templateFields.accentColor}
                                                 onChange={e => updateField("accentColor", e.target.value)}
-                                                className="w-8 h-8 rounded border border-slate-300 dark:border-slate-600 cursor-pointer"
+                                                className="w-8 h-8 rounded border border-white/5 cursor-pointer"
                                             />
-                                            <span className="text-xs font-mono text-slate-500">{templateFields.accentColor}</span>
+                                            <span className="text-xs font-mono text-white/40">{templateFields.accentColor}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -318,16 +318,16 @@ export function PromotionalEmail() {
                             </div>
 
                             {/* Right: Live Preview */}
-                            <div className="flex-1 flex flex-col bg-slate-100 dark:bg-slate-900/50 min-h-[400px]">
-                                <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-                                    <Eye className="w-4 h-4 text-slate-400" />
-                                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Live Preview</span>
+                            <div className="flex-1 flex flex-col bg-black/20 min-h-[400px]">
+                                <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/5 bg-secondary">
+                                    <Eye className="w-4 h-4 text-white/40" />
+                                    <span className="text-xs font-semibold text-white/40">Live Preview</span>
                                 </div>
                                 <div className="flex-1 p-4 overflow-auto">
                                     <iframe
                                         srcDoc={renderedHtml}
                                         title="Email Preview"
-                                        className="w-full h-full min-h-[500px] bg-white rounded-lg shadow-inner border border-slate-200 dark:border-slate-700"
+                                        className="w-full h-full min-h-[500px] bg-black/20 rounded-lg shadow-inner border border-white/5"
                                         sandbox=""
                                     />
                                 </div>
@@ -335,14 +335,14 @@ export function PromotionalEmail() {
                         </div>
 
                         {/* Bottom Action Bar */}
-                        <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                            <button onClick={() => setStep(1)} className="flex items-center gap-1.5 px-4 py-2 text-slate-600 dark:text-slate-400 font-medium hover:text-slate-900 dark:hover:text-slate-100">
+                        <div className="p-4 border-t border-white/5 flex items-center justify-between">
+                            <button onClick={() => setStep(1)} className="flex items-center gap-1.5 px-4 py-2 text-white/60 font-medium hover:text-white">
                                 <ArrowLeft className="w-4 h-4" /> Back
                             </button>
                             <button
                                 onClick={() => setStep(3)}
                                 disabled={!emailSubject || !templateFields.heading}
-                                className="px-6 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-md font-medium hover:bg-black dark:hover:bg-white transition-colors disabled:opacity-50"
+                                className="px-6 py-2 bg-white/5 text-white rounded-md font-medium hover:bg-black transition-colors disabled:opacity-50"
                             >
                                 Next: Confirm & Send
                             </button>
@@ -354,40 +354,40 @@ export function PromotionalEmail() {
                 {step === 3 && (
                     <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
                         {/* Left: Summary & Auth */}
-                        <div className="lg:w-[450px] w-full p-8 flex flex-col justify-center space-y-6 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-700">
+                        <div className="lg:w-[450px] w-full p-8 flex flex-col justify-center space-y-6 border-b lg:border-b-0 lg:border-r border-white/5">
                             <div className="space-y-2">
-                                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Ready to send?</h2>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">
-                                    Sending to <span className="font-bold text-slate-900 dark:text-slate-100">{selectedUserIds.size} users</span> from <span className="italic">no-reply@daharengineer.com</span>
+                                <h2 className="text-xl font-bold text-white">Ready to send?</h2>
+                                <p className="text-sm text-white/40">
+                                    Sending to <span className="font-bold text-white">{selectedUserIds.size} users</span> from <span className="italic">no-reply@daharengineer.com</span>
                                 </p>
                             </div>
-                            <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
-                                <div className="text-xs font-semibold text-slate-400 tracking-wider mb-1">Subject</div>
-                                <div className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">{emailSubject}</div>
-                                <div className="text-xs font-semibold text-slate-400 tracking-wider mb-1">Template</div>
-                                <div className="text-sm text-slate-600 dark:text-slate-400">{selectedTemplate.emoji} {selectedTemplate.name}</div>
+                            <div className="p-3 bg-white/5 rounded-lg border border-white/5">
+                                <div className="text-xs font-semibold text-white/40 tracking-wider mb-1">Subject</div>
+                                <div className="text-sm font-medium text-white mb-2">{emailSubject}</div>
+                                <div className="text-xs font-semibold text-white/40 tracking-wider mb-1">Template</div>
+                                <div className="text-sm text-white/60">{selectedTemplate.emoji} {selectedTemplate.name}</div>
                             </div>
 
                             {/* Admin Authorization */}
                             <div className="space-y-3">
-                                <div className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                                <div className="text-sm font-bold text-white flex items-center gap-2">
                                     Admin Authorization
                                 </div>
                                 <input type="email" placeholder="Admin Email" value={adminCredentials.email}
                                     onChange={(e) => setAdminCredentials(prev => ({ ...prev, email: e.target.value }))}
-                                    className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 outline-none" />
+                                    className="w-full px-3 py-2 text-sm border border-white/5 bg-secondary text-white rounded-md focus:ring-2 focus:ring-army-500 outline-none" />
                                 <input type="password" placeholder="Admin Password" value={adminCredentials.password}
                                     onChange={(e) => setAdminCredentials(prev => ({ ...prev, password: e.target.value }))}
-                                    className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 outline-none" />
-                                <p className="text-[10px] text-slate-400">Used once to authorize this delivery.</p>
+                                    className="w-full px-3 py-2 text-sm border border-white/5 bg-secondary text-white rounded-md focus:ring-2 focus:ring-army-500 outline-none" />
+                                <p className="text-[10px] text-white/40">Used once to authorize this delivery.</p>
                             </div>
 
                             <div className="flex gap-3 pt-2">
-                                <button onClick={() => setStep(2)} className="px-5 py-2 border border-slate-300 dark:border-slate-600 rounded-md font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900">
+                                <button onClick={() => setStep(2)} className="px-5 py-2 border border-white/5 rounded-md font-medium text-white/60 hover:bg-white/5">
                                     Back
                                 </button>
                                 <button onClick={handleSend} disabled={isSending || !adminCredentials.email || !adminCredentials.password}
-                                    className="flex-1 px-6 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-md font-bold hover:bg-black dark:hover:bg-white transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50">
+                                    className="flex-1 px-6 py-2 bg-white/5 text-white rounded-md font-bold hover:bg-black transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50">
                                     {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                                     Send Emails
                                 </button>
@@ -395,13 +395,13 @@ export function PromotionalEmail() {
                         </div>
 
                         {/* Right: Full HTML Preview */}
-                        <div className="flex-1 flex flex-col bg-slate-100 dark:bg-slate-900/50 min-h-[400px]">
-                            <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-                                <Eye className="w-4 h-4 text-slate-400" />
-                                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 tracking-wider">Final Preview</span>
+                        <div className="flex-1 flex flex-col bg-white/[0.02] min-h-[400px]">
+                            <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/5 bg-secondary">
+                                <Eye className="w-4 h-4 text-white/40" />
+                                <span className="text-xs font-semibold text-white/40 tracking-wider">Final Preview</span>
                             </div>
                             <div className="flex-1 p-4 overflow-auto">
-                                <iframe srcDoc={renderedHtml} title="Final Email Preview" className="w-full h-full min-h-[500px] bg-white rounded-lg shadow-inner border border-slate-200 dark:border-slate-700" sandbox="" />
+                                <iframe srcDoc={renderedHtml} title="Final Email Preview" className="w-full h-full min-h-[500px] bg-white rounded-lg shadow-inner border border-white/5" sandbox="" />
                             </div>
                         </div>
                     </div>
@@ -412,19 +412,19 @@ export function PromotionalEmail() {
                     <div className="flex-1 p-8 flex flex-col items-center justify-center text-center space-y-6">
                         <div className={cn(
                             "w-20 h-20 rounded-full flex items-center justify-center mb-4 transition-all duration-500 scale-110",
-                            result?.success ? "bg-green-100 dark:bg-green-900/30 text-green-600" : "bg-red-100 dark:bg-red-900/30 text-red-600"
+                            result?.success ? "bg-army-500 text-white" : "bg-red-100 text-red-600"
                         )}>
                             {result?.success ? <CheckCircle2 className="w-12 h-12" /> : <AlertCircle className="w-12 h-12" />}
                         </div>
                         <div className="space-y-2">
-                            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                            <h2 className="text-2xl font-bold text-white">
                                 {result?.success ? "Email Sent Successfully!" : "Sending Failed"}
                             </h2>
-                            <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+                            <p className="text-white/40 max-w-sm mx-auto">
                                 {result?.message || (result?.success ? "Your promotional campaign has been processed." : "Something went wrong.")}
                             </p>
                         </div>
-                        <button onClick={reset} className="mt-6 px-8 py-2 bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-md font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                        <button onClick={reset} className="mt-6 px-8 py-2 bg-white/5 text-white rounded-md font-medium hover:bg-white/5 transition-colors">
                             Start New Campaign
                         </button>
                     </div>
@@ -439,10 +439,10 @@ export function PromotionalEmail() {
 function FieldInput({ label, value, onChange, placeholder, multiline }: {
     label: string; value: string; onChange: (v: string) => void; placeholder?: string; multiline?: boolean;
 }) {
-    const cls = "w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 outline-none transition-all";
+    const cls = "w-full px-3 py-2 text-sm border border-white/5 bg-secondary text-white rounded-md focus:ring-2 focus:ring-army-500 outline-none transition-all";
     return (
         <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">{label}</label>
+            <label className="block text-xs font-semibold text-white/40 mb-1">{label}</label>
             {multiline ? (
                 <textarea rows={4} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className={cn(cls, "resize-none")} />
             ) : (
@@ -457,11 +457,11 @@ function StepItem({ num, label, active, completed }: { num: number; label: strin
         <div className={cn("flex items-center gap-2 transition-all", active ? "opacity-100" : (completed ? "opacity-100" : "opacity-40"))}>
             <div className={cn(
                 "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors",
-                active ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900" : (completed ? "bg-green-500 text-white" : "bg-slate-200 dark:bg-slate-700 text-slate-500")
+                active ? "bg-white/5 text-white" : (completed ? "bg-army-500 text-white" : "bg-white/5 text-white/40")
             )}>
                 {completed ? <CheckCircle2 className="w-4 h-4" /> : num}
             </div>
-            <span className={cn("text-sm font-semibold", active ? "text-slate-900 dark:text-slate-100" : "text-slate-500")}>{label}</span>
+            <span className={cn("text-sm font-semibold", active ? "text-white" : "text-white/40")}>{label}</span>
         </div>
     );
 }

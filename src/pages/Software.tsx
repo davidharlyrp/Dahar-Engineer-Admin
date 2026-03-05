@@ -7,7 +7,7 @@ import {
     List,
     Edit2,
     Trash2,
-    Loader2,
+    Clock,
     X,
     UploadCloud,
     Image as ImageIcon
@@ -151,94 +151,95 @@ function SoftwareModal({ isOpen, onClose, software, onSuccess }: SoftwareModalPr
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh] transition-colors animate-in fade-in zoom-in duration-200">
-                <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                        {software ? "Edit Software" : "Add New Software"}
-                    </h2>
-                    <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full transition-colors">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className="relative w-full max-w-2xl bg-[#0a0a0a] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] border border-white/10 animate-in zoom-in-95 duration-300">
+                <div className="flex items-center justify-between p-6 border-b border-white/5 bg-black/40">
+                    <div>
+                        <h2 className="text-xl font-bold text-white tracking-tight">
+                            {software ? "Modify Software" : "Register Software"}
+                        </h2>
+                        <p className="text-xs font-semibold text-white/40 tracking-widest mt-1">Configure your software asset details</p>
+                    </div>
+                    <button onClick={onClose} className="p-2 text-white/40 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
+                <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-8 space-y-8 scrollbar-thin scrollbar-thumb-white/10">
                     {error && (
-                        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
+                        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-xs font-bold text-red-500 uppercase tracking-widest text-center">
                             {error}
                         </div>
                     )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Software Name</label>
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-white/40 tracking-widest ml-1">Software Name</label>
                             <input
                                 required
                                 value={formData.name}
                                 onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 transition-all outline-none"
+                                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-semibold text-white focus:ring-1 focus:ring-army-500 transition-all outline-none placeholder:text-white/10"
                                 placeholder="e.g. TerraSim"
                             />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Category</label>
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-white/40 tracking-widest ml-1">Category</label>
                             <input
                                 required
                                 value={formData.category}
                                 onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 transition-all outline-none"
+                                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-semibold text-white focus:ring-1 focus:ring-army-500 transition-all outline-none placeholder:text-white/10"
                                 placeholder="e.g. Geotechnical"
                             />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Version</label>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-white/40 tracking-widest ml-1">Link</label>
                             <input
                                 required
-                                value={formData.version}
-                                onChange={e => setFormData(prev => ({ ...prev, version: e.target.value }))}
-                                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 transition-all outline-none"
-                                placeholder="1.0.0"
+                                value={formData.link}
+                                onChange={e => setFormData(prev => ({ ...prev, link: e.target.value }))}
+                                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-semibold text-white focus:ring-1 focus:ring-army-500 transition-all outline-none placeholder:text-white/10"
+                                placeholder="https://example.com"
                             />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-white/40 tracking-widest ml-1">Version</label>
+                            <div className="relative">
+                                <input
+                                    required
+                                    value={formData.version}
+                                    onChange={e => setFormData(prev => ({ ...prev, version: e.target.value }))}
+                                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-semibold text-white focus:ring-1 focus:ring-army-500 transition-all outline-none placeholder:text-white/10"
+                                    placeholder="1.0.0"
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Link</label>
-                        <input
-                            required
-                            value={formData.link}
-                            onChange={e => setFormData(prev => ({ ...prev, link: e.target.value }))}
-                            className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 transition-all outline-none"
-                            placeholder="https://example.com"
-                        />
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            role="switch"
-                            id="isMaintain"
+                    <div className="flex items-center gap-3 px-1">
+                        <Switch
                             checked={formData.isMaintain}
-                            onChange={e => setFormData(prev => ({ ...prev, isMaintain: e.target.checked }))}
-                            className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100"
+                            onChange={() => setFormData(prev => ({ ...prev, isMaintain: !prev.isMaintain }))}
                         />
-                        <label htmlFor="isMaintain" className="text-sm font-medium text-slate-700 dark:text-slate-300">Maintenance Mode</label>
+                        <label className="text-xs font-semibold text-white/40 tracking-widest cursor-pointer select-none">Maintenance Mode</label>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-white/40 tracking-widest ml-1">Description</label>
                         <textarea
                             rows={3}
                             value={formData.description}
                             onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                            className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 transition-all outline-none resize-none"
+                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-semibold text-white focus:ring-1 focus:ring-army-500 transition-all outline-none resize-none placeholder:text-white/10"
                             placeholder="Briefly describe the software..."
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {/* File Upload Fields */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <FileDropZone
                             label="Logo"
                             preview={previews.logo}
@@ -252,7 +253,7 @@ function SoftwareModal({ isOpen, onClose, software, onSuccess }: SoftwareModalPr
                             aspect="video"
                         />
                         <MultiFileDropZone
-                            label="Preview Images"
+                            label="Previews"
                             existingPreviews={existingPreviews}
                             newPreviews={previewFiles}
                             onFilesSelect={handlePreviewFilesChange}
@@ -263,21 +264,20 @@ function SoftwareModal({ isOpen, onClose, software, onSuccess }: SoftwareModalPr
                     </div>
                 </form>
 
-                <div className="p-6 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-3">
+                <div className="p-6 bg-black/40 border-t border-white/5 flex justify-end gap-3">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors"
+                        className="px-6 py-2.5 text-xs font-semibold uppercase tracking-widest text-white/40 hover:text-white hover:bg-white/5 rounded-xl transition-all"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleSubmit}
                         disabled={isLoading}
-                        className="px-6 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-sm font-medium rounded-md hover:bg-black dark:hover:bg-white disabled:opacity-50 transition-all shadow-sm flex items-center gap-2"
+                        className="px-8 py-2.5 bg-army-500 hover:bg-army-400 text-black text-xs font-semibold uppercase tracking-widest rounded-xl transition-all shadow-lg active:scale-95 flex items-center gap-2 disabled:opacity-50"
                     >
-                        {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                        {software ? "Save Changes" : "Create Software"}
+                        {isLoading ? <Clock className="w-4 h-4 animate-spin" /> : (software ? "Save Changes" : "Create Software")}
                     </button>
                 </div>
             </div>
@@ -306,33 +306,33 @@ function FileDropZone({ label, preview, onFileSelect, aspect = "video" }: FileDr
 
     return (
         <div className="space-y-2">
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
+            <span className="text-xs font-semibold text-white/40 tracking-widest ml-1">{label}</span>
             <div
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={onDrop}
                 onClick={() => fileInputRef.current?.click()}
                 className={cn(
-                    "relative border-2 border-dashed rounded-xl overflow-hidden cursor-pointer transition-all flex flex-col items-center justify-center text-center",
+                    "relative border-2 border-dashed rounded-2xl overflow-hidden cursor-pointer transition-all flex flex-col items-center justify-center text-center",
                     aspect === "square" ? "aspect-square" : "aspect-video",
                     isDragging
-                        ? "border-slate-900 bg-slate-50 dark:bg-slate-900/10"
-                        : "border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 bg-slate-50 dark:bg-slate-900/50",
-                    preview && "border-solid border-slate-200 dark:border-slate-700"
+                        ? "border-army-500/50 bg-army-500/5 shadow-inner"
+                        : "border-white/10 hover:border-white/20 bg-black/40",
+                    preview && "border-solid border-white/10"
                 )}
             >
                 {preview ? (
                     <>
-                        <img src={preview} alt="Preview" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white p-2">
-                            <UploadCloud className="w-6 h-6 mb-1" />
-                            <span className="text-[10px] font-bold">Replace</span>
+                        <img src={preview} alt="Preview" className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white backdrop-blur-[2px]">
+                            <UploadCloud className="w-6 h-6 mb-1 text-army-400" />
+                            <span className="text-xs font-semibold tracking-widest">Replace</span>
                         </div>
                     </>
                 ) : (
-                    <div className="p-4">
-                        <UploadCloud className="w-6 h-6 text-slate-400 dark:text-slate-600 mb-2 mx-auto" />
-                        <span className="text-[10px] text-slate-500 dark:text-slate-500 font-medium">Drop here</span>
+                    <div className="p-4 group">
+                        <UploadCloud className="w-7 h-7 text-white/10 mb-2 mx-auto group-hover:text-army-400 transition-colors" />
+                        <span className="text-xs text-white/20 font-semibold tracking-widest group-hover:text-white/40 transition-colors">Select File</span>
                     </div>
                 )}
                 <input
@@ -381,45 +381,49 @@ function MultiFileDropZone({
 
     return (
         <div className="space-y-2">
-            <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
+            <div className="flex items-center justify-between ml-1">
+                <span className="text-xs font-semibold text-white/40 tracking-widest">{label}</span>
                 {totalCount > 0 && (
-                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                        {totalCount} file{totalCount !== 1 ? 's' : ''}
+                    <span className="text-xs text-army-400 font-semibold tracking-widest">
+                        {totalCount} item{totalCount !== 1 ? 's' : ''}
                     </span>
                 )}
             </div>
 
             {(totalCount > 0) && (
-                <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="grid grid-cols-2 gap-3">
                     {existingPreviews.map((p, idx) => (
                         <div key={`existing-${idx}`} className={cn(
-                            "relative border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden group",
+                            "relative border border-white/5 rounded-xl overflow-hidden group/item bg-black/40",
                             aspect === "square" ? "aspect-square" : "aspect-video"
                         )}>
-                            <img src={p.url} alt="Preview" className="w-full h-full object-cover" />
-                            <button
-                                type="button"
-                                onClick={() => onRemoveExisting(idx)}
-                                className="absolute top-1.5 right-1.5 p-1 bg-red-500/90 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-sm z-10"
-                            >
-                                <X className="w-3.5 h-3.5" />
-                            </button>
+                            <img src={p.url} alt="Preview" className="w-full h-full object-cover opacity-80" />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/item:opacity-100 transition-opacity flex items-center justify-center">
+                                <button
+                                    type="button"
+                                    onClick={() => onRemoveExisting(idx)}
+                                    className="p-2 bg-red-500/80 text-white rounded-lg hover:bg-red-500 transition-all active:scale-90"
+                                >
+                                    <X className="w-3.5 h-3.5" />
+                                </button>
+                            </div>
                         </div>
                     ))}
                     {newPreviews.map((p, idx) => (
                         <div key={`new-${idx}`} className={cn(
-                            "relative border-2 border-slate-900 dark:border-slate-100 rounded-xl overflow-hidden group",
+                            "relative border-2 border-army-500/20 rounded-xl overflow-hidden group/item bg-black/40",
                             aspect === "square" ? "aspect-square" : "aspect-video"
                         )}>
                             <img src={p.url} alt="New Preview" className="w-full h-full object-cover" />
-                            <button
-                                type="button"
-                                onClick={() => onRemoveNew(idx)}
-                                className="absolute top-1.5 right-1.5 p-1 bg-red-500/90 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-sm z-10"
-                            >
-                                <X className="w-3.5 h-3.5" />
-                            </button>
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/item:opacity-100 transition-opacity flex items-center justify-center">
+                                <button
+                                    type="button"
+                                    onClick={() => onRemoveNew(idx)}
+                                    className="p-2 bg-red-500/80 text-white rounded-lg hover:bg-red-500 transition-all active:scale-90"
+                                >
+                                    <X className="w-3.5 h-3.5" />
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -431,17 +435,17 @@ function MultiFileDropZone({
                 onDrop={onDrop}
                 onClick={() => fileInputRef.current?.click()}
                 className={cn(
-                    "relative border-2 border-dashed rounded-xl overflow-hidden cursor-pointer transition-all flex flex-col items-center justify-center text-center",
+                    "relative border-2 border-dashed rounded-2xl overflow-hidden cursor-pointer transition-all flex flex-col items-center justify-center text-center py-6 group",
                     aspect === "square" ? "aspect-square" : "aspect-video",
                     isDragging
-                        ? "border-slate-900 bg-slate-50 dark:bg-slate-900/10"
-                        : "border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 bg-slate-50 dark:bg-slate-900/50"
+                        ? "border-army-500/50 bg-army-500/5 shadow-inner"
+                        : "border-white/10 hover:border-white/20 bg-black/40"
                 )}
             >
-                <div className="p-4">
-                    <UploadCloud className="w-6 h-6 text-slate-400 dark:text-slate-600 mb-2 mx-auto" />
-                    <span className="text-[10px] text-slate-500 dark:text-slate-500 font-medium">
-                        {totalCount > 0 ? "Add more" : "Drop here"}
+                <div className="flex flex-col items-center">
+                    <Plus className="w-6 h-6 text-white/10 group-hover:text-army-400 transition-colors mb-2" />
+                    <span className="text-[10px] text-white/20 font-semibold tracking-widest group-hover:text-white/40 transition-colors">
+                        Add Media
                     </span>
                 </div>
                 <input
@@ -468,14 +472,14 @@ const Switch = ({ checked, onChange, disabled }: { checked: boolean, onChange: (
         onClick={onChange}
         disabled={disabled}
         className={cn(
-            "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:opacity-50",
-            checked ? "bg-slate-900 dark:bg-slate-100" : "bg-slate-200 dark:bg-slate-700"
+            "relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border border-white/10 transition-colors duration-300 ease-in-out focus:outline-none",
+            checked ? "bg-army-500" : "bg-black/40"
         )}
     >
         <span
             className={cn(
-                "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white dark:bg-slate-900 shadow ring-0 transition duration-200 ease-in-out",
-                checked ? "translate-x-4" : "translate-x-0"
+                "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition duration-300 ease-in-out",
+                checked ? "translate-x-5" : "translate-x-0.5"
             )}
         />
     </button>
@@ -553,12 +557,17 @@ export function Software() {
     );
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Software Management</h1>
+                <div className="flex items-center gap-3">
+                    <div>
+                        <h1 className="text-2xl font-bold tracking-tight text-white">Software Management</h1>
+                        <p className="text-xs font-semibold text-white/40 mt-1 tracking-widest">Manage your software catalog and maintenance modes</p>
+                    </div>
+                </div>
                 <button
                     onClick={handleAdd}
-                    className="inline-flex items-center justify-center rounded-md bg-slate-900 dark:bg-slate-100 px-4 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-black dark:hover:bg-white transition-colors shadow-sm"
+                    className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-black hover:bg-white/90 transition-all shadow-lg active:scale-95"
                 >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Software
@@ -566,26 +575,26 @@ export function Software() {
             </div>
 
             {/* Controls */}
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm p-4 flex flex-col sm:flex-row items-center justify-between gap-4 transition-colors">
+            <div className="bg-secondary/20 border border-white/5 rounded-2xl shadow-sm p-4 flex flex-col sm:flex-row items-center justify-between gap-4 transition-colors">
                 <div className="relative max-w-sm w-full">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                     <input
                         type="text"
                         placeholder="Search software..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-9 pr-4 py-2 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 focus:border-transparent transition-all"
+                        className="w-full pl-10 pr-4 py-2.5 text-sm font-semibold bg-black/20 border border-white/5 text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-army-500 focus:border-transparent transition-all placeholder:text-white/20"
                     />
                 </div>
 
-                <div className="flex items-center gap-2 border border-slate-200 dark:border-slate-700 rounded-lg p-1">
+                <div className="flex items-center gap-1.5 p-1 bg-black/40 border border-white/10 rounded-xl">
                     <button
                         onClick={() => setViewMode("grid")}
                         className={cn(
-                            "p-1.5 rounded-md transition-all",
+                            "p-2 rounded-lg transition-all",
                             viewMode === "grid"
-                                ? "bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm"
-                                : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                                ? "bg-white/10 shadow-sm text-white"
+                                : "text-white/40 hover:text-white hover:bg-white/5"
                         )}
                         title="Grid View"
                     >
@@ -594,10 +603,10 @@ export function Software() {
                     <button
                         onClick={() => setViewMode("list")}
                         className={cn(
-                            "p-1.5 rounded-md transition-all",
+                            "p-2 rounded-lg transition-all",
                             viewMode === "list"
-                                ? "bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm"
-                                : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                                ? "bg-white/10 shadow-sm text-white"
+                                : "text-white/40 hover:text-white hover:bg-white/5"
                         )}
                         title="List View"
                     >
@@ -607,23 +616,21 @@ export function Software() {
             </div>
 
             {isLoading ? (
-                <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl transition-colors">
-                    <Loader2 className="w-8 h-8 text-slate-600 dark:text-slate-400 animate-spin mb-4" />
-                    <p className="text-slate-500 dark:text-slate-400">Loading softwares...</p>
+                <div className="py-24 flex flex-col items-center justify-center text-white/40">
+                    <Clock className="w-12 h-12 mb-4 animate-pulse opacity-50" />
+                    <span className="text-sm font-bold uppercase tracking-widest">Syncing software catalog...</span>
                 </div>
             ) : filteredSoftwares.length === 0 ? (
-                <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-12 flex flex-col items-center justify-center text-center transition-colors">
-                    <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-full mb-6">
-                        <Touchpad className="w-12 h-12 text-slate-300 dark:text-slate-700" />
-                    </div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">No software found</h2>
-                    <p className="text-slate-500 dark:text-slate-400 max-w-sm mb-8">
-                        {search ? `No software matches "${search}"` : "You haven't added any software yet. Start by adding your first product."}
+                <div className="py-24 flex flex-col items-center justify-center text-white/40 text-center px-4 border-2 border-dashed border-white/5 rounded-3xl">
+                    <Touchpad className="w-16 h-16 mb-4 opacity-20" />
+                    <h2 className="text-xl font-bold text-white mb-2 uppercase tracking-widest">No software found</h2>
+                    <p className="text-sm font-semibold max-w-xs mb-8">
+                        {search ? `No software matches "${search}"` : "Start building your software catalog for your clients."}
                     </p>
                     {search && (
                         <button
                             onClick={() => setSearch("")}
-                            className="text-slate-900 dark:text-slate-100 font-medium hover:underline text-sm"
+                            className="text-army-400 font-bold hover:text-army-300 text-xs uppercase tracking-widest transition-colors"
                         >
                             Clear search
                         </button>
@@ -632,68 +639,62 @@ export function Software() {
             ) : (
                 <>
                     {viewMode === "grid" ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {filteredSoftwares.map((sw) => (
-                                <div key={sw.id} className="group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden hover:shadow-md hover:border-slate-400 dark:hover:border-slate-600 transition-all flex flex-col">
-                                    <div className="aspect-1/1 bg-white dark:bg-slate-900 relative overflow-hidden group-hover:opacity-90 transition-opacity">
+                                <div key={sw.id} className="group bg-black/20 border border-white/5 rounded-2xl shadow-sm overflow-hidden hover:border-white/10 transition-all flex flex-col">
+                                    <div className="aspect-square bg-black/40 relative overflow-hidden group-hover:opacity-90 transition-opacity">
                                         {sw.logo ? (
                                             <img
                                                 src={SoftwareService.getFileUrl(sw, sw.logo) ?? undefined}
                                                 alt={sw.name}
-                                                className="w-full h-full object-cover"
+                                                className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700"
                                             />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center">
-                                                <ImageIcon className="w-10 h-10 text-slate-300 dark:text-slate-700" />
+                                                <ImageIcon className="w-10 h-10 text-white/10" />
                                             </div>
                                         )}
                                         <div className="absolute top-3 right-3 flex items-center gap-2">
                                             {sw.isMaintain && (
-                                                <span className="px-2 py-0.5 rounded bg-slate-900/80 text-white text-[10px] font-semibold flex items-center gap-1 backdrop-blur-sm">
-                                                    Maintain
+                                                <span className="px-2.5 py-1 rounded-lg bg-black/80 backdrop-blur-md text-army-400 text-[10px] font-bold uppercase tracking-widest border border-white/5">
+                                                    Maintenance
                                                 </span>
                                             )}
                                         </div>
                                     </div>
-                                    <div className="p-4 flex-1 flex flex-col">
-                                        <h3 className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors mb-1">
+                                    <div className="p-5 flex-1 flex flex-col bg-gradient-to-b from-white/[0.02] to-transparent">
+                                        <h3 className="font-bold text-white group-hover:text-army-400 transition-colors mb-2 tracking-tight">
                                             {sw.name}
                                         </h3>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-4">
+                                        <p className="text-xs font-medium text-white/40 line-clamp-2 mb-4 leading-relaxed">
                                             {sw.description}
                                         </p>
-                                        <a href={sw.link} target="_blank" className="underline text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-4">
-                                            {sw.link}
-                                        </a>
-                                        <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                                            <div className="flex flex-col">
-                                                <span className="text-[10px] font-semibold text-slate-900 dark:text-slate-100">
-                                                    v{sw.version}
-                                                </span>
-                                                <span className="text-[10px] text-slate-400">
-                                                    {new Date(sw.updated).toLocaleDateString()}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <div className="flex items-center gap-2 pr-2 border-r border-slate-100 dark:border-slate-700">
-                                                    <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">Maintain</span>
-                                                    <Switch
-                                                        checked={sw.isMaintain}
-                                                        onChange={() => handleToggleMaintain(sw)}
-                                                    />
+                                        <div className="mt-auto pt-4 border-t border-white/5">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-bold text-white tracking-widest uppercase">
+                                                        v{sw.version}
+                                                    </span>
+                                                    <span className="text-[10px] font-bold text-white/20 uppercase tracking-tighter mt-0.5">
+                                                        {new Date(sw.updated).toLocaleDateString()}
+                                                    </span>
                                                 </div>
-                                                <button
-                                                    onClick={() => handleEdit(sw)}
-                                                    className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors"
-                                                >
-                                                    <Edit2 className="w-3.5 h-3.5" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(sw.id)}
-                                                    className="p-1.5 text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-md transition-colors"
-                                                >
-                                                    <Trash2 className="w-3.5 h-3.5" />
-                                                </button>
+                                                <div className="flex items-center gap-1">
+                                                    <button
+                                                        onClick={() => handleEdit(sw)}
+                                                        className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+                                                        title="Edit Software"
+                                                    >
+                                                        <Edit2 className="w-3.5 h-3.5" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(sw.id)}
+                                                        className="p-2 text-white/40 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
+                                                        title="Delete Software"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -701,47 +702,47 @@ export function Software() {
                             ))}
                         </div>
                     ) : (
-                        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden transition-colors">
+                        <div className="bg-black/20 border border-white/5 rounded-2xl shadow-sm overflow-hidden transition-colors">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm text-left">
-                                    <thead className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 uppercase">
+                                    <thead className="text-[10px] font-semibold text-white/40 bg-black/40 border-b border-white/5 uppercase tracking-widest">
                                         <tr>
-                                            <th className="px-6 py-3 font-medium">Software</th>
-                                            <th className="px-6 py-3 font-medium">Description</th>
-                                            <th className="px-6 py-3 font-medium text-center">Maintain</th>
-                                            <th className="px-6 py-3 font-medium">Version</th>
-                                            <th className="px-6 py-3 font-medium">Updated</th>
-                                            <th className="px-6 py-3 font-medium text-right">Actions</th>
+                                            <th className="px-6 py-4">Software</th>
+                                            <th className="px-6 py-4">Description</th>
+                                            <th className="px-6 py-4 text-center">Maintain</th>
+                                            <th className="px-6 py-4">Version</th>
+                                            <th className="px-6 py-4">Updated</th>
+                                            <th className="px-6 py-4 text-right">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                                    <tbody className="divide-y divide-white/5">
                                         {filteredSoftwares.map((sw) => (
-                                            <tr key={sw.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors">
+                                            <tr key={sw.id} className="hover:bg-white/5 transition-colors group">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 object-contain">
+                                                        <div className="w-10 h-10 rounded-xl bg-black/40 border border-white/5 overflow-hidden flex-shrink-0 group-hover:scale-105 transition-transform">
                                                             {sw.logo ? (
                                                                 <img
                                                                     src={SoftwareService.getFileUrl(sw, sw.logo) ?? undefined}
                                                                     alt=""
-                                                                    className="w-full h-full object-contain"
+                                                                    className="w-full h-full object-cover"
                                                                 />
                                                             ) : (
-                                                                <ImageIcon className="w-full h-full text-slate-300 dark:text-slate-700" />
+                                                                <div className="w-full h-full flex items-center justify-center">
+                                                                    <ImageIcon className="w-5 h-5 text-white/10" />
+                                                                </div>
                                                             )}
                                                         </div>
                                                         <div className="flex flex-col items-start justify-center">
-                                                            <span className="font-medium text-slate-900 dark:text-slate-100">{sw.name}</span>
-                                                            <a href={sw.link} target="_blank" className="underline text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-4">
-                                                                {sw.link}
-                                                            </a>
+                                                            <span className="font-bold text-white group-hover:text-army-400 transition-colors tracking-tight">{sw.name}</span>
+                                                            <a href={sw.link} target="_blank" rel="noopener noreferrer" className="text-[10px] font-semibold text-white/20 tracking-relaxed mt-0.5">{sw.link}</a>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-xs truncate">
+                                                <td className="px-6 py-4 text-xs font-semibold text-white/40 max-w-xs truncate">
                                                     {sw.description}
                                                 </td>
-                                                <td className="px-6 py-4 text-center">
+                                                <td className="px-6 py-4">
                                                     <div className="flex justify-center">
                                                         <Switch
                                                             checked={sw.isMaintain}
@@ -750,26 +751,26 @@ export function Software() {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-[10px] font-semibold">
+                                                    <span className="px-2.5 py-1 rounded-lg bg-white/5 text-white/40 text-[10px] font-bold uppercase tracking-widest border border-white/5">
                                                         v{sw.version}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4 text-slate-500 dark:text-slate-400">
+                                                <td className="px-6 py-4 text-xs font-bold text-white/40 uppercase tracking-tighter">
                                                     {new Date(sw.updated).toLocaleDateString()}
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
-                                                    <div className="flex items-center justify-end gap-2">
+                                                    <div className="flex items-center justify-end gap-1">
                                                         <button
                                                             onClick={() => handleEdit(sw)}
-                                                            className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors"
+                                                            className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-xl transition-all"
                                                         >
-                                                            <Edit2 className="w-4 h-4" />
+                                                            <Edit2 className="w-3.5 h-3.5" />
                                                         </button>
                                                         <button
                                                             onClick={() => handleDelete(sw.id)}
-                                                            className="p-1.5 text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-md transition-colors"
+                                                            className="p-2 text-white/40 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
                                                         >
-                                                            <Trash2 className="w-4 h-4" />
+                                                            <Trash2 className="w-3.5 h-3.5" />
                                                         </button>
                                                     </div>
                                                 </td>
@@ -783,21 +784,27 @@ export function Software() {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                        <div className="flex items-center justify-center gap-2 mt-8">
+                        <div className="flex items-center justify-center gap-2 mt-12 mb-6">
                             <button
                                 onClick={() => setPage(p => Math.max(1, p - 1))}
                                 disabled={page === 1}
-                                className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
+                                className="inline-flex items-center justify-center min-w-[100px] px-6 py-2 text-xs font-bold uppercase tracking-widest text-white/70 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:text-white disabled:opacity-20 transition-all active:scale-95"
                             >
                                 Previous
                             </button>
-                            <span className="text-sm text-slate-500 dark:text-slate-400">
-                                Page {page} of {totalPages}
-                            </span>
+                            <div className="flex items-center gap-1.5 px-4 h-10 rounded-xl bg-black/40 border border-white/5">
+                                <span className="text-xs font-bold text-white tracking-widest">
+                                    {page.toString().padStart(2, '0')}
+                                </span>
+                                <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest mx-1">/</span>
+                                <span className="text-xs font-bold text-white/40 tracking-widest">
+                                    {totalPages.toString().padStart(2, '0')}
+                                </span>
+                            </div>
                             <button
                                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                 disabled={page === totalPages}
-                                className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
+                                className="inline-flex items-center justify-center min-w-[100px] px-6 py-2 text-xs font-bold uppercase tracking-widest text-white/70 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:text-white disabled:opacity-20 transition-all active:scale-95"
                             >
                                 Next
                             </button>

@@ -98,7 +98,7 @@ export function ServerMonitor() {
     const [containers, setContainers] = useState<DockerContainer[]>([]);
     const [isLoadingContainers, setIsLoadingContainers] = useState(false);
     const [containerError, setContainerError] = useState<string | null>(null);
-    const [actionLoading, setActionLoading] = useState<string | null>(null); // "name:action"
+    const [actionLoading, setActionLoading] = useState<string | null>(null); //"name:action"
     const [logContainer, setLogContainer] = useState<string | null>(null);
 
     // ---- Server health polling ----
@@ -188,7 +188,7 @@ export function ServerMonitor() {
             await new Promise(resolve => setTimeout(resolve, 2000));
             await pollAllServers();
         } catch (err) {
-            alert(`Failed to ${action} "${name}": ${(err as Error).message}`);
+            alert(`Failed to ${action}"${name}": ${(err as Error).message}`);
         } finally {
             setActionLoading(null);
         }
@@ -209,21 +209,21 @@ export function ServerMonitor() {
     const configs = getServersFromEnv();
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6 p-6">
             {/* ============================================================ */}
-            {/* Server Health Section                                        */}
+            {/* Server Health Section */}
             {/* ============================================================ */}
             <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                        <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
                             Server Monitor
                         </h1>
                     </div>
                     <button
                         onClick={() => { pollAllServers(); fetchContainers(); }}
                         disabled={isChecking}
-                        className="inline-flex items-center justify-center rounded-md bg-slate-900 dark:bg-slate-100 px-4 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-black dark:hover:bg-white transition-colors shadow-sm disabled:opacity-50"
+                        className="inline-flex items-center justify-center rounded-md bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-black transition-colors shadow-sm disabled:opacity-50"
                     >
                         <Activity className={cn("w-4 h-4 mr-2", isChecking && "animate-pulse")} />
                         {isChecking ? "Checking..." : "Refresh"}
@@ -231,13 +231,13 @@ export function ServerMonitor() {
                 </div>
 
                 {configs.length === 0 ? (
-                    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-12 flex flex-col items-center justify-center text-center transition-colors">
-                        <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-full mb-6">
-                            <Server className="w-12 h-12 text-slate-300 dark:text-slate-700" />
+                    <div className="bg-secondary border border-white/5 rounded-xl p-12 flex flex-col items-center justify-center text-center transition-colors">
+                        <div className="p-4 bg-white/5 rounded-full mb-6">
+                            <Server className="w-12 h-12 text-white/20" />
                         </div>
-                        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">No servers configured</h2>
-                        <p className="text-slate-500 dark:text-slate-400 max-w-md mb-8">
-                            Please add the VITE_MONITOR_SERVERS variable to your .env file in the format "Name|URL,Name2|URL2".
+                        <h2 className="text-xl font-bold text-white mb-2">No servers configured</h2>
+                        <p className="text-white/40 max-w-md mb-8">
+                            Please add the VITE_MONITOR_SERVERS variable to your .env file in the format"Name|URL,Name2|URL2".
                         </p>
                     </div>
                 ) : (
@@ -245,28 +245,28 @@ export function ServerMonitor() {
                         {servers.map((server, index) => (
                             <div
                                 key={`${server.config.url}-${index}`}
-                                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col"
+                                className="bg-secondary/20 border border-white/5 rounded-xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col"
                             >
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="flex items-center gap-3">
                                         <div className={cn(
                                             "p-2 rounded-lg",
-                                            server.isOnline ? "bg-slate-100 dark:bg-slate-800" : "bg-slate-200 dark:bg-slate-700"
+                                            server.isOnline ? "bg-white/5" : "bg-white/5"
                                         )}>
                                             <Server className={cn(
                                                 "w-6 h-6",
-                                                server.isOnline ? "text-slate-900 dark:text-slate-100" : "text-slate-500 dark:text-slate-400"
+                                                server.isOnline ? "text-white" : "text-white/40"
                                             )} />
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-slate-900 dark:text-slate-100">
+                                            <h3 className="font-bold text-white">
                                                 {server.config.name}
                                             </h3>
                                             <a
                                                 href={server.config.url}
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 underline truncate max-w-[200px] block transition-colors"
+                                                className="text-xs text-white/40 hover:text-white underline truncate max-w-[200px] block transition-colors"
                                             >
                                                 {server.config.url}
                                             </a>
@@ -275,8 +275,8 @@ export function ServerMonitor() {
                                     <div className={cn(
                                         "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium",
                                         server.isOnline
-                                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                                            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                                            ? "bg-army-100 text-army-700"
+                                            : "bg-red-200 text-red-700"
                                     )}>
                                         {server.isOnline ? (
                                             <>
@@ -295,8 +295,8 @@ export function ServerMonitor() {
                                 {/* Display JSON Data */}
                                 {server.data && (
                                     <div className="mt-2 mb-4">
-                                        <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3 overflow-x-auto border border-slate-200 dark:border-slate-700">
-                                            <pre className="text-[10px] text-slate-700 dark:text-slate-400 font-mono">
+                                        <div className="bg-white/[0.02] rounded-lg p-3 overflow-x-auto border border-white/5">
+                                            <pre className="text-[10px] text-white/60 font-mono">
                                                 {JSON.stringify(server.data, null, 2)}
                                             </pre>
                                         </div>
@@ -304,22 +304,22 @@ export function ServerMonitor() {
                                 )}
                                 {server.error && !server.data && (
                                     <div className="mt-2 mb-4">
-                                        <div className="bg-slate-100 dark:bg-slate-800/80 rounded-lg p-3 border border-slate-300 dark:border-slate-600">
-                                            <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-3">
+                                        <div className="bg-white/5/80 rounded-lg p-3 border border-white/5">
+                                            <p className="text-xs text-white/60 line-clamp-3">
                                                 {server.error}
                                             </p>
                                         </div>
                                     </div>
                                 )}
 
-                                <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                                <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between text-sm">
+                                    <div className="flex items-center gap-1.5 text-white/40">
                                         <Clock className="w-4 h-4" />
                                         <span>
                                             {server.ping !== null ? `${server.ping}ms` : 'Timeout'}
                                         </span>
                                     </div>
-                                    <span className="text-slate-400 dark:text-slate-500 text-xs text-right">
+                                    <span className="text-white/40 text-xs text-right">
                                         Checked: {server.lastChecked.toLocaleTimeString()}
                                     </span>
                                 </div>
@@ -327,20 +327,20 @@ export function ServerMonitor() {
                         ))}
                         {/* Render skeletons for pending checks */}
                         {isChecking && servers.length === 0 && configs.map((_, idx) => (
-                            <div key={idx} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm animate-pulse flex flex-col h-[150px]">
+                            <div key={idx} className="bg-secondary border border-white/5 rounded-xl p-6 shadow-sm animate-pulse flex flex-col h-[150px]">
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+                                        <div className="w-10 h-10 bg-white/5 rounded-lg" />
                                         <div className="space-y-2">
-                                            <div className="w-24 h-4 bg-slate-200 dark:bg-slate-700 rounded" />
-                                            <div className="w-32 h-3 bg-slate-200 dark:bg-slate-700 rounded" />
+                                            <div className="w-24 h-4 bg-white/5 rounded" />
+                                            <div className="w-32 h-3 bg-white/5 rounded" />
                                         </div>
                                     </div>
-                                    <div className="w-16 h-6 bg-slate-200 dark:bg-slate-700 rounded-full" />
+                                    <div className="w-16 h-6 bg-white/5 rounded-full" />
                                 </div>
-                                <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                                    <div className="w-12 h-4 bg-slate-200 dark:bg-slate-700 rounded" />
-                                    <div className="w-20 h-4 bg-slate-200 dark:bg-slate-700 rounded" />
+                                <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
+                                    <div className="w-12 h-4 bg-white/5 rounded" />
+                                    <div className="w-20 h-4 bg-white/5 rounded" />
                                 </div>
                             </div>
                         ))}
@@ -349,35 +349,35 @@ export function ServerMonitor() {
             </div>
 
             {/* ============================================================ */}
-            {/* Docker Containers Section                                    */}
+            {/* Docker Containers Section */}
             {/* ============================================================ */}
             {CONTROL_API && (
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                        <h2 className="text-lg font-bold text-white flex items-center gap-2">
                             Docker Containers
                         </h2>
                     </div>
 
                     {containerError && (
-                        <div className="p-3 bg-slate-100 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-600 dark:text-slate-400">
+                        <div className="p-3 bg-white/5/80 border border-white/5 rounded-lg text-sm text-white/60">
                             {containerError}
                         </div>
                     )}
 
                     {isLoadingContainers && containers.length === 0 ? (
-                        <div className="flex items-center justify-center py-12 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
-                            <Loader2 className="w-6 h-6 text-slate-500 animate-spin" />
+                        <div className="flex items-center justify-center py-12 bg-secondary border border-white/5 rounded-xl">
+                            <Loader2 className="w-6 h-6 text-white/40 animate-spin" />
                         </div>
                     ) : containers.length === 0 && !containerError ? (
-                        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-8 text-center text-slate-500 dark:text-slate-400">
+                        <div className="bg-secondary border border-white/5 rounded-xl p-8 text-center text-white/40">
                             No containers found.
                         </div>
                     ) : (
-                        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden transition-colors">
+                        <div className="bg-secondary/20 border border-white/5 rounded-xl shadow-sm overflow-hidden transition-colors">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm text-left">
-                                    <thead className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                                    <thead className="text-xs text-white/40 bg-white/[0.02] border-b border-white/5">
                                         <tr>
                                             <th className="px-6 py-3 font-medium">Container</th>
                                             <th className="px-6 py-3 font-medium">Image</th>
@@ -386,33 +386,33 @@ export function ServerMonitor() {
                                             <th className="px-6 py-3 font-medium text-right">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                                    <tbody className="divide-y divide-white/5">
                                         {containers.map((c) => {
                                             const isRunning = c.status.toLowerCase() === "running";
                                             return (
-                                                <tr key={c.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors">
+                                                <tr key={c.id} className="hover:bg-white/5 transition-colors">
                                                     <td className="px-6 py-4">
                                                         <div className="flex items-center gap-3">
                                                             <div className={cn(
                                                                 "w-2 h-2 rounded-full shrink-0",
-                                                                isRunning ? "bg-emerald-500" : "bg-slate-400"
+                                                                isRunning ? "bg-emerald-500" : "bg-white/5"
                                                             )} />
-                                                            <span className="font-medium text-slate-900 dark:text-slate-100">
+                                                            <span className="font-medium text-white">
                                                                 {c.name}
                                                             </span>
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-xs truncate font-mono text-xs">
+                                                    <td className="px-6 py-4 text-white/40 max-w-xs truncate font-mono text-xs">
                                                         {c.image}
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className="flex flex-wrap gap-1">
                                                             {formatPorts(c.ports).length > 0 ? formatPorts(c.ports).map((p, i) => (
-                                                                <span key={i} className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded text-[10px] font-mono">
+                                                                <span key={i} className="px-1.5 py-0.5 bg-white/5 text-white/60 rounded text-[10px] font-mono">
                                                                     {p}
                                                                 </span>
                                                             )) : (
-                                                                <span className="text-xs text-slate-400 dark:text-slate-600">—</span>
+                                                                <span className="text-xs text-white/40">—</span>
                                                             )}
                                                         </div>
                                                     </td>
@@ -420,8 +420,8 @@ export function ServerMonitor() {
                                                         <span className={cn(
                                                             "px-2 py-0.5 rounded-full text-[10px] font-medium",
                                                             isRunning
-                                                                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                                                                : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400"
+                                                                ? "bg-emerald-100 text-emerald-700"
+                                                                : "bg-white/5 text-white/40"
                                                         )}>
                                                             {c.status}
                                                         </span>
@@ -438,7 +438,7 @@ export function ServerMonitor() {
                                                                             <button
                                                                                 onClick={() => handleContainerAction(c.name, "start")}
                                                                                 disabled={!!actionLoading}
-                                                                                className="p-1.5 text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-md transition-colors disabled:opacity-50"
+                                                                                className="p-1.5 text-white/40 hover:text-emerald-600 hover:bg-emerald-50 rounded-md transition-colors disabled:opacity-50"
                                                                                 title="Start"
                                                                             >
                                                                                 {actionLoading === `${c.name}:start`
@@ -451,8 +451,8 @@ export function ServerMonitor() {
                                                                                 onClick={() => handleContainerAction(c.name, "stop")}
                                                                                 disabled={!!actionLoading || isProtected}
                                                                                 className={cn(
-                                                                                    "p-1.5 text-slate-500 rounded-md transition-colors disabled:opacity-30",
-                                                                                    !isProtected && "hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                                                                    "p-1.5 text-white/40 rounded-md transition-colors disabled:opacity-30",
+                                                                                    !isProtected && "hover:text-red-600 hover:bg-red-50"
                                                                                 )}
                                                                                 title={manageTitle || "Stop"}
                                                                             >
@@ -465,8 +465,8 @@ export function ServerMonitor() {
                                                                             onClick={() => handleContainerAction(c.name, "restart")}
                                                                             disabled={!!actionLoading || isProtected}
                                                                             className={cn(
-                                                                                "p-1.5 text-slate-500 rounded-md transition-colors disabled:opacity-30",
-                                                                                !isProtected && "hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700"
+                                                                                "p-1.5 text-white/40 rounded-md transition-colors disabled:opacity-30",
+                                                                                !isProtected && "hover:text-white hover:bg-white/5"
                                                                             )}
                                                                             title={manageTitle || "Restart"}
                                                                         >
@@ -476,14 +476,14 @@ export function ServerMonitor() {
                                                                         </button>
                                                                         <button
                                                                             onClick={() => {
-                                                                                if (confirm(`Rebuild "${c.name}"? This will pull the latest image and recreate the container.`)) {
+                                                                                if (confirm(`Rebuild"${c.name}"? This will pull the latest image and recreate the container.`)) {
                                                                                     handleContainerAction(c.name, "rebuild");
                                                                                 }
                                                                             }}
                                                                             disabled={!!actionLoading || isProtected}
                                                                             className={cn(
-                                                                                "p-1.5 text-slate-500 rounded-md transition-colors disabled:opacity-30",
-                                                                                !isProtected && "hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                                                                                "p-1.5 text-white/40 rounded-md transition-colors disabled:opacity-30",
+                                                                                !isProtected && "hover:text-amber-600 hover:bg-amber-50"
                                                                             )}
                                                                             title={manageTitle || "Rebuild"}
                                                                         >
@@ -493,7 +493,7 @@ export function ServerMonitor() {
                                                                         </button>
                                                                         <button
                                                                             onClick={() => setLogContainer(c.name)}
-                                                                            className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors"
+                                                                            className="p-1.5 text-white/40 hover:text-white hover:bg-white/5 rounded-md transition-colors"
                                                                             title="Logs"
                                                                         >
                                                                             <Terminal className="w-4 h-4" />
@@ -564,7 +564,7 @@ function LogViewerModal({ containerName, onClose }: { containerName: string; onC
                     if (done) break;
 
                     const chunk = decoder.decode(value, { stream: true });
-                    const lines = chunk.split("\n").filter(l => l.startsWith("data: ")).map(l => l.slice(6));
+                    const lines = chunk.split("\n").filter(l => l.startsWith("data:")).map(l => l.slice(6));
                     if (lines.length > 0) {
                         setLogs(prev => [...prev, ...lines]);
                     }
@@ -592,34 +592,34 @@ function LogViewerModal({ containerName, onClose }: { containerName: string; onC
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative w-full max-w-3xl bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[80vh] transition-colors animate-in fade-in zoom-in duration-200">
-                <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+            <div className="absolute inset-0 bg-white/5 backdrop-blur-sm" onClick={onClose} />
+            <div className="relative w-full max-w-3xl bg-secondary rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[80vh] transition-colors animate-in fade-in zoom-in duration-200">
+                <div className="flex items-center justify-between p-4 border-b border-white/5">
                     <div className="flex items-center gap-2">
-                        <Terminal className="w-4 h-4 text-slate-500" />
-                        <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                        <Terminal className="w-4 h-4 text-white/40" />
+                        <h2 className="text-sm font-bold text-white">
                             Logs — {containerName}
                         </h2>
                         {isConnected && (
-                            <span className="flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                            <span className="flex items-center gap-1 text-[10px] text-emerald-600 font-medium">
                                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
                                 Live
                             </span>
                         )}
                     </div>
-                    <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full transition-colors">
+                    <button onClick={onClose} className="p-1.5 text-white/40 hover:text-white/40 rounded-full transition-colors">
                         <X className="w-4 h-4" />
                     </button>
                 </div>
-                <div className="flex-1 overflow-y-auto bg-slate-950 p-4 font-mono text-xs text-slate-300 leading-relaxed">
+                <div className="flex-1 overflow-y-auto bg-black/20 p-4 font-mono text-xs text-white/20 leading-relaxed">
                     {logs.length === 0 && (
-                        <div className="flex items-center gap-2 text-slate-500">
+                        <div className="flex items-center gap-2 text-white/40">
                             <Loader2 className="w-3 h-3 animate-spin" />
                             Connecting...
                         </div>
                     )}
                     {logs.map((line, i) => (
-                        <div key={i} className="whitespace-pre-wrap break-all">
+                        <div key={i} className="whitespace-pre-wrap break-all text-white/50">
                             {line}
                         </div>
                     ))}

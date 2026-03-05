@@ -3,36 +3,74 @@
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Warna Custom yang Konsisten */
-  --color-primary: #3b82f6;
-  /* Blue 500 */
-  --color-surface: #1e293b;
-  /* Slate 800 */
-  --color-border: #334155;
-  /* Slate 700 */
+  --color-background: hsl(0 0% 4%);
+  --color-foreground: hsl(0 0% 96%);
+  --color-card: hsl(0 0% 6%);
+  --color-card-foreground: hsl(0 0% 96%);
+  --color-popover: hsl(0 0% 6%);
+  --color-popover-foreground: hsl(0 0% 96%);
+  --color-primary: hsl(75 25% 35%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-secondary: hsl(0 0% 12%);
+  --color-secondary-foreground: hsl(0 0% 96%);
+  --color-muted: hsl(0 0% 15%);
+  --color-muted-foreground: hsl(0 0% 60%);
+  --color-accent: hsl(75 25% 28%);
+  --color-accent-foreground: hsl(0 0% 100%);
+  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-destructive-foreground: hsl(0 0% 98%);
+  --color-border: hsl(0 0% 18%);
+  --color-input: hsl(0 0% 15%);
+  --color-ring: hsl(75 25% 35%);
+  
+  /* Army green color scale */
+  --color-army-50: #f4f5f0;
+  --color-army-100: #e6e8dc;
+  --color-army-200: #cdd2bc;
+  --color-army-300: #adb596;
+  --color-army-400: #8f9774;
+  --color-army-500: #727b56;
+  --color-army-600: #5a6143;
+  --color-army-700: #484d36;
+  --color-army-800: #3c3f2e;
+  --color-army-900: #33362a;
+  --color-army-950: #1a1c14;
+  --color-army-1000: #0d0e0a;
+
+  --radius-xl: calc(0.25rem + 4px);
+  --radius-lg: 0.25rem;
+  --radius-md: calc(0.25rem - 2px);
+  --radius-sm: calc(0.25rem - 4px);
+  --radius-xs: calc(0.25rem - 6px);
 }
 
 @layer base {
-  body {
-    @apply bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-200 antialiased;
+  * {
+    @apply border-border;
   }
 
-  /* Custom Scrollbar as per documentation */
+  body {
+    @apply bg-background text-foreground antialiased transition-colors duration-200;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  /* Custom scrollbar for dark theme */
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 6px;
+    height: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-transparent;
+    background: hsl(0 0% 8%);
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-slate-400 dark:bg-slate-700 rounded-full border-2 border-transparent bg-clip-padding;
+    background: hsl(0 0% 25%);
+    border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-500 dark:bg-slate-600;
+    background: hsl(75 25% 35%);
   }
 }
 

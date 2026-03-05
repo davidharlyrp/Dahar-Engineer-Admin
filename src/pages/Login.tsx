@@ -57,32 +57,32 @@ export function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors duration-200">
+        <div className="min-h-screen bg-black flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors duration-200">
             <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-                <h2 className="mt-6 text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-                    Dahar<span className="text-slate-500 dark:text-slate-400 font-normal">Engineer</span>
+                <h2 className="mt-6 text-3xl font-bold tracking-tight text-white">
+                    Dahar<span className="text-white/40 font-normal">Engineer</span>
                 </h2>
-                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Admin Dashboard Access</p>
+                <p className="mt-2 text-sm text-white/40">Admin Dashboard Access</p>
             </div>
 
             <div className="mt-8 mx-auto w-[80%] md:w-full sm:max-w-md">
-                <div className="bg-white dark:bg-slate-900 py-8 px-4 shadow-xl border border-slate-200 dark:border-slate-800 sm:rounded-xl sm:px-10 transition-colors">
+                <div className="bg-secondary py-8 px-4 shadow-xl border border-white/5 sm:rounded-2xl sm:px-10 transition-colors">
 
                     {error && (
-                        <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-lg p-4 flex items-start gap-3">
-                            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
-                            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+                        <div className="mb-6 bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-start gap-3">
+                            <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                            <p className="text-sm text-red-400">{error}</p>
                         </div>
                     )}
 
                     <form className="space-y-6" onSubmit={handleEmailLogin}>
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                            <label htmlFor="email" className="block text-sm font-bold tracking-widest uppercase text-white/40">
                                 Email address
                             </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
+                            <div className="mt-2 relative rounded-xl shadow-sm">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Mail className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                                    <Mail className="h-4 w-4 text-white/40" />
                                 </div>
                                 <input
                                     id="email"
@@ -92,19 +92,19 @@ export function Login() {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="block w-full pl-10 text-sm border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 focus:border-transparent py-2.5 border transition-all"
+                                    className="block w-full pl-10 text-sm border-white/10 bg-black/40 text-white rounded-xl focus:ring-2 focus:ring-army-500 focus:border-transparent py-3 border transition-all placeholder:text-white/20"
                                     placeholder="admin@daharengineer.com"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                            <label htmlFor="password" className="block text-sm font-bold tracking-widest uppercase text-white/40">
                                 Password
                             </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
+                            <div className="mt-2 relative rounded-xl shadow-sm">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Lock className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                                    <Lock className="h-4 w-4 text-white/40" />
                                 </div>
                                 <input
                                     id="password"
@@ -114,7 +114,7 @@ export function Login() {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="block w-full pl-10 text-sm border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 focus:border-transparent py-2.5 border transition-all"
+                                    className="block w-full pl-10 text-sm border-white/10 bg-black/40 text-white rounded-xl focus:ring-2 focus:ring-army-500 focus:border-transparent py-3 border transition-all placeholder:text-white/20"
                                     placeholder="••••••••"
                                 />
                             </div>
@@ -124,7 +124,7 @@ export function Login() {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full flex justify-center items-center py-2.5 px-4 rounded-md shadow-sm text-sm font-medium text-white dark:text-slate-900 bg-slate-900 dark:bg-slate-100 hover:bg-black dark:hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                                className="w-full flex justify-center items-center py-3 px-4 rounded-xl shadow-sm text-sm font-bold text-black bg-white hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-army-500 focus:ring-offset-black transition-all disabled:opacity-70 disabled:cursor-not-allowed uppercase tracking-wider"
                             >
                                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign in"}
                             </button>
@@ -134,10 +134,10 @@ export function Login() {
                     <div className="mt-6">
                         <div className="relative">
                             <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+                                <div className="w-full border-t border-white/5" />
                             </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="px-2 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400">Or continue with</span>
+                            <div className="relative flex justify-center text-xs">
+                                <span className="px-2 bg-secondary text-white/40 uppercase tracking-widest font-bold">Or continue with</span>
                             </div>
                         </div>
 
@@ -145,9 +145,10 @@ export function Login() {
                             <button
                                 onClick={handleGoogleLogin}
                                 disabled={isLoading}
-                                className="w-full inline-flex justify-center items-center py-2.5 px-4 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm bg-white dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-all disabled:opacity-70 disabled:cursor-not-allowed group"
+                                className="w-full inline-flex justify-center items-center py-3 px-4 border border-white/10 rounded-xl shadow-sm bg-black/40 text-sm font-bold text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-army-500 focus:ring-offset-black transition-all disabled:opacity-70 disabled:cursor-not-allowed group uppercase tracking-wider"
                             >
                                 <svg className="w-5 h-5 mr-3 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#hi" />
                                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />

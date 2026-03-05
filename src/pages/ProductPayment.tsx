@@ -33,17 +33,17 @@ function CheckboxFilter({ options, selected, onChange, isOpen, onToggle }: Check
             <button
                 onClick={(e) => { e.stopPropagation(); onToggle(); }}
                 className={cn(
-                    "p-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors",
-                    selected.length > 0 ? "text-slate-900 dark:text-white" : "text-slate-400"
+                    "p-0.5 rounded hover:bg-white/5 transition-colors",
+                    selected.length > 0 ? "text-white" : "text-white/40"
                 )}
             >
                 <Filter className={cn("w-3 h-3", selected.length > 0 && "fill-current")} />
             </button>
             {isOpen && (
-                <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-xl z-[100] p-2 normal-case font-normal text-xs overflow-hidden">
+                <div className="absolute left-0 mt-2 w-48 bg-secondary border border-white/5 rounded-md shadow-xl z-[100] p-2 normal-case font-normal text-xs overflow-hidden">
                     <div className="max-h-48 overflow-y-auto space-y-1 py-1">
                         {options.map(option => (
-                            <label key={option} className="flex items-center gap-2 px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded cursor-pointer transition-colors">
+                            <label key={option} className="flex items-center gap-2 px-2 py-1 hover:bg-white/5 rounded cursor-pointer transition-colors">
                                 <input
                                     type="checkbox"
                                     checked={selected.includes(option)}
@@ -53,17 +53,17 @@ function CheckboxFilter({ options, selected, onChange, isOpen, onToggle }: Check
                                             : [...selected, option];
                                         onChange(next);
                                     }}
-                                    className="rounded border-slate-300 dark:border-slate-600 text-slate-900 focus:ring-slate-900 dark:focus:ring-slate-100"
+                                    className="rounded border-white/5 text-white focus:ring-army-500"
                                 />
-                                <span className="truncate text-slate-700 dark:text-slate-300">{option}</span>
+                                <span className="truncate text-white/80">{option}</span>
                             </label>
                         ))}
                     </div>
                     {selected.length > 0 && (
-                        <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+                        <div className="mt-2 pt-2 border-t border-white/5">
                             <button
                                 onClick={() => onChange([])}
-                                className="w-full py-1 text-[10px] text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-colors font-bold"
+                                className="w-full py-1 text-[10px] text-white/40 hover:text-white transition-colors font-bold"
                             >
                                 Clear All
                             </button>
@@ -107,36 +107,36 @@ export function ProductPayment() {
 
         switch (preset) {
             case "today":
-                return `payment_date >= "${startOfDay}"`;
+                return `payment_date >="${startOfDay}"`;
             case "last_7": {
                 const d = new Date();
                 d.setDate(d.getDate() - 7);
-                return `payment_date >= "${d.toISOString().replace('T', ' ')}"`;
+                return `payment_date >="${d.toISOString().replace('T', ' ')}"`;
             }
             case "last_14": {
                 const d = new Date();
                 d.setDate(d.getDate() - 14);
-                return `payment_date >= "${d.toISOString().replace('T', ' ')}"`;
+                return `payment_date >="${d.toISOString().replace('T', ' ')}"`;
             }
             case "this_week": {
                 const day = now.getDay();
                 const diff = now.getDate() - day + (day === 0 ? -6 : 1);
                 const d = new Date(now.setDate(diff));
                 d.setHours(0, 0, 0, 0);
-                return `payment_date >= "${d.toISOString().replace('T', ' ')}"`;
+                return `payment_date >="${d.toISOString().replace('T', ' ')}"`;
             }
             case "last_30": {
                 const d = new Date();
                 d.setDate(d.getDate() - 30);
-                return `payment_date >= "${d.toISOString().replace('T', ' ')}"`;
+                return `payment_date >="${d.toISOString().replace('T', ' ')}"`;
             }
             case "this_month": {
                 const d = new Date(now.getFullYear(), now.getMonth(), 1);
-                return `payment_date >= "${d.toISOString().replace('T', ' ')}"`;
+                return `payment_date >="${d.toISOString().replace('T', ' ')}"`;
             }
             case "this_year": {
                 const d = new Date(now.getFullYear(), 0, 1);
-                return `payment_date >= "${d.toISOString().replace('T', ' ')}"`;
+                return `payment_date >="${d.toISOString().replace('T', ' ')}"`;
             }
             default:
                 return "";
@@ -154,26 +154,26 @@ export function ProductPayment() {
 
         // 2. Search filter (invoice, email, user_name)
         if (search) {
-            conditions.push(`(invoice_id ~ "${search}" || user_email ~ "${search}" || user_name ~ "${search}" || product_name ~ "${search}")`);
+            conditions.push(`(invoice_id ~"${search}"|| user_email ~"${search}"|| user_name ~"${search}"|| product_name ~"${search}")`);
         }
 
         // 3. Multi-select filters
         if (selectedProducts.length > 0) {
-            const productConditions = selectedProducts.map(p => `product_name = "${p}"`).join(" || ");
+            const productConditions = selectedProducts.map(p => `product_name ="${p}"`).join("||");
             conditions.push(`(${productConditions})`);
         }
 
         if (selectedStatuses.length > 0) {
-            const statusConditions = selectedStatuses.map(s => `payment_status = "${s}"`).join(" || ");
+            const statusConditions = selectedStatuses.map(s => `payment_status ="${s}"`).join("||");
             conditions.push(`(${statusConditions})`);
         }
 
         if (selectedMethods.length > 0) {
-            const methodConditions = selectedMethods.map(m => `payment_method = "${m}"`).join(" || ");
+            const methodConditions = selectedMethods.map(m => `payment_method ="${m}"`).join("||");
             conditions.push(`(${methodConditions})`);
         }
 
-        return conditions.join(" && ");
+        return conditions.join("&&");
     }, [dateFilter, search, selectedProducts, selectedStatuses, selectedMethods]);
 
     const calculateStats = (data: PaymentHistoryRecord[]) => {
@@ -288,11 +288,11 @@ export function ProductPayment() {
     }, []);
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Product Payments</h1>
-                    <p className="text-sm text-slate-500 font-medium">Manage and track digital product transactions.</p>
+                    <h1 className="text-2xl font-bold tracking-tight text-white">Product Payments</h1>
+                    <p className="text-sm text-white/40 font-medium">Manage and track digital product transactions.</p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
@@ -300,13 +300,13 @@ export function ProductPayment() {
                     <div className="relative">
                         <button
                             onClick={(e) => { e.stopPropagation(); setIsDateFilterOpen(!isDateFilterOpen); setOpenFilter(null); }}
-                            className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors"
+                            className="flex items-center gap-2 px-3 py-2 bg-secondary border border-white/5 rounded-md text-sm font-bold text-white/80 hover:bg-white/5 transition-colors"
                         >
-                            <Clock className="w-4 h-4 text-slate-400" />
+                            <Clock className="w-4 h-4 text-white/40" />
                             {dateOptions.find(o => o.value === dateFilter)?.label || "Date Filter"}
                         </button>
                         {isDateFilterOpen && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-xl z-50 py-1">
+                            <div className="absolute right-0 mt-2 w-48 bg-secondary border border-white/5 rounded-md shadow-xl z-50 py-1">
                                 {dateOptions.map((option) => (
                                     <button
                                         key={option.value}
@@ -316,8 +316,8 @@ export function ProductPayment() {
                                         className={cn(
                                             "w-full text-left px-4 py-2 text-sm transition-colors flex items-center justify-between",
                                             dateFilter === option.value
-                                                ? "bg-slate-50 dark:bg-slate-700/50 text-slate-900 dark:text-white font-bold"
-                                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                                                ? "bg-white/[0.02] text-white font-bold"
+                                                : "text-white/60 hover:bg-white/5"
                                         )}
                                     >
                                         {option.label}
@@ -329,13 +329,13 @@ export function ProductPayment() {
                     </div>
 
                     <div className="relative w-full sm:w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                         <input
                             type="text"
                             placeholder="Search invoice, email or user..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2 text-sm font-semibold border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none transition-all placeholder:font-normal"
+                            className="w-full pl-9 pr-4 py-2 text-sm font-semibold border border-white/5 bg-secondary text-white rounded-md focus:outline-none transition-all placeholder:font-normal"
                         />
                     </div>
                 </div>
@@ -343,48 +343,48 @@ export function ProductPayment() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
+                <div className="bg-secondary p-6 rounded-xl border border-white/5 shadow-sm transition-colors">
                     <div className="flex items-center gap-4 mb-2">
-                        <div className="p-2 bg-slate-100 dark:bg-slate-900 rounded-lg">
-                            <DollarSign className="w-5 h-5 text-slate-900 dark:text-slate-100" />
+                        <div className="p-2 bg-white/5 rounded-lg">
+                            <DollarSign className="w-5 h-5 text-white" />
                         </div>
-                        <span className="text-sm font-bold text-slate-400">Total Revenue</span>
+                        <span className="text-sm font-bold text-white/40">Total Revenue</span>
                     </div>
-                    <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    <div className="text-2xl font-bold text-white">
                         {formatCurrency(stats.revenue)}
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
+                <div className="bg-secondary p-6 rounded-xl border border-white/5 shadow-sm transition-colors">
                     <div className="flex items-center gap-4 mb-2">
-                        <div className="p-2 bg-slate-100 dark:bg-slate-900 rounded-lg">
-                            <ShoppingCart className="w-5 h-5 text-slate-900 dark:text-slate-100" />
+                        <div className="p-2 bg-white/5 rounded-lg">
+                            <ShoppingCart className="w-5 h-5 text-white" />
                         </div>
-                        <span className="text-sm font-bold text-slate-400">Total Transactions</span>
+                        <span className="text-sm font-bold text-white/40">Total Transactions</span>
                     </div>
-                    <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    <div className="text-2xl font-bold text-white">
                         {stats.transactions.toLocaleString()}
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
+                <div className="bg-secondary p-6 rounded-xl border border-white/5 shadow-sm transition-colors">
                     <div className="flex items-center gap-4 mb-2">
-                        <div className="p-2 bg-slate-100 dark:bg-slate-900 rounded-lg">
-                            <Check className="w-5 h-5 text-slate-900 dark:text-slate-100" />
+                        <div className="p-2 bg-white/5 rounded-lg">
+                            <Check className="w-5 h-5 text-white" />
                         </div>
-                        <span className="text-sm font-bold text-slate-400">Successful Payments</span>
+                        <span className="text-sm font-bold text-white/40">Successful Payments</span>
                     </div>
-                    <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    <div className="text-2xl font-bold text-white">
                         {stats.successful.toLocaleString()}
                     </div>
                 </div>
             </div>
 
             {/* Main Table Container */}
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm transition-colors overflow-hidden flex flex-col h-[600px]">
+            <div className="bg-secondary border border-white/5 rounded-xl shadow-sm transition-colors overflow-hidden flex flex-col h-[600px]">
                 <div className="flex-1 overflow-auto relative">
                     <table className="w-full text-sm text-left">
-                        <thead className="text-[10px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 uppercase font-black tracking-widest sticky top-0 z-10">
+                        <thead className="text-[10px] text-white/40 bg-white/[0.02] border-b border-white/5 uppercase font-black tracking-widest sticky top-0 z-10">
                             <tr>
                                 <th className="px-6 py-4 whitespace-nowrap">Date / Time</th>
                                 <th className="px-6 py-4 whitespace-nowrap">Invoice ID</th>
@@ -431,19 +431,19 @@ export function ProductPayment() {
                                 <th className="px-6 py-4 whitespace-nowrap text-right">Final Amount</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50 font-medium">
+                        <tbody className="divide-y divide-white/5 font-medium">
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={7} className="h-64 text-center">
                                         <div className="flex flex-col items-center justify-center">
-                                            <Loader2 className="w-8 h-8 text-slate-300 animate-spin mb-4" />
-                                            <span className="text-sm font-bold text-slate-400 animate-pulse">Loading payments...</span>
+                                            <Loader2 className="w-8 h-8 text-white/20 animate-spin mb-4" />
+                                            <span className="text-sm font-bold text-white/40 animate-pulse">Loading payments...</span>
                                         </div>
                                     </td>
                                 </tr>
                             ) : items.length === 0 ? (
                                 <tr>
-                                    <td colSpan={7} className="h-64 text-center text-slate-500 font-semibold">
+                                    <td colSpan={7} className="h-64 text-center text-white/40 font-semibold">
                                         No payments found matching the current filters.
                                     </td>
                                 </tr>
@@ -451,29 +451,29 @@ export function ProductPayment() {
                                 items.map((item) => (
                                     <tr
                                         key={item.id}
-                                        className="hover:bg-slate-50/80 dark:hover:bg-slate-700/50 transition-colors group/row"
+                                        className="hover:bg-white/5 transition-colors group/row"
                                     >
                                         <td className="px-6 py-3 whitespace-nowrap cursor-default">
                                             <div className="flex flex-col">
-                                                <span className="text-slate-900 dark:text-slate-100">
+                                                <span className="text-white">
                                                     {format(new Date(item.payment_date || item.created), "MMM dd, yyyy")}
                                                 </span>
-                                                <span className="text-[10px] text-slate-400 font-semibold mt-0.5">
+                                                <span className="text-[10px] text-white/40 font-semibold mt-0.5">
                                                     {format(new Date(item.payment_date || item.created), "HH:mm")}
                                                 </span>
                                             </div>
                                         </td>
 
-                                        <td className="px-6 py-3 whitespace-nowrap text-slate-600 dark:text-slate-300 cursor-default font-semibold text-[11px] uppercase tracking-wider">
+                                        <td className="px-6 py-3 whitespace-nowrap text-white/40 cursor-default font-semibold text-[11px] uppercase tracking-wider">
                                             {item.invoice_id || "-"}
                                         </td>
 
                                         <td className="px-6 py-3 whitespace-nowrap cursor-default">
                                             <div className="flex flex-col">
-                                                <span className="text-slate-900 dark:text-slate-100 font-semibold">
+                                                <span className="text-white font-semibold">
                                                     {item.user_name || item.expand?.user_id?.display_name || item.expand?.user_id?.name || "Unknown User"}
                                                 </span>
-                                                <span className="text-[11px] text-slate-400 font-semibold mt-0.5">
+                                                <span className="text-[11px] text-white/40 font-semibold mt-0.5">
                                                     {item.user_email || item.expand?.user_id?.email || "-"}
                                                 </span>
                                             </div>
@@ -481,13 +481,13 @@ export function ProductPayment() {
 
                                         <td className="px-6 py-3 whitespace-nowrap cursor-default">
                                             <div className="flex items-center gap-2">
-                                                <span className="text-slate-900 dark:text-slate-100 font-semibold">
+                                                <span className="text-white font-semibold">
                                                     {item.product_name || "-"}
                                                 </span>
                                             </div>
                                         </td>
 
-                                        <td className="px-6 py-3 whitespace-nowrap cursor-default text-xs font-semibold text-slate-600 dark:text-slate-300">
+                                        <td className="px-6 py-3 whitespace-nowrap cursor-default text-xs font-semibold text-white/40">
                                             {item.payment_method || "-"}
                                         </td>
 
@@ -495,21 +495,21 @@ export function ProductPayment() {
                                             <span className={cn(
                                                 "px-2 py-0.5 rounded text-[10px] font-semibold border",
                                                 item.payment_status?.toLowerCase() === 'paid' || item.payment_status?.toLowerCase() === 'settled'
-                                                    ? "bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600"
+                                                    ? "bg-white/5 text-white/80 border-white/5"
                                                     : item.payment_status?.toLowerCase() === 'pending'
-                                                        ? "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-700"
-                                                        : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
+                                                        ? "bg-white/5 text-white/40 border-white/5"
+                                                        : "bg-white/5 text-white/40 border-white/5"
                                             )}>
                                                 {item.payment_status?.toUpperCase() || "UNKNOWN"}
                                             </span>
                                         </td>
 
                                         <td className="px-6 py-3 whitespace-nowrap text-right cursor-default">
-                                            <div className="font-semibold text-slate-900 dark:text-slate-100">
+                                            <div className="font-semibold text-white">
                                                 {formatCurrency(item.final_amount || 0)}
                                             </div>
                                             {item.discount_amount > 0 && (
-                                                <div className="text-[10px] text-slate-400 font-semibold">
+                                                <div className="text-[10px] text-white/40 font-semibold">
                                                     Disc: -{formatCurrency(item.discount_amount)}
                                                 </div>
                                             )}
@@ -523,22 +523,22 @@ export function ProductPayment() {
 
                 {/* Pagination Controls */}
                 {!isLoading && totalPages > 1 && (
-                    <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
-                        <div className="text-xs font-bold text-slate-500">
+                    <div className="p-4 border-t border-white/5 flex items-center justify-between bg-white/5">
+                        <div className="text-xs font-bold text-white/40">
                             Showing page {currentPage} of {totalPages}
                         </div>
                         <div className="flex gap-1">
                             <button
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
-                                className="p-1 rounded text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 disabled:opacity-30 transition-colors"
+                                className="p-1 rounded text-white/40 hover:text-white disabled:opacity-30 transition-colors"
                             >
                                 <ChevronLeft className="w-5 h-5" />
                             </button>
                             <button
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
-                                className="p-1 rounded text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 disabled:opacity-30 transition-colors"
+                                className="p-1 rounded text-white/40 hover:text-white disabled:opacity-30 transition-colors"
                             >
                                 <ChevronRight className="w-5 h-5" />
                             </button>

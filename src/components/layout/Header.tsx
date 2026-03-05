@@ -24,14 +24,14 @@ const iconMap: Record<NotificationType, any> = {
 };
 
 const colorMap: Record<NotificationType, string> = {
-    user: "text-slate-500",
-    course: "text-slate-500",
-    payment: "text-slate-500",
-    activity: "text-slate-500",
-    file: "text-slate-500",
-    feedback: "text-slate-500",
-    comment: "text-slate-500",
-    review: "text-slate-500"
+    user: "text-white/40",
+    course: "text-white/40",
+    payment: "text-white/40",
+    activity: "text-white/40",
+    file: "text-white/40",
+    feedback: "text-white/40",
+    comment: "text-white/40",
+    review: "text-white/40"
 };
 
 interface HeaderProps {
@@ -79,24 +79,24 @@ export function Header({ onMenuClick }: HeaderProps) {
     };
 
     return (
-        <header className="fixed top-0 left-0 right-0 h-12 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 z-50 px-4 flex items-center justify-between shadow-sm transition-colors duration-200">
+        <header className="fixed top-0 left-0 right-0 h-12 bg-secondary border-b border-white/5 z-50 px-4 flex items-center justify-between shadow-sm transition-colors duration-200">
             <div className="flex items-center gap-4">
                 <button
                     onClick={onMenuClick}
-                    className="p-2 -ml-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 lg:hidden transition-colors"
+                    className="p-2 -ml-2 rounded-md hover:bg-white/5 lg:hidden transition-colors"
                 >
-                    <Menu className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                    <Menu className="w-5 h-5 text-white/60" />
                 </button>
                 <div className="flex items-center gap-2">
                     <img src="/Logo.png" alt="Logo" className="w-8 h-8" />
-                    <span className="font-bold text-2xl text-slate-900 dark:text-slate-100 tracking-tight">Dahar <span className="text-slate-500 font-normal dark:text-slate-400">Engineer</span></span>
+                    <span className="font-bold text-2xl text-white tracking-tight">Dahar <span className="text-white/40 font-normal">Engineer</span></span>
                 </div>
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
                 <button
                     onClick={toggleTheme}
-                    className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-400"
+                    className="p-2 rounded-full hover:bg-white/5 transition-colors text-white/60"
                     title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
                 >
                     {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
@@ -112,14 +112,14 @@ export function Header({ onMenuClick }: HeaderProps) {
                         onClick={handleBellClick}
                         className={cn(
                             "p-2 rounded-full transition-colors relative",
-                            isNotifOpen ? "bg-slate-100 dark:bg-slate-700" : "hover:bg-slate-100 dark:hover:bg-slate-700"
+                            isNotifOpen ? "bg-white/10" : "hover:bg-white/5"
                         )}
                     >
-                        <Bell className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                        <Bell className="w-5 h-5 text-white/60" />
                         {unreadCount > 0 && (
                             <span className="absolute top-1 right-1 flex h-3 w-3">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-3 w-3 bg-slate-500 text-[8px] font-bold text-white items-center justify-center">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-army-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-3 w-3 bg-army-500 text-[8px] font-bold text-black items-center justify-center">
                                     {unreadCount}
                                 </span>
                             </span>
@@ -128,58 +128,58 @@ export function Header({ onMenuClick }: HeaderProps) {
 
                     {/* Notification Dropdown */}
                     {isNotifOpen && (
-                        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden z-50 transform origin-top-right transition-all">
-                            <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
-                                <h3 className="font-bold text-slate-800 dark:text-slate-100">Notifications</h3>
+                        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-secondary rounded-xl shadow-2xl border border-white/10 overflow-hidden z-50 transform origin-top-right transition-all">
+                            <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                                <h3 className="font-bold text-white">Notifications</h3>
                                 {unreadCount > 0 && (
                                     <button
                                         onClick={markAllAsRead}
-                                        className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 font-medium flex items-center gap-1"
+                                        className="text-[10px] text-army-400 hover:text-army-300 font-bold uppercase tracking-widest flex items-center gap-1"
                                     >
                                         <Check className="w-3 h-3" /> Mark all read
                                     </button>
                                 )}
                             </div>
-                            <div className="max-h-[70vh] overflow-y-auto w-full">
+                            <div className="max-h-[70vh] overflow-y-auto w-full custom-scrollbar">
                                 {notifications.length > 0 ? (
-                                    <div className="divide-y divide-slate-100 dark:divide-slate-700/50 w-full object-cover">
+                                    <div className="divide-y divide-white/5 w-full object-cover">
                                         {notifications.map(notif => {
                                             const Icon = iconMap[notif.type] || Bell;
                                             return (
                                                 <div
                                                     key={notif.id}
                                                     className={cn(
-                                                        "p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors flex gap-3 text-left w-full",
-                                                        notif.isNew ? "bg-blue-50/50 dark:bg-blue-900/10" : ""
+                                                        "p-4 hover:bg-white/5 transition-colors flex gap-3 text-left w-full",
+                                                        notif.isNew ? "bg-white/[0.02]" : ""
                                                     )}
                                                 >
                                                     <div className={cn(
                                                         "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border",
                                                         notif.isNew
-                                                            ? "bg-white dark:bg-slate-800 border-blue-200 dark:border-blue-800"
-                                                            : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                                                            ? "bg-secondary border-army-500/20"
+                                                            : "bg-secondary border-white/5"
                                                     )}>
                                                         <Icon className={cn("w-4 h-4", colorMap[notif.type])} />
                                                     </div>
                                                     <div className="flex-1 w-full max-w-[calc(100%-2.5rem)]">
-                                                        <p className="text-sm text-slate-700 dark:text-slate-300 w-full object-cover">
+                                                        <p className="text-sm text-white/80 w-full object-cover">
                                                             {notif.text}
                                                         </p>
-                                                        <p className="text-[11px] text-slate-400 font-medium mt-1">
+                                                        <p className="text-[10px] text-white/40 font-semibold mt-1">
                                                             {formatDistanceToNow(notif.date, { addSuffix: true })}
                                                         </p>
                                                     </div>
                                                     {notif.isNew && (
-                                                        <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1.5" />
+                                                        <div className="w-2 h-2 bg-army-500 rounded-full flex-shrink-0 mt-1.5 shadow-[0_0_10px_rgba(132,204,22,0.5)]" />
                                                     )}
                                                 </div>
                                             );
                                         })}
                                     </div>
                                 ) : (
-                                    <div className="p-8 text-center flex flex-col items-center justify-center text-slate-500">
+                                    <div className="p-8 text-center flex flex-col items-center justify-center text-white/40">
                                         <Bell className="w-8 h-8 mb-2 opacity-20" />
-                                        <p className="text-sm font-medium">No recent notifications</p>
+                                        <p className="text-sm font-semibold">No recent notifications</p>
                                     </div>
                                 )}
                             </div>
@@ -189,11 +189,11 @@ export function Header({ onMenuClick }: HeaderProps) {
 
                 <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-950/30 text-slate-600 dark:text-slate-400 hover:text-red-700 dark:hover:text-red-400 transition-colors border border-transparent hover:border-red-100 dark:hover:border-red-900/50"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-white/5 text-white/60 hover:text-red-400 transition-colors border border-transparent"
                     title="Logout"
                 >
                     <LogOut className="w-4 h-4" />
-                    <span className="text-sm font-medium hidden sm:inline-block">Logout</span>
+                    <span className="text-sm font-semibold hidden sm:inline-block">Logout</span>
                 </button>
             </div>
         </header>

@@ -943,6 +943,15 @@ export const OnlineCourseService = {
         }
     },
 
+    async createAccessRecord(data: Partial<OnlineCourseAccessRecord>): Promise<OnlineCourseAccessRecord> {
+        try {
+            return await pb.collection("online_course_access").create<OnlineCourseAccessRecord>(data);
+        } catch (error) {
+            console.error("OnlineCourseService: Error creating access record:", error);
+            throw error;
+        }
+    },
+
     getFileUrl(record: any, filename: string, thumb = ""): string {
         return pb.files.getURL(record, filename, { thumb });
     }

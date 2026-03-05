@@ -188,14 +188,14 @@ export function Documentation() {
     };
 
     return (
-        <div className="space-y-6 flex flex-col h-full">
+        <div className="space-y-6 p-6 flex flex-col h-full">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                    <h1 className="text-2xl font-bold tracking-tight text-white">
                         Documentation Editor
                     </h1>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    <p className="text-muted-foreground text-sm font-medium mt-1">
                         Technical documentation with TeX support
                     </p>
                 </div>
@@ -204,14 +204,14 @@ export function Documentation() {
                     <button
                         onClick={() => batchInputRef.current?.click()}
                         disabled={uploadingBatch}
-                        className="inline-flex items-center justify-center rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm disabled:opacity-50"
+                        className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/60 hover:bg-white/10 transition-colors shadow-sm disabled:opacity-50"
                     >
                         {uploadingBatch ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UploadCloud className="w-4 h-4 mr-2" />}
                         Batch Upload
                     </button>
                     <button
                         onClick={openCreate}
-                        className="inline-flex items-center justify-center rounded-md bg-slate-900 dark:bg-slate-100 px-4 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-black dark:hover:bg-white transition-colors shadow-sm"
+                        className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90 transition-colors shadow-sm"
                     >
                         <Plus className="w-4 h-4 mr-2" />
                         New Doc
@@ -220,51 +220,54 @@ export function Documentation() {
             </div>
 
             <div className="relative shrink-0">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input type="text" placeholder="Search docs…" value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                <input type="text" placeholder="Search docs…" value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-white/10 bg-black/40 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-army-500/40" />
             </div>
 
             {loading ? (
-                <div className="flex items-center justify-center py-20 flex-1"><Loader2 className="w-6 h-6 text-slate-400 animate-spin" /></div>
+                <div className="flex flex-col items-center justify-center py-20 flex-1 gap-3">
+                    <Loader2 className="w-6 h-6 text-white/40 animate-spin" />
+                    <span className="text-xs uppercase tracking-widest font-bold text-white/40">Loading</span>
+                </div>
             ) : filtered.length === 0 ? (
-                <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-12 text-center flex-1">
-                    <FileCode2 className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-4" />
-                    <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">No docs yet</h2>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Write some technical documentation</p>
+                <div className="bg-secondary border border-dashed border-white/10 rounded-2xl p-12 text-center flex-1">
+                    <FileCode2 className="w-12 h-12 mx-auto text-white/20 mb-4" />
+                    <h2 className="text-lg font-bold text-white mb-1">No docs yet</h2>
+                    <p className="text-sm text-white/40">Write some technical documentation</p>
                 </div>
             ) : (
-                <div className="flex flex-col border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800 shadow-sm transition-all h-full overflow-y-auto">
+                <div className="flex flex-col border border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5 transition-all h-full overflow-y-auto">
                     {filtered.map((r) => (
-                        <div key={r.id} className="bg-white dark:bg-slate-800 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all flex flex-col sm:flex-row gap-4 sm:items-center group">
+                        <div key={r.id} className="bg-secondary/20 p-4 hover:bg-black/20 transition-all flex flex-col sm:flex-row gap-4 sm:items-center group">
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0 group-hover:bg-white dark:group-hover:bg-slate-600 transition-colors">
-                                        <FileCode2 className="w-4 h-4 text-slate-400" />
+                                    <div className="w-8 h-8 rounded bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-white/10 transition-colors">
+                                        <FileCode2 className="w-4 h-4 text-white/40" />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2">
-                                            <h3 className="font-bold text-slate-900 dark:text-slate-100 truncate">
+                                            <h3 className="font-bold text-white truncate">
                                                 {r.title}
                                             </h3>
-                                            <span className="text-[10px] font-mono text-slate-500 px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded-full shrink-0">
+                                            <span className="text-[10px] font-mono text-white/40 px-2 py-0.5 bg-white/5 rounded-full shrink-0">
                                                 {r.category || 'Uncategorized'}
                                             </span>
                                         </div>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5 italic opacity-70">
+                                        <p className="text-xs text-white/30 line-clamp-1 mt-0.5 italic opacity-70">
                                             {r.content.substring(0, 150).replace(/[#*`]/g, '').trim()}...
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-4 shrink-0 sm:ml-4 border-t sm:border-t-0 border-slate-100 dark:border-slate-700 pt-3 sm:pt-0 mt-2 sm:mt-0">
-                                <div className="text-[10px] text-slate-400 hidden lg:block text-right leading-tight">
+                            <div className="flex items-center gap-4 shrink-0 sm:ml-4 border-t sm:border-t-0 border-white/5 pt-3 sm:pt-0 mt-2 sm:mt-0">
+                                <div className="text-[10px] text-white/30 hidden lg:block text-right leading-tight">
                                     <p>Updated: {new Date(r.updated).toLocaleDateString()}</p>
                                     <p>{Math.round(r.content.length / 5)} words</p>
                                 </div>
-                                <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 rounded-md p-0.5 border border-slate-200 dark:border-slate-800">
-                                    <button onClick={() => openEdit(r)} className="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-white dark:hover:bg-slate-800 rounded transition-all" title="Edit"><Edit2 className="w-4 h-4" /></button>
-                                    <button onClick={() => handleDelete(r.id)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-white dark:hover:bg-slate-800 rounded transition-all" title="Delete"><Trash2 className="w-4 h-4" /></button>
+                                <div className="flex items-center gap-1 bg-white/[0.02] rounded-md p-0.5 border border-white/5">
+                                    <button onClick={() => openEdit(r)} className="p-1.5 text-white/40 hover:text-white hover:bg-white/5 rounded transition-all" title="Edit"><Edit2 className="w-4 h-4" /></button>
+                                    <button onClick={() => handleDelete(r.id)} className="p-1.5 text-white/40 hover:text-red-400 hover:bg-white/5 rounded transition-all" title="Delete"><Trash2 className="w-4 h-4" /></button>
                                 </div>
                             </div>
                         </div>
@@ -274,55 +277,55 @@ export function Documentation() {
 
             {/* Full Screen Modal */}
             {modalOpen && (
-                <div className="fixed inset-0 z-50 flex flex-col bg-white dark:bg-slate-900 animate-in fade-in duration-200 overflow-hidden">
+                <div className="fixed inset-0 z-50 flex flex-col bg-black animate-in fade-in duration-200 overflow-hidden">
                     {/* Toolbar */}
-                    <div className="h-16 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex items-center justify-between px-6 shrink-0 z-20">
+                    <div className="h-16 border-b border-white/5 bg-secondary flex items-center justify-between px-6 shrink-0 z-20">
                         <div className="flex items-center gap-4 flex-1 mr-4">
                             <input
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                className="text-xl font-bold bg-transparent text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none w-full"
+                                className="text-xl font-bold bg-transparent text-white placeholder:text-white/70 focus:outline-none w-full"
                                 placeholder="Documentation Title"
                             />
                             <div className="hidden lg:flex items-center gap-2">
-                                <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category" className="text-xs bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded text-slate-900 dark:text-slate-100 focus:outline-none w-32 border border-transparent focus:border-slate-300 transition-all" />
-                                <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Tags..." className="text-xs bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded text-slate-900 dark:text-slate-100 focus:outline-none w-32 border border-transparent focus:border-slate-300 transition-all" />
+                                <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category" className="text-xs bg-white/5 px-3 py-1.5 rounded text-white focus:outline-none w-32 border border-white/10 focus:border-army-500/40 transition-all" />
+                                <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Tags..." className="text-xs bg-white/5 px-3 py-1.5 rounded text-white focus:outline-none w-32 border border-white/10 focus:border-army-500/40 transition-all" />
                             </div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                             <input type="file" accept=".md" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
-                            <button onClick={() => fileInputRef.current?.click()} className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors group">
+                            <button onClick={() => fileInputRef.current?.click()} className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white/60 hover:bg-white/5 rounded transition-colors group">
                                 <UploadCloud className="w-4 h-4 group-hover:scale-110 transition-transform" /> Import MD
                             </button>
-                            <button onClick={handleSave} disabled={saving || !title} className="flex items-center gap-2 px-4 py-1.5 text-sm font-bold text-white bg-slate-900 dark:bg-slate-100 dark:text-slate-900 hover:bg-black dark:hover:bg-white rounded transition-all shadow-md active:scale-95 disabled:opacity-50">
+                            <button onClick={handleSave} disabled={saving || !title} className="flex items-center gap-2 px-4 py-1.5 text-sm font-bold text-black bg-white hover:bg-white/90 rounded transition-all shadow-md active:scale-95 disabled:opacity-50">
                                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} {saving ? "Saving..." : "Save"}
                             </button>
-                            <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-2" />
-                            <button onClick={closeModal} className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">
+                            <div className="w-px h-6 bg-white/10 mx-2" />
+                            <button onClick={closeModal} className="p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-md transition-colors">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
                     </div>
 
                     {/* Split Pane Container */}
-                    <div className="flex-1 flex flex-col md:flex-row min-h-0 bg-slate-50 dark:bg-slate-950">
+                    <div className="flex-1 flex flex-col md:flex-row min-h-0 bg-[#050505]">
                         {/* Editor Pane */}
                         <div
-                            className="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0d1117] min-h-0 relative shadow-inner"
+                            className="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-white/5 bg-black/20 min-h-0 relative shadow-inner"
                             onDragOver={handleDragOver}
                             onDrop={handleDrop}
                         >
                             <textarea
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
-                                className="w-full h-full p-8 font-mono text-sm leading-relaxed text-slate-800 dark:text-slate-300 focus:outline-none resize-none bg-transparent"
+                                className="w-full h-full p-8 font-mono text-sm leading-relaxed text-white/70 focus:outline-none resize-none bg-transparent"
                                 placeholder="# Title\n\nWrite markdown here..."
                                 spellCheck={false}
                             />
                         </div>
 
                         {/* Preview Pane */}
-                        <div className="flex-1 min-h-0 overflow-y-auto bg-white dark:bg-[#0d1117] text-slate-900 dark:text-slate-200 relative border-l border-slate-200 dark:border-slate-800">
+                        <div className="flex-1 min-h-0 overflow-y-auto bg-black/20 text-white/80 relative border-l border-white/5">
                             <div className="absolute inset-0 p-8">
                                 <article className="markdown-body" style={{ backgroundColor: 'transparent', color: 'inherit' }}>
                                     <ReactMarkdown
@@ -333,13 +336,18 @@ export function Documentation() {
                                             math: ({ value, children }) => {
                                                 const content = value || (Array.isArray(children) ? children.join('') : children) || '';
                                                 return (
-                                                    <div className="my-8 py-4 bg-slate-50/50 dark:bg-slate-800/30 rounded-lg flex justify-center overflow-x-auto border-y border-slate-100 dark:border-slate-800 shadow-inner not-prose">
-                                                        <span className="block p-4 scale-110 text-slate-900 dark:text-slate-100">
+                                                    <div className="my-8 py-4 bg-white/[0.02] rounded-lg flex justify-center overflow-x-auto border-y border-white/5 shadow-inner not-prose">
+                                                        <span className="block p-4 scale-110 text-white">
                                                             {String(content)}
                                                         </span>
                                                     </div>
                                                 );
                                             },
+                                            table: ({ children }) => <div className="overflow-x-auto w-full mb-4 border bg-black border-white/5"><table className="w-full text-sm bg-black text-left text-white/80 border-collapse">{children}</table></div>,
+                                            thead: ({ children }) => <thead className="text-[10px] uppercase tracking-widest bg-black border-b border-white/5 font-bold text-white/40">{children}</thead>,
+                                            th: ({ children }) => <th className="px-4 py-3 border-b bg-secondary border-white/5">{children}</th>,
+                                            td: ({ children }) => <td className="px-4 py-3 border-b border-white/5 bg-black">{children}</td>,
+                                            tr: ({ children }) => <tr className="hover:bg-black transition-colors">{children}</tr>,
                                         }}
                                     >
                                         {content || "*Live preview...*"}

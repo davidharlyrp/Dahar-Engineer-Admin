@@ -60,19 +60,19 @@ const StatCard = ({ title, amount, icon: Icon, trend, trendType }: {
     trend?: string;
     trendType?: "up" | "down"
 }) => (
-    <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-all hover:shadow-md">
+    <div className="bg-secondary p-6 rounded-2xl border border-white/5 transition-all hover:border-white/10">
         <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</h3>
-            <div className="p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
-                <Icon className="w-5 h-5 text-slate-900 dark:text-slate-100" />
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-white/40">{title}</h3>
+            <div className="p-2 bg-white/[0.02] rounded-lg">
+                <Icon className="w-5 h-5 text-white" />
             </div>
         </div>
         <div className="flex flex-col gap-1">
-            <span className="text-2xl font-bold text-slate-900 dark:text-slate-100">{formatCurrency(amount)}</span>
+            <span className="text-2xl font-bold text-white">{formatCurrency(amount)}</span>
             {trend && (
                 <div className={cn(
                     "flex items-center text-xs font-medium",
-                    trendType === "up" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                    trendType === "up" ? "text-green-400" : "text-red-400"
                 )}>
                     {trendType === "up" ? <ArrowUpRight className="w-3 h-3 mr-1" /> : <ArrowDownRight className="w-3 h-3 mr-1" />}
                     {trend}
@@ -85,12 +85,12 @@ const StatCard = ({ title, amount, icon: Icon, trend, trendType }: {
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-white dark:bg-slate-800 p-3 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl outline-none">
-                <p className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-2">{label}</p>
+            <div className="bg-[#0a0a0a] p-3 border border-white/10 rounded-xl shadow-xl outline-none">
+                <p className="text-sm font-bold text-white mb-2">{label}</p>
                 {payload.map((entry: any, index: number) => (
                     <div key={index} className="flex items-center justify-between gap-4 text-xs py-1">
                         <span style={{ color: entry.color }} className="font-medium">{entry.name}:</span>
-                        <span className="text-slate-900 dark:text-slate-100 font-bold">{formatCurrency(entry.value)}</span>
+                        <span className="text-white font-bold">{formatCurrency(entry.value)}</span>
                     </div>
                 ))}
             </div>
@@ -254,30 +254,33 @@ export function CashflowReport() {
     }, [items]);
 
     // --- Chart Colors ---
-    const COLORS = ["#0f172a", "#334155", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0"];
+    const COLORS = ["#4a5d23", "#5a6f2e", "#6b8239", "#7c9544", "#8da84f", "#9ebb5a"];
     const CHART_COLORS = {
         income: "#10b981", // green-500
         expense: "#ef4444", // red-500
-        net: "#0f172a", // slate-900
+        net: "#ffffff",
         forecast: "#8b5cf6", // violet-500
         cumulative: "#3b82f6" // blue-500
     };
 
+    const gridStroke = "rgba(255,255,255,0.05)";
+    const tickFill = "rgba(255,255,255,0.4)";
+
     if (isLoading) {
         return (
-            <div className="min-h-[400px] flex flex-col items-center justify-center text-slate-500">
-                <div className="w-10 h-10 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin mb-4" />
-                <span className="text-sm font-medium">Generating Report...</span>
+            <div className="min-h-[400px] flex flex-col items-center justify-center gap-3">
+                <div className="w-10 h-10 border-4 border-white/10 border-t-white rounded-full animate-spin" />
+                <span className="text-xs font-bold uppercase tracking-widest text-white/40">Generating Report</span>
             </div>
         );
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="space-y-8 p-6 animate-in fade-in duration-500">
             {/* Header */}
             <div className="flex flex-col gap-1">
-                <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Financial Intelligence</h1>
-                <p className="text-slate-500 dark:text-slate-400">Comprehensive analysis and forecasting based on your cashflow data.</p>
+                <h1 className="text-3xl font-bold tracking-tight text-white">Financial Intelligence</h1>
+                <p className="text-muted-foreground text-sm font-medium">Comprehensive analysis and forecasting based on your cashflow data.</p>
             </div>
 
             {/* Top Cards */}
@@ -304,8 +307,8 @@ export function CashflowReport() {
             </div>
 
             {/* Tabs */}
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm transition-colors">
-                <div className="border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/20 px-4">
+            <div className="bg-secondary border border-white/5 rounded-2xl overflow-hidden transition-colors">
+                <div className="border-b border-white/5 bg-white/[0.02] px-4">
                     <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-2">
                         {[
                             { id: "trend", label: "Monthly Trend", icon: BarChart2 },
@@ -320,8 +323,8 @@ export function CashflowReport() {
                                 className={cn(
                                     "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap",
                                     activeTab === tab.id
-                                        ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-600"
-                                        : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800"
+                                        ? "bg-white/10 text-white shadow-sm"
+                                        : "text-white/40 hover:text-white hover:bg-white/5"
                                 )}
                             >
                                 <tab.icon className="w-4 h-4" />
@@ -337,25 +340,25 @@ export function CashflowReport() {
                         <div className="space-y-6">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div>
-                                    <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Monthly Cashflow Trend</h2>
-                                    <p className="text-sm text-slate-500">Comparison of money in and money out over time.</p>
+                                    <h2 className="text-xl font-bold text-white">Monthly Cashflow Trend</h2>
+                                    <p className="text-sm text-white/40">Comparison of money in and money out over time.</p>
                                 </div>
                             </div>
                             <div className="h-[400px] w-full">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <LineChart data={processedData}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
                                         <XAxis
                                             dataKey="name"
                                             axisLine={false}
                                             tickLine={false}
-                                            tick={{ fill: '#64748b', fontSize: 12 }}
+                                            tick={{ fill: tickFill, fontSize: 12 }}
                                             dy={10}
                                         />
                                         <YAxis
                                             axisLine={false}
                                             tickLine={false}
-                                            tick={{ fill: '#64748b', fontSize: 12 }}
+                                            tick={{ fill: tickFill, fontSize: 12 }}
                                             tickFormatter={(val) => `Rp${val / 1000000}M`}
                                         />
                                         <Tooltip content={<CustomTooltip />} />
@@ -372,8 +375,8 @@ export function CashflowReport() {
                     {activeTab === "graphs" && (
                         <div className="space-y-6">
                             <div>
-                                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Profitability & Growth Analysis</h2>
-                                <p className="text-sm text-slate-500">Visualizing net income and historical growth patterns.</p>
+                                <h2 className="text-xl font-bold text-white">Profitability & Growth Analysis</h2>
+                                <p className="text-sm text-white/40">Visualizing net income and historical growth patterns.</p>
                             </div>
                             <div className="h-[400px] w-full">
                                 <ResponsiveContainer width="100%" height="100%">
@@ -384,9 +387,9 @@ export function CashflowReport() {
                                                 <stop offset="95%" stopColor={CHART_COLORS.net} stopOpacity={0} />
                                             </linearGradient>
                                         </defs>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />
-                                        <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} tickFormatter={(val) => `Rp${val / 1000000}M`} />
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
+                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: tickFill, fontSize: 12 }} dy={10} />
+                                        <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: tickFill, fontSize: 12 }} tickFormatter={(val) => `Rp${val / 1000000}M`} />
                                         <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#3b82f6', fontSize: 12 }} tickFormatter={(val) => `Rp${val / 1000000}M`} />
                                         <Tooltip content={<CustomTooltip />} />
                                         <Legend />
@@ -404,8 +407,8 @@ export function CashflowReport() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                             <div className="space-y-6">
                                 <div>
-                                    <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Spending by Category</h2>
-                                    <p className="text-sm text-slate-500">Where your money is going.</p>
+                                    <h2 className="text-xl font-bold text-white">Spending by Category</h2>
+                                    <p className="text-sm text-white/40">Where your money is going.</p>
                                 </div>
                                 <div className="h-[350px]">
                                     <ResponsiveContainer width="100%" height="100%">
@@ -432,19 +435,19 @@ export function CashflowReport() {
 
                             <div className="space-y-6">
                                 <div>
-                                    <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Income Sources</h2>
-                                    <p className="text-sm text-slate-500">Distribution of revenue streams.</p>
+                                    <h2 className="text-xl font-bold text-white">Income Sources</h2>
+                                    <p className="text-sm text-white/40">Distribution of revenue streams.</p>
                                 </div>
                                 <div className="space-y-4">
                                     {incomeSourceData.map((source, index) => (
                                         <div key={index} className="flex flex-col gap-2">
                                             <div className="flex justify-between text-sm">
-                                                <span className="font-medium text-slate-700 dark:text-slate-300">{source.name}</span>
-                                                <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(source.value)}</span>
+                                                <span className="font-medium text-white/60">{source.name}</span>
+                                                <span className="font-bold text-white">{formatCurrency(source.value)}</span>
                                             </div>
-                                            <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
                                                 <div
-                                                    className="h-full bg-slate-900 dark:bg-slate-100 transition-all duration-1000"
+                                                    className="h-full bg-army-500 transition-all duration-1000"
                                                     style={{ width: `${(source.value / stats.income) * 100}%` }}
                                                 />
                                             </div>
@@ -459,15 +462,15 @@ export function CashflowReport() {
                     {activeTab === "forecasting" && (
                         <div className="space-y-6">
                             <div>
-                                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">6-Month Budget Forecast</h2>
-                                <p className="text-sm text-slate-500">Projections based on your historical 3-month average performance.</p>
+                                <h2 className="text-xl font-bold text-white">6-Month Budget Forecast</h2>
+                                <p className="text-sm text-white/40">Projections based on your historical 3-month average performance.</p>
                             </div>
                             <div className="h-[400px] w-full">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <LineChart data={forecastData}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 10 }} dy={10} />
-                                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} tickFormatter={(val) => `Rp${val / 1000000}M`} />
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
+                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: tickFill, fontSize: 10 }} dy={10} />
+                                        <YAxis axisLine={false} tickLine={false} tick={{ fill: tickFill, fontSize: 12 }} tickFormatter={(val) => `Rp${val / 1000000}M`} />
                                         <Tooltip content={<CustomTooltip />} />
                                         <Legend />
                                         <Line
@@ -491,12 +494,12 @@ export function CashflowReport() {
                                     </LineChart>
                                 </ResponsiveContainer>
                             </div>
-                            <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <div className="bg-white/[0.02] p-4 rounded-xl border border-white/5">
                                 <div className="flex gap-3">
-                                    <Calendar className="w-5 h-5 text-slate-500 mt-0.5" />
+                                    <Calendar className="w-5 h-5 text-white/40 mt-0.5" />
                                     <div>
-                                        <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Forecast Methodology</h4>
-                                        <p className="text-xs text-slate-500 leading-relaxed mt-1">
+                                        <h4 className="text-sm font-bold text-white">Forecast Methodology</h4>
+                                        <p className="text-xs text-white/40 leading-relaxed mt-1">
                                             The projection (dotted lines) is calculated using a simple arithmetic mean of your transactions from the last 90 days.
                                             This assumes steady-state business operations and does not account for seasonal variations or irregular large invoices.
                                         </p>
@@ -510,30 +513,30 @@ export function CashflowReport() {
                     {activeTab === "info" && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-6">
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                                    <TrendingUp className="w-5 h-5 text-green-500" />
+                                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                    <TrendingUp className="w-5 h-5 text-green-400" />
                                     Efficiency Insights
                                 </h3>
                                 <div className="space-y-4">
-                                    <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border-l-4 border-l-green-500 border border-slate-200 dark:border-slate-700 shadow-sm">
-                                        <p className="text-sm text-slate-600 dark:text-slate-400">Your average monthly profit margin is healthy at <span className="font-bold text-slate-900 dark:text-white">{((stats.balance / (stats.income || 1)) * 100).toFixed(1)}%</span>.</p>
+                                    <div className="bg-white/[0.02] p-4 rounded-xl border-l-4 border-l-green-500 border border-white/5">
+                                        <p className="text-sm text-white/60">Your average monthly profit margin is healthy at <span className="font-bold text-white">{((stats.balance / (stats.income || 1)) * 100).toFixed(1)}%</span>.</p>
                                     </div>
-                                    <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border-l-4 border-l-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
-                                        <p className="text-sm text-slate-600 dark:text-slate-400">Peak earning months observed in <span className="font-bold text-slate-900 dark:text-white">{[...processedData].sort((a, b) => b.income - a.income)[0]?.name || "N/A"}</span>.</p>
+                                    <div className="bg-white/[0.02] p-4 rounded-xl border-l-4 border-l-army-500 border border-white/5">
+                                        <p className="text-sm text-white/60">Peak earning months observed in <span className="font-bold text-white">{[...processedData].sort((a, b) => b.income - a.income)[0]?.name || "N/A"}</span>.</p>
                                     </div>
                                 </div>
                             </div>
                             <div className="space-y-6">
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                                    <TrendingDown className="w-5 h-5 text-red-500" />
+                                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                    <TrendingDown className="w-5 h-5 text-red-400" />
                                     Risk Analysis
                                 </h3>
                                 <div className="space-y-4">
-                                    <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border-l-4 border-l-red-500 border border-slate-200 dark:border-slate-700 shadow-sm">
-                                        <p className="text-sm text-slate-600 dark:text-slate-400">Highest expense concentration in <span className="font-bold text-slate-900 dark:text-white">{categoryData[0]?.name || "N/A"}</span> category.</p>
+                                    <div className="bg-white/[0.02] p-4 rounded-xl border-l-4 border-l-red-500 border border-white/5">
+                                        <p className="text-sm text-white/60">Highest expense concentration in <span className="font-bold text-white">{categoryData[0]?.name || "N/A"}</span> category.</p>
                                     </div>
-                                    <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border-l-4 border-l-slate-400 border border-slate-200 dark:border-slate-700 shadow-sm">
-                                        <p className="text-sm text-slate-600 dark:text-slate-400">Maintain at least <span className="font-bold text-slate-900 dark:text-white">{formatCurrency(stats.expense * 2)}</span> in reserve for 2 months of runway.</p>
+                                    <div className="bg-white/[0.02] p-4 rounded-xl border-l-4 border-l-white/20 border border-white/5">
+                                        <p className="text-sm text-white/60">Maintain at least <span className="font-bold text-white">{formatCurrency(stats.expense * 2)}</span> in reserve for 2 months of runway.</p>
                                     </div>
                                 </div>
                             </div>

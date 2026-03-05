@@ -1,5 +1,6 @@
 import { cn } from "../../lib/utils";
 import { Link, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
     LayoutDashboard,
     Users,
@@ -12,7 +13,6 @@ import {
     Settings,
     FileText,
     Activity,
-    // MessageSquare,
     Share2,
     CreditCard,
     BarChart3,
@@ -28,7 +28,10 @@ import {
     LayoutGrid,
     Layout,
     Layers,
-    GraduationCap
+    GraduationCap,
+    X,
+    FolderOpen,
+    Box
 } from "lucide-react";
 import { useChat } from "../../contexts/ChatContext";
 
@@ -44,7 +47,6 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     const navItems = [
         { label: "Dashboard", href: "/", icon: LayoutDashboard },
         { label: "User Management", href: "/users", icon: Users },
-        // { label: "Messages", href: "/chat", icon: MessageSquare },
         { label: "Course Monitor", href: "/course-monitor", icon: LayoutGrid },
         { label: "Course Booking", href: "/courses", icon: BookOpen },
         { label: "Blog Monitor", href: "/blog-monitor", icon: Layout },
@@ -59,8 +61,8 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         { label: "Dahar PDF", href: "/daharpdf", icon: FileText },
         { label: "TerraSim", href: "/terrasim", icon: Activity },
         { label: "Products", href: "/products", icon: ShoppingBag },
-        { label: "Requested Files", href: "/files", icon: FileUp },
-        { label: "Revit Files", href: "/revit-files", icon: FileUp },
+        { label: "Requested Files", href: "/files", icon: FolderOpen },
+        { label: "Revit Files", href: "/revit-files", icon: Box },
         { label: "Resources", href: "/resources", icon: FileUp },
         { label: "Promotional Email", href: "/promotional-email", icon: Mail },
         { label: "Server Monitor", href: "/server-monitor", icon: Server },
@@ -75,11 +77,14 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     ];
 
     return (
-        <>
+        <div className="relative z-50">
             {/* Mobile backdrop */}
             {isOpen && (
-                <div
-                    className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden"
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
                     onClick={() => setIsOpen(false)}
                 />
             )}
@@ -87,17 +92,44 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             {/* Sidebar */}
             <aside
                 className={cn(
-                    "fixed top-12 left-0 bottom-0 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-40 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 transition-colors duration-200",
-                    isOpen ? "translate-x-0" : "-translate-x-full"
+                    "fixed top-0 left-0 bottom-0 bg-secondary border-r border-white/5 z-40 flex flex-col transition-all duration-300 ease-in-out h-screen",
+                    "w-[100dvw] md:w-[280px]",
+                    isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
                 )}
             >
-                <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-                    {navItems.map((item: any) => {
+                {/* Logo Section */}
+                <div className="p-4 flex items-center justify-center">
+                    <Link
+                        to="/"
+                        className="flex items-center gap-2"
+                        onClick={() => setIsOpen(false)}
+                    >
+                        <div className="w-4 h-4 flex items-center justify-center">
+                            <img src="/Logo.png" alt="Dahar Engineer" className="w-full h-full object-contain" />
+                        </div>
+                        <div className="flex gap-1 items-center">
+                            <span className="text-sm font-bold tracking-tight text-white leading-tight">DAHAR</span>
+                            <span className="text-sm font-semibold text-muted-foreground leading-tight">ENGINEER ADMIN</span>
+                        </div>
+                    </Link>
+                    <button
+                        onClick={() => setIsOpen(false)}
+                        className="lg:hidden p-2 text-muted-foreground hover:text-white hover:bg-white/5 rounded-full transition-colors"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+
+                <div className="h-px bg-white/5 mx-4" />
+
+                {/* Navigation */}
+                <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5 scrollbar-hide">
+                    {navItems.map((item, index) => {
                         if (item.type === "separator") {
                             const SepIcon = item.icon;
                             return (
-                                <div key={item.label} className="pt-4 pb-1 px-3">
-                                    <span className="flex items-center gap-2 text-[10px] font-semibold text-slate-400 dark:text-slate-500">
+                                <div key={`sep-${index}`} className="pt-6 pb-2 px-3">
+                                    <span className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                                         <SepIcon className="w-3 h-3" />
                                         {item.label}
                                     </span>
@@ -106,24 +138,44 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                         }
 
                         const isActive = location.pathname === item.href;
-                        const Icon = item.icon;
+                        const Icon = (item as any).icon;
 
                         return (
                             <Link
-                                key={item.href}
-                                to={item.href}
+                                key={(item as any).href}
+                                to={(item as any).href}
                                 onClick={() => setIsOpen(false)}
                                 className={cn(
-                                    "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer",
+                                    "group relative flex items-center gap-0 py-2.5 px-3 rounded-md text-xs font-medium transition-all duration-200",
+                                    "hover:bg-white/5 hover:gap-3",
                                     isActive
-                                        ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100"
+                                        ? "text-army-400 bg-transparent gap-3"
+                                        : "text-foreground/70"
                                 )}
                             >
-                                <Icon className={cn("w-4 h-4", isActive ? "text-slate-900 dark:text-slate-100" : "text-slate-500 dark:text-slate-500")} />
-                                {item.label}
-                                {item.label === "Messages" && globalUnreadCount > 0 && (
-                                    <span className="ml-auto bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-4 text-center">
+                                {isActive && (
+                                    <motion.div
+                                        layoutId="sidebarActiveIndicator"
+                                        className="absolute left-0 inset-y-0 my-auto h-6 w-1 bg-army-500 rounded-r-full"
+                                        transition={{ type: 'spring', stiffness: 600, damping: 45 }}
+                                    />
+                                )}
+
+                                <span className={cn(
+                                    "transition-all duration-200 overflow-hidden shrink-0 flex items-center justify-center",
+                                    isActive || "w-0 min-w-0 group-hover:w-4 group-hover:min-w-4",
+                                    isActive && "w-4 min-w-4"
+                                )}>
+                                    <Icon className={cn(
+                                        "w-4 h-4 shrink-0 transition-opacity duration-200",
+                                        isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                                    )} />
+                                </span>
+
+                                <span className="tracking-tight truncate">{(item as any).label}</span>
+
+                                {(item as any).label === "Messages" && globalUnreadCount > 0 && (
+                                    <span className="ml-auto bg-army-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm min-w-4 text-center">
                                         {globalUnreadCount > 99 ? '99+' : globalUnreadCount}
                                     </span>
                                 )}
@@ -132,17 +184,20 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+                {/* Footer Section */}
+                <div className="p-4 border-t border-white/5">
                     <Link
                         to="/settings"
                         onClick={() => setIsOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                        className={cn(
+                            "group flex items-center gap-3 px-3 py-2.5 rounded-md text-xs font-medium text-muted-foreground hover:text-white hover:bg-white/5 transition-all duration-200"
+                        )}
                     >
-                        <Settings className="w-4 h-4 text-slate-500" />
+                        <Settings className="w-4 h-4 transition-transform group-hover:rotate-45" />
                         Settings
                     </Link>
                 </div>
             </aside>
-        </>
+        </div>
     );
 }

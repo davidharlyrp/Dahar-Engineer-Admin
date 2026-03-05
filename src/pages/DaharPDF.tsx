@@ -55,7 +55,7 @@ export function DaharPDF() {
         } finally {
             setIsLoading(false);
         }
-    }, [page, search]);
+    }, [page, search, perPage]);
 
     useEffect(() => {
         fetchHistory();
@@ -122,31 +122,32 @@ export function DaharPDF() {
         };
     }, [fullHistory]);
 
-    const COLORS = ["#0f172a", "#334155", "#475569", "#64748b", "#94a3b8"];
+    const COLORS = ["#ffffff", "#cccccc", "#999999", "#666666", "#333333"];
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Dahar PDF Overview</h1>
+                    <h1 className="text-2xl font-bold tracking-tight text-white">Dahar PDF Overview</h1>
+                    <p className="text-xs font-semibold text-white/40 mt-1 tracking-widest">Monitor Dahar PDF usage statistics and history</p>
                 </div>
             </div>
 
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
-                    { label: "Total Usage", value: stats.totalUses, icon: Activity, color: "text-slate-900" },
-                    { label: "Unique Users", value: stats.activeUsers, icon: Users, color: "text-slate-600" },
-                    { label: "Most Popular Tool", value: stats.mostUsedTool, icon: TrendingUp, color: "text-slate-500" },
+                    { label: "Total Usage", value: stats.totalUses, icon: Activity, color: "text-white" },
+                    { label: "Unique Users", value: stats.activeUsers, icon: Users, color: "text-white/80" },
+                    { label: "Most Popular Tool", value: stats.mostUsedTool, icon: TrendingUp, color: "text-white/60" },
                 ].map((stat) => (
-                    <div key={stat.label} className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
+                    <div key={stat.label} className="bg-secondary p-6 rounded-2xl border border-white/5 shadow-sm transition-colors">
                         <div className="flex items-center gap-4 mb-2">
-                            <div className="p-2 bg-slate-100 dark:bg-slate-900 rounded-lg">
+                            <div className="p-2 bg-white/5 rounded-xl border border-white/5">
                                 <stat.icon className={cn("w-5 h-5", stat.color)} />
                             </div>
-                            <span className="text-sm font-bold text-slate-400">{stat.label}</span>
+                            <span className="text-[10px] uppercase tracking-widest font-bold text-white/40">{stat.label}</span>
                         </div>
-                        <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">{stat.value}</div>
+                        <div className="text-3xl font-bold text-white tracking-tighter">{stat.value}</div>
                     </div>
                 ))}
             </div>
@@ -154,45 +155,45 @@ export function DaharPDF() {
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Tool Usage Chart */}
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
-                    <h3 className="text-sm font-bold text-slate-400 mb-6 flex items-center gap-2">
+                <div className="bg-secondary p-6 rounded-2xl border border-white/5 shadow-sm transition-colors">
+                    <h3 className="text-[10px] uppercase font-bold text-white/40 mb-6 flex items-center gap-2 tracking-widest">
                         <TrendingUp className="w-4 h-4" /> Tool Popularity
                     </h3>
                     <div className="h-[300px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={stats.toolData}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                                 <XAxis
                                     dataKey="name"
                                     fontSize={10}
                                     tickLine={false}
                                     axisLine={false}
-                                    tick={{ fill: '#94a3b8', fontWeight: 600 }}
+                                    tick={{ fill: 'rgba(255,255,255,0.4)', fontWeight: 600 }}
                                 />
                                 <YAxis
                                     fontSize={10}
                                     tickLine={false}
                                     axisLine={false}
-                                    tick={{ fill: '#94a3b8', fontWeight: 600 }}
+                                    tick={{ fill: 'rgba(255,255,255,0.4)', fontWeight: 600 }}
                                 />
                                 <Tooltip
                                     contentStyle={{
-                                        backgroundColor: '#fff',
+                                        backgroundColor: '#0a0a0a',
                                         borderRadius: '8px',
-                                        border: 'none',
-                                        boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
+                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)'
                                     }}
-                                    cursor={{ fill: '#f1f5f9' }}
+                                    cursor={{ fill: 'rgba(255,255,255,0.02)' }}
                                 />
-                                <Bar dataKey="value" fill="#0f172a" radius={[4, 4, 0, 0]} barSize={40} />
+                                <Bar dataKey="value" fill="#ffffff" radius={[4, 4, 0, 0]} barSize={40} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
 
                 {/* Activity Distribution */}
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
-                    <h3 className="text-sm font-bold text-slate-400 mb-6 flex items-center gap-2">
+                <div className="bg-secondary p-6 rounded-2xl border border-white/5 shadow-sm transition-colors">
+                    <h3 className="text-[10px] uppercase tracking-widest font-bold text-white/40 mb-6 flex items-center gap-2">
                         <FileText className="w-4 h-4" /> Usage Distribution
                     </h3>
                     <div className="h-[300px] w-full flex items-center justify-center">
@@ -206,12 +207,20 @@ export function DaharPDF() {
                                     outerRadius={100}
                                     paddingAngle={5}
                                     dataKey="value"
+                                    stroke="transparent"
                                 >
                                     {stats.toolData.map((_entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
-                                <Tooltip />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: '#0a0a0a',
+                                        borderRadius: '8px',
+                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)'
+                                    }}
+                                />
                             </PieChart>
                         </ResponsiveContainer>
                     </div>
@@ -219,36 +228,36 @@ export function DaharPDF() {
             </div>
 
             {/* Time Series Chart */}
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
-                <h3 className="text-sm font-bold text-slate-400 mb-6 flex items-center gap-2">
+            <div className="bg-secondary p-6 rounded-2xl border border-white/5 shadow-sm transition-colors">
+                <h3 className="text-[10px] uppercase font-bold tracking-widest text-white/40 mb-6 flex items-center gap-2">
                     <Activity className="w-4 h-4" /> Tool Usage Over Time
                 </h3>
                 <div className="h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={stats.timeSeriesData}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                             <XAxis
                                 dataKey="name"
                                 fontSize={10}
                                 tickLine={false}
                                 axisLine={false}
-                                tick={{ fill: '#94a3b8', fontWeight: 600 }}
+                                tick={{ fill: 'rgba(255,255,255,0.4)', fontWeight: 600 }}
                             />
                             <YAxis
                                 fontSize={10}
                                 tickLine={false}
                                 axisLine={false}
-                                tick={{ fill: '#94a3b8', fontWeight: 600 }}
+                                tick={{ fill: 'rgba(255,255,255,0.4)', fontWeight: 600 }}
                             />
                             <Tooltip
                                 contentStyle={{
-                                    backgroundColor: '#fff',
+                                    backgroundColor: '#0a0a0a',
                                     borderRadius: '8px',
-                                    border: 'none',
-                                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)'
                                 }}
                             />
-                            <Legend wrapperStyle={{ fontSize: '10px', fontWeight: 600, color: '#94a3b8' }} />
+                            <Legend wrapperStyle={{ fontSize: '10px', fontWeight: 600, color: 'rgba(255,255,255,0.4)' }} />
                             {stats.availableTools.map((tool, index) => (
                                 <Line
                                     key={tool}
@@ -257,7 +266,7 @@ export function DaharPDF() {
                                     name={tool}
                                     stroke={COLORS[index % COLORS.length]}
                                     strokeWidth={2}
-                                    dot={{ r: 4, fill: COLORS[index % COLORS.length] }}
+                                    dot={{ r: 4, fill: COLORS[index % COLORS.length], stroke: 'transparent' }}
                                     activeDot={{ r: 6 }}
                                 />
                             ))}
@@ -267,19 +276,19 @@ export function DaharPDF() {
             </div>
 
             {/* History Table */}
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden transition-colors">
-                <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <h2 className="text-sm font-bold text-slate-400 flex items-center gap-2">
+            <div className="bg-secondary border border-white/5 rounded-2xl shadow-sm overflow-hidden transition-colors">
+                <div className="p-4 border-b border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/[0.02]">
+                    <h2 className="text-[10px] uppercase tracking-widest font-bold text-white/40 flex items-center gap-2">
                         <Clock className="w-4 h-4" /> Activity History
                     </h2>
                     <div className="relative w-full sm:w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                         <input
                             type="text"
                             placeholder="Filter by tool or user..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2 text-xs border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none transition-all font-semibold"
+                            className="w-full pl-9 pr-4 py-2 text-xs border border-white/10 bg-black/40 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-army-500/40 transition-all font-semibold placeholder:text-white/30"
                         />
                     </div>
                 </div>
@@ -287,16 +296,16 @@ export function DaharPDF() {
                 <div className="overflow-x-auto">
                     {isLoading ? (
                         <div className="py-20 flex flex-col items-center justify-center">
-                            <Loader2 className="w-8 h-8 text-slate-300 animate-spin mb-4" />
-                            <span className="text-xs font-black uppercase tracking-widest text-slate-400 animate-pulse">Fetching Logs...</span>
+                            <Loader2 className="w-8 h-8 text-white/20 animate-spin mb-4" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-white/40 animate-pulse">Fetching Logs...</span>
                         </div>
                     ) : history.length === 0 ? (
-                        <div className="py-20 text-center text-slate-500 text-xs font-semibold">
+                        <div className="py-20 text-center text-white/40 text-[10px] font-bold uppercase tracking-widest">
                             No activity found.
                         </div>
                     ) : (
                         <table className="w-full text-sm text-left">
-                            <thead className="text-[10px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 uppercase font-black tracking-widest">
+                            <thead className="text-[10px] text-white/40 bg-white/[0.02] border-b border-white/5 uppercase font-bold tracking-widest">
                                 <tr>
                                     <th className="px-6 py-4">User</th>
                                     <th className="px-6 py-4">Tool Used</th>
@@ -304,31 +313,31 @@ export function DaharPDF() {
                                     <th className="px-6 py-4 text-right">Timestamp</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100 dark:divide-slate-700 font-medium">
+                            <tbody className="divide-y divide-white/5 font-medium">
                                 {history.map((item) => (
-                                    <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors group/row">
+                                    <tr key={item.id} className="hover:bg-white/[0.02] transition-colors group/row">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-[10px] font-black border border-slate-200 dark:border-slate-700 text-slate-500">
+                                                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-bold border border-white/10 text-white/60">
                                                     {item.expand?.user?.name?.charAt(0) || "U"}
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs font-semibold text-slate-900 dark:text-slate-100">{item.expand?.user?.display_name || item.expand?.user?.name || "Guest"}</div>
-                                                    <div className="text-[10px] text-slate-400 font-semibold">{item.expand?.user?.email || "Anonymous"}</div>
+                                                    <div className="text-xs font-bold text-white max-w-[150px] truncate">{item.expand?.user?.display_name || item.expand?.user?.name || "Guest"}</div>
+                                                    <div className="text-[10px] text-white/40 font-semibold truncate max-w-[150px]">{item.expand?.user?.email || "Anonymous"}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-[10px] font-semibold border border-slate-200 dark:border-slate-700">
+                                            <span className="px-2.5 py-1 rounded-lg bg-white/5 text-white text-[10px] font-bold border border-white/10 uppercase tracking-widest">
                                                 {item.tool}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30">
+                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-widest">
                                                 Success
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-right text-[10px] text-slate-500 font-semibold">
+                                        <td className="px-6 py-4 text-right text-[10px] text-white/40 font-semibold">
                                             {format(new Date(item.created), "MMM dd, yyyy • HH:mm")}
                                         </td>
                                     </tr>
@@ -340,21 +349,21 @@ export function DaharPDF() {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                    <div className="p-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-center gap-2">
+                    <div className="p-4 border-t border-white/5 flex items-center justify-center gap-2 bg-white/[0.02]">
                         <button
                             onClick={() => setPage(p => Math.max(1, p - 1))}
                             disabled={page === 1}
-                            className="p-1.5 rounded-md text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 disabled:opacity-30 transition-colors"
+                            className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/5 disabled:opacity-30 transition-all border border-transparent hover:border-white/10"
                         >
                             <ChevronLeft className="w-4 h-4" />
                         </button>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">
                             Page {page} / {totalPages}
                         </span>
                         <button
                             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                             disabled={page === totalPages}
-                            className="p-1.5 rounded-md text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 disabled:opacity-30 transition-colors"
+                            className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/5 disabled:opacity-30 transition-all border border-transparent hover:border-white/10"
                         >
                             <ChevronRight className="w-4 h-4" />
                         </button>

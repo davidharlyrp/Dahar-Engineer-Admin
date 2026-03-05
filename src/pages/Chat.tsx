@@ -83,27 +83,20 @@ export function Chat() {
         let pollingInterval: ReturnType<typeof setInterval>;
 
         const syncChatData = async () => {
-            // 1. Sync global counters and conversation list (shallow)
             fetchConversations();
             fetchUnreadCounts();
 
-            // 2. Smart Delta Sync for active room messages (Bandwidth optimization)
             if (activeConversationRef.current) {
                 const currentRoomId = activeConversationRef.current.id;
 
-                // Access the most up-to-date messages array state directly by using a callback inside a no-op state setter
-                // This is a React trick to safely read the freshest state inside an interval closure without adding it to dependencies.
                 setMessages(currentMessages => {
                     const performDeltaSync = async () => {
                         if (currentMessages.length > 0) {
-                            // We already have history, only ask the server for messages newer than the last one we have
                             const lastMsgDate = currentMessages[currentMessages.length - 1].created;
                             const newMsgs = await ChatService.getMessagesSince(currentRoomId, lastMsgDate);
 
                             if (newMsgs.length > 0) {
-                                // We found new messages! Append them smoothly.
                                 setMessages(prev => {
-                                    // Deduplicate just in case
                                     const existingIds = new Set(prev.map(m => m.id));
                                     const uniqueNewMsgs = newMsgs.filter(m => !existingIds.has(m.id));
                                     if (uniqueNewMsgs.length === 0) return prev;
@@ -115,23 +108,20 @@ export function Chat() {
                                 }, 100);
                             }
                         } else {
-                            // We have absolutely zero messages, do a full silent fetch
                             fetchMessages(currentRoomId, true);
                         }
                     };
 
                     performDeltaSync();
-                    return currentMessages; // don't actually mutate state here, just reading it
+                    return currentMessages;
                 });
             }
         };
 
-        // Aggressive Polling: The most reliable way to guarantee real-time updates without WebSockets
         pollingInterval = setInterval(() => {
             syncChatData();
         }, 3000);
 
-        // Robust reconnect: when user returns to tab or network restores, fetch fresh data instantly
         const handleReconnect = () => {
             syncChatData();
         };
@@ -139,13 +129,11 @@ export function Chat() {
         window.addEventListener("focus", handleReconnect);
         window.addEventListener("online", handleReconnect);
 
-        // We listen to the Context's global "create" event just for local state injection to avoid full redraws
         const unsubscribeGlobal = subscribeToMessages((e) => {
             if (e.action === "create") {
                 const newMsg = e.record as MessageRecord;
                 setLatestMessages(prev => ({ ...prev, [newMsg.conversation]: newMsg }));
 
-                // If it belongs to current room, push it instantly before the 3s poll catches it
                 if (activeConversationRef.current?.id === newMsg.conversation) {
                     setMessages(prev => {
                         const exists = prev.some(m => m.id === newMsg.id);
@@ -178,7 +166,6 @@ export function Chat() {
         if (activeConversation) {
             fetchMessages(activeConversation.id);
 
-            // Clear unread count for this conversation when opened, and mark them as read in DB
             setUnreadCounts(prev => ({ ...prev, [activeConversation.id]: 0 }));
             ChatService.markAsRead(activeConversation.id);
         }
@@ -200,7 +187,6 @@ export function Chat() {
             if (attachment) {
                 const formData = new FormData();
                 formData.append("conversation", activeConversation.id);
-                // PocketBase schema requires content. Provide a fallback if empty
                 formData.append("content", newMessage.trim() || "[Attachment]");
                 formData.append("attachment", attachment);
                 formData.append("sender", currentUserId || "");
@@ -215,7 +201,6 @@ export function Chat() {
                 });
             }
 
-            // Immediately append own message
             if (sentMsg) {
                 setMessages(prev => {
                     if (prev.find(m => m.id === sentMsg.id)) return prev;
@@ -224,7 +209,6 @@ export function Chat() {
                 scrollToBottom();
             }
 
-            // Clear input
             setNewMessage("");
             setAttachment(null);
             setAttachmentPreview(null);
@@ -237,13 +221,11 @@ export function Chat() {
     };
 
     const handleDeleteConversation = async (e: React.MouseEvent, conversationId: string) => {
-        e.stopPropagation(); // Prevent triggering the active conversation switch
+        e.stopPropagation();
         if (!confirm("Are you sure you want to delete this conversation? This action cannot be undone.")) return;
 
         try {
             await ChatService.deleteConversation(conversationId);
-            // The SSE subscription will automatically remove it from the list
-            // But we can eagerly update the UI just in case
             setConversations(prev => prev.filter(c => c.id !== conversationId));
             if (activeConversationRef.current?.id === conversationId) {
                 setActiveConversation(null);
@@ -275,17 +257,17 @@ export function Chat() {
     };
 
     return (
-        <div className="flex flex-col h-[calc(100dvh-8rem)] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+        <div className="flex flex-col h-[calc(100dvh-8rem)] bg-secondary border border-white/5 rounded-2xl overflow-hidden shadow-sm">
             <div className="flex flex-1 h-full overflow-hidden">
 
                 {/* Conversations Sidebar (Left Pane) */}
                 <div className={cn(
-                    "w-full sm:w-80 flex-shrink-0 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-slate-50 dark:bg-slate-900/50 transition-all",
+                    "w-full sm:w-80 flex-shrink-0 border-r border-white/5 flex flex-col bg-secondary transition-all",
                     activeConversation ? "hidden sm:flex" : "flex"
                 )}>
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
-                        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Messages</h2>
-                        <span className="text-xs font-medium px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full">
+                    <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                        <h2 className="text-lg font-bold text-white">Messages</h2>
+                        <span className="text-xs font-medium px-2 py-1 bg-white/5 text-white/40 rounded-full">
                             {conversations.length}
                         </span>
                     </div>
@@ -293,14 +275,14 @@ export function Chat() {
                     <div className="flex-1 overflow-y-auto">
                         {isLoadingConversations ? (
                             <div className="p-8 flex justify-center">
-                                <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+                                <Loader2 className="w-6 h-6 animate-spin text-white/40" />
                             </div>
                         ) : conversations.length === 0 ? (
-                            <div className="p-8 text-center text-slate-500 text-sm">
+                            <div className="p-8 text-center text-white/40 text-sm">
                                 No conversations yet
                             </div>
                         ) : (
-                            <div className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                            <div className="divide-y divide-white/5">
                                 {conversations.map(conv => {
                                     const user = conv.expand?.user;
                                     const isActive = activeConversation?.id === conv.id;
@@ -310,23 +292,22 @@ export function Chat() {
                                             key={conv.id}
                                             onClick={() => setActiveConversation(conv)}
                                             className={cn(
-                                                "group w-full text-left p-4 hover:bg-white dark:hover:bg-slate-800/50 transition-colors flex items-center gap-3",
-                                                isActive && "bg-white dark:bg-slate-800 shadow-sm border-l-2 border-l-slate-900 dark:border-l-slate-100"
+                                                "group w-full text-left p-4 hover:bg-white/[0.02] transition-colors flex items-center gap-3",
+                                                isActive && "bg-white/[0.04] border-l-2 border-l-army-400"
                                             )}
                                         >
                                             <div className="relative">
                                                 {user?.avatar ? (
-                                                    <img src={UserService.getAvatarUrl(user, "100x100") || ""} alt={user.name} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
+                                                    <img src={UserService.getAvatarUrl(user, "100x100") || ""} alt={user.name} className="w-10 h-10 rounded-full object-cover border border-white/10" />
                                                 ) : (
-                                                    <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                                                        <User className="w-5 h-5 text-slate-500" />
+                                                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center">
+                                                        <User className="w-5 h-5 text-white/40" />
                                                     </div>
                                                 )}
-                                                {/* Optional: Online indicator could go here */}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between mb-0.5">
-                                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate pr-2">
+                                                    <h3 className="text-sm font-semibold text-white truncate pr-2">
                                                         {user ? UserService.getDisplayName(user) : "Anonymous User"}
                                                     </h3>
                                                     <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
@@ -335,19 +316,19 @@ export function Chat() {
                                                                 {unreadCounts[conv.id]}
                                                             </span>
                                                         )}
-                                                        <span className="text-[10px] text-slate-400">
+                                                        <span className="text-[10px] text-white/30">
                                                             {formatDistanceToNow(new Date(conv.updated), { addSuffix: true }).replace("about ", "")}
                                                         </span>
                                                         <button
                                                             onClick={(e) => handleDeleteConversation(e, conv.id)}
-                                                            className="p-1.5 text-slate-400 hover:text-red-600 bg-slate-100 hover:bg-red-50 dark:bg-slate-800 dark:hover:bg-red-900/20 rounded transition-all focus:opacity-100"
+                                                            className="p-1.5 text-white/30 hover:text-red-400 bg-white/[0.02] hover:bg-red-500/10 rounded transition-all focus:opacity-100"
                                                             title="Delete Conversation"
                                                         >
                                                             <Trash2 className="w-4 h-4" />
                                                         </button>
                                                     </div>
                                                 </div>
-                                                <div className="text-[11px] text-slate-500 truncate min-h-[16px]">
+                                                <div className="text-[11px] text-white/40 truncate min-h-[16px]">
                                                     {(() => {
                                                         const latest = latestMessages[conv.id];
                                                         if (!latest) return "No messages yet";
@@ -359,9 +340,9 @@ export function Chat() {
                                                         return (
                                                             <span className={cn(
                                                                 "flex items-center gap-1",
-                                                                !isMine && unreadCounts[conv.id] > 0 ? "text-slate-900 dark:text-slate-100 font-semibold" : ""
+                                                                !isMine && unreadCounts[conv.id] > 0 ? "text-white font-semibold" : ""
                                                             )}>
-                                                                <span className={isMine ? "text-slate-400" : "text-slate-500 font-medium"}>{senderPrefix}</span>
+                                                                <span className={isMine ? "text-white/30" : "text-white/50 font-medium"}>{senderPrefix}</span>
                                                                 <span className="truncate">{textPreview}</span>
                                                             </span>
                                                         );
@@ -378,16 +359,16 @@ export function Chat() {
 
                 {/* Active Chat Room (Right Pane) */}
                 <div className={cn(
-                    "flex-1 flex flex-col min-w-0 bg-white dark:bg-slate-900 transition-all",
+                    "flex-1 flex flex-col min-w-0 bg-secondary transition-all",
                     !activeConversation ? "hidden sm:flex" : "flex"
                 )}>
                     {activeConversation ? (
                         <>
                             {/* Chat Header */}
-                            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3 bg-white dark:bg-slate-900 shrink-0">
+                            <div className="p-4 border-b border-white/5 flex items-center gap-3 bg-white/[0.02] shrink-0">
                                 <button
                                     onClick={() => setActiveConversation(null)}
-                                    className="p-2 -ml-2 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 sm:hidden"
+                                    className="p-2 -ml-2 text-white/40 hover:text-white sm:hidden"
                                 >
                                     <ArrowLeft className="w-5 h-5" />
                                 </button>
@@ -396,15 +377,15 @@ export function Chat() {
                                     {activeConversation.expand?.user?.avatar ? (
                                         <img src={UserService.getAvatarUrl(activeConversation.expand.user, "100x100") || ""} alt="Avatar" className="w-10 h-10 rounded-full object-cover" />
                                     ) : (
-                                        <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                                            <User className="w-5 h-5 text-slate-500" />
+                                        <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center">
+                                            <User className="w-5 h-5 text-white/40" />
                                         </div>
                                     )}
                                     <div>
-                                        <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+                                        <h3 className="font-semibold text-white">
                                             {activeConversation.expand?.user ? UserService.getDisplayName(activeConversation.expand.user) : "Anonymous User"}
                                         </h3>
-                                        <p className="text-xs text-slate-500">
+                                        <p className="text-xs text-white/40">
                                             {activeConversation.expand?.user?.email}
                                         </p>
                                     </div>
@@ -412,13 +393,13 @@ export function Chat() {
                             </div>
 
                             {/* Messages Area */}
-                            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50 dark:bg-slate-900/30">
+                            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black/20">
                                 {isLoadingMessages ? (
                                     <div className="flex justify-center py-8">
-                                        <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+                                        <Loader2 className="w-6 h-6 animate-spin text-white/40" />
                                     </div>
                                 ) : messages.length === 0 ? (
-                                    <div className="h-full flex flex-col items-center justify-center text-slate-400">
+                                    <div className="h-full flex flex-col items-center justify-center text-white/30">
                                         <MessageSquare className="w-12 h-12 mb-3 opacity-20" />
                                         <p className="text-sm">No messages yet. Say hello!</p>
                                     </div>
@@ -444,11 +425,11 @@ export function Chat() {
                                             <div key={msg.id}>
                                                 {showDateDivider && (
                                                     <div className="flex items-center gap-4 my-8 first:mt-2">
-                                                        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
-                                                        <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 whitespace-nowrap">
+                                                        <div className="flex-1 h-px bg-white/5" />
+                                                        <span className="text-[11px] font-medium text-white/30 whitespace-nowrap">
                                                             {getDateLabel(messageDate)}
                                                         </span>
-                                                        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+                                                        <div className="flex-1 h-px bg-white/5" />
                                                     </div>
                                                 )}
                                                 <div className={cn("flex w-full gap-2", isMine ? "justify-end" : "justify-start")}>
@@ -458,8 +439,8 @@ export function Chat() {
                                                                 msg.expand?.sender?.avatar ? (
                                                                     <img src={UserService.getAvatarUrl(msg.expand.sender, "100x100") || ""} className="w-8 h-8 rounded-full object-cover" alt="avatar" />
                                                                 ) : (
-                                                                    <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                                                                        <User className="w-4 h-4 text-slate-500" />
+                                                                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+                                                                        <User className="w-4 h-4 text-white/40" />
                                                                     </div>
                                                                 )
                                                             )}
@@ -473,8 +454,8 @@ export function Chat() {
                                                         <div className={cn(
                                                             "px-4 py-2.5 rounded-2xl text-sm whitespace-pre-wrap break-words",
                                                             isMine
-                                                                ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 rounded-tr-sm"
-                                                                : "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-tl-sm shadow-sm"
+                                                                ? "bg-army-600 text-white rounded-tr-sm"
+                                                                : "bg-white/[0.04] text-white border border-white/5 rounded-tl-sm shadow-sm"
                                                         )}>
                                                             {attachmentUrl && (
                                                                 <a href={attachmentUrl} target="_blank" rel="noopener noreferrer" className={cn("block", msg.content && msg.content !== "[Attachment]" && "mb-2")}>
@@ -484,7 +465,7 @@ export function Chat() {
                                                             {msg.content && msg.content !== "[Attachment]" && msg.content}
                                                         </div>
 
-                                                        <div className="flex items-center gap-1 text-[10px] text-slate-400 px-1">
+                                                        <div className="flex items-center gap-1 text-[10px] text-white/30 px-1">
                                                             <span>{new Date(msg.created).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                                             {isMine && (
                                                                 msg.read ? <CheckCheck className="w-3 h-3 text-blue-500" /> : <CheckCheck className="w-3 h-3 opacity-50" />
@@ -500,13 +481,13 @@ export function Chat() {
                             </div>
 
                             {/* Message Input */}
-                            <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0">
+                            <div className="p-4 bg-secondary border-t border-white/5 shrink-0">
                                 {attachmentPreview && (
                                     <div className="mb-3 relative inline-block group">
-                                        <img src={attachmentPreview} alt="Preview" className="h-20 rounded-lg border border-slate-200 dark:border-slate-700 object-cover" />
+                                        <img src={attachmentPreview} alt="Preview" className="h-20 rounded-lg border border-white/10 object-cover" />
                                         <button
                                             onClick={removeAttachment}
-                                            className="absolute -top-2 -right-2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-full p-1 shadow-md hover:scale-110 transition-transform"
+                                            className="absolute -top-2 -right-2 bg-white text-black rounded-full p-1 shadow-md hover:scale-110 transition-transform"
                                         >
                                             <X className="w-3 h-3" />
                                         </button>
@@ -524,13 +505,13 @@ export function Chat() {
                                         />
                                         <label
                                             htmlFor="chat-attachment"
-                                            className="cursor-pointer p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center justify-center shrink-0"
+                                            className="cursor-pointer p-3 rounded-xl bg-white/5 text-white/40 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center shrink-0"
                                         >
                                             <ImageIcon className="w-5 h-5" />
                                         </label>
                                     </div>
 
-                                    <div className="flex-1 min-h-[48px] bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 border border-transparent focus-within:border-slate-300 dark:focus-within:border-slate-600 transition-colors flex items-center">
+                                    <div className="flex-1 min-h-[48px] bg-black/40 rounded-xl px-4 py-3 border border-white/10 focus-within:border-army-500/40 transition-colors flex items-center">
                                         <textarea
                                             value={newMessage}
                                             onChange={(e) => setNewMessage(e.target.value)}
@@ -541,7 +522,7 @@ export function Chat() {
                                                 }
                                             }}
                                             placeholder="Type a message..."
-                                            className="w-full bg-transparent border-none focus:ring-0 resize-none text-sm text-slate-900 dark:text-slate-100 max-h-32 m-0 p-0 overflow-y-auto"
+                                            className="w-full bg-transparent border-none focus:ring-0 resize-none text-sm text-white max-h-32 m-0 p-0 overflow-y-auto placeholder:text-white/30"
                                             rows={1}
                                         />
                                     </div>
@@ -549,7 +530,7 @@ export function Chat() {
                                     <button
                                         type="submit"
                                         disabled={isSending || (!newMessage.trim() && !attachment)}
-                                        className="p-3 rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-black dark:hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0 flex items-center justify-center"
+                                        className="p-3 rounded-xl bg-white text-black hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0 flex items-center justify-center"
                                     >
                                         {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                                     </button>
@@ -557,9 +538,9 @@ export function Chat() {
                             </div>
                         </>
                     ) : (
-                        <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-8 text-center bg-slate-50/50 dark:bg-slate-900/30">
+                        <div className="flex-1 flex flex-col items-center justify-center text-white/30 p-8 text-center bg-black/20">
                             <MessageSquare className="w-16 h-16 mb-4 opacity-20" />
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">No Conversation Selected</h3>
+                            <h3 className="text-lg font-semibold text-white mb-2">No Conversation Selected</h3>
                             <p className="text-sm max-w-sm">
                                 Choose a conversation from the sidebar to view messages and respond to users in real-time.
                             </p>

@@ -47,96 +47,99 @@ export function Portfolio() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Portfolio Management</h1>
+                <div>
+                    <h1 className="text-xl font-bold tracking-tight text-white/90">Portfolio Management</h1>
+                    <p className="text-xs font-semibold text-white/50 mt-1">Add, edit, and organize your featured projects.</p>
+                </div>
                 <button
                     onClick={() => {
                         setEditingId(null);
                         setIsModalOpen(true);
                     }}
-                    className="inline-flex items-center justify-center rounded-md bg-slate-900 dark:bg-slate-100 px-4 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-black dark:hover:bg-white transition-colors shadow-sm"
+                    className="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-white/90 transition-colors shadow-lg"
                 >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Project
                 </button>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm p-4 flex items-center justify-between transition-colors">
+            <div className="bg-secondary/30 border border-white/5 rounded-xl p-4 flex items-center justify-between transition-colors">
                 <div className="relative max-w-sm w-full">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                     <input
                         type="text"
                         placeholder="Search portfolio..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-9 pr-4 py-2 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 focus:border-transparent transition-all"
+                        className="w-full pl-9 pr-4 py-2 text-sm border border-white/10 bg-black/20 text-white rounded-lg focus:outline-none focus:border-army-500/50 transition-all placeholder:text-white/20"
                     />
                 </div>
-                <div className="hidden sm:block text-sm text-slate-500 dark:text-slate-400 font-medium">
+                <div className="hidden sm:block text-xs text-white/50 font-semibold">
                     {isLoading ? "Loading..." : `Showing ${items.length} projects`}
                 </div>
             </div>
 
             {isLoading ? (
-                <div className="py-24 flex flex-col items-center justify-center text-slate-500">
-                    <ImageIcon className="w-8 h-8 mb-4 animate-pulse opacity-20" />
-                    <span>Loading projects...</span>
+                <div className="py-24 flex flex-col items-center justify-center text-white/40">
+                    <ImageIcon className="w-8 h-8 mb-4 animate-pulse opacity-50" />
+                    <span className="text-sm font-semibold">Loading projects...</span>
                 </div>
             ) : items.length === 0 ? (
-                <div className="py-24 flex flex-col items-center justify-center text-slate-500 text-center px-4">
-                    <ImageIcon className="w-12 h-12 mb-4 opacity-10" />
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">No projects found</h3>
-                    <p className="text-sm">Click "Add Project" to start building your portfolio.</p>
+                <div className="py-24 flex flex-col items-center justify-center text-white/40 text-center px-4">
+                    <ImageIcon className="w-10 h-10 mb-4 opacity-20" />
+                    <h3 className="text-sm font-semibold text-white mb-1">No projects found</h3>
+                    <p className="text-xs">Click "Add Project" to start building your portfolio.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {items.map((item) => (
-                        <div key={item.id} className="group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden hover:shadow-md hover:border-slate-400 dark:hover:border-slate-600 transition-all flex flex-col">
+                        <div key={item.id} className="group bg-secondary/20 border border-white/5 rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col hover:shadow-2xl hover:shadow-black/50">
                             <div className={cn(
-                                "h-48 bg-slate-100 dark:bg-slate-900 flex items-center justify-center relative overflow-hidden bg-cover bg-center transition-transform group-hover:scale-105 duration-500",
-                                !item.thumbnail && "bg-slate-200"
+                                "h-48 bg-black/40 flex items-center justify-center relative overflow-hidden bg-cover bg-center transition-transform group-hover:scale-105 duration-500",
+                                !item.thumbnail && "bg-black/60"
                             )} style={{ backgroundImage: item.thumbnail ? `url(${PortfolioService.getFileUrl(item, item.thumbnail, '400x300')})` : 'none' }}>
-                                {!item.thumbnail && <ImageIcon className="w-12 h-12 text-slate-300 dark:text-slate-700" />}
+                                {!item.thumbnail && <ImageIcon className="w-10 h-10 text-white/10" />}
                                 <div className="absolute top-4 right-4">
-                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-slate-900/80 backdrop-blur-sm text-white border border-white/20">
+                                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-black/80 backdrop-blur-md text-white border border-white/10">
                                         {item.category || "Project"}
                                     </span>
                                 </div>
                             </div>
 
                             <div className="p-5 flex-1 flex flex-col">
-                                <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-lg leading-tight mb-2 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors line-clamp-2">
+                                <h3 className="font-bold text-white text-base leading-tight mb-1 group-hover:text-army-400 transition-colors line-clamp-2">
                                     {item.project}
                                 </h3>
 
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">{item.client}</p>
+                                <p className="text-[11px] font-semibold tracking-wider uppercase text-white/40 mb-4">{item.client}</p>
 
                                 <div className="mt-auto space-y-2">
-                                    <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
-                                        <MapPin className="w-4 h-4 mr-2 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+                                    <div className="flex items-center text-xs font-medium text-white/50">
+                                        <MapPin className="w-3.5 h-3.5 mr-2 text-army-500 flex-shrink-0" />
                                         <span className="truncate">{item.location}</span>
                                     </div>
-                                    <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
-                                        <Calendar className="w-4 h-4 mr-2 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+                                    <div className="flex items-center text-xs font-medium text-white/50">
+                                        <Calendar className="w-3.5 h-3.5 mr-2 text-army-500 flex-shrink-0" />
                                         {item.year || "-"}
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="px-5 py-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/20 flex justify-end gap-2">
+                            <div className="px-5 py-3 border-t border-white/5 bg-black/40 flex justify-end gap-2">
                                 <button
                                     onClick={() => {
                                         setEditingId(item.id);
                                         setIsModalOpen(true);
                                     }}
-                                    className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors"
+                                    className="p-1.5 text-white/40 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                                 >
                                     <Edit2 className="w-4 h-4" />
                                 </button>
                                 <button
                                     onClick={() => handleDelete(item.id)}
-                                    className="p-2 text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-md transition-colors"
+                                    className="p-1.5 text-white/40 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
                                 >
                                     <Trash2 className="w-4 h-4" />
                                 </button>
@@ -260,11 +263,11 @@ function ProjectModal({ id, isOpen: _isOpen, onClose, onSuccess, existingData }:
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
-                <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-900/50">
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">{id ? "Edit Project" : "Add New Project"}</h2>
-                    <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+                <div className="px-6 py-5 border-b border-white/5 flex items-center justify-between bg-white/5">
+                    <h2 className="text-lg font-bold text-white">{id ? "Edit Project" : "Add New Project"}</h2>
+                    <button onClick={onClose} className="p-1.5 text-white/40 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
@@ -274,83 +277,83 @@ function ProjectModal({ id, isOpen: _isOpen, onClose, onSuccess, existingData }:
                         {/* Basic Info */}
                         <div className="space-y-4">
                             <div className="space-y-1.5">
-                                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Project Name</label>
+                                <label className="text-xs font-semibold tracking-relaxed text-white/50">Project Name</label>
                                 <input
                                     required
                                     type="text"
                                     value={formData.project}
                                     onChange={e => setFormData(p => ({ ...p, project: e.target.value }))}
-                                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 outline-none transition-all"
+                                    className="w-full px-3 py-2 bg-black/20 border border-white/10 rounded-lg focus:border-army-500/50 outline-none transition-all text-sm text-white placeholder:text-white/20"
                                     placeholder="Enter project title..."
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Category</label>
+                                    <label className="text-xs font-semibold tracking-relaxed text-white/50">Category</label>
                                     <input
                                         type="text"
                                         value={formData.category}
                                         onChange={e => setFormData(p => ({ ...p, category: e.target.value }))}
-                                        className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 outline-none transition-all"
+                                        className="w-full px-3 py-2 bg-black/20 border border-white/10 rounded-lg focus:border-army-500/50 outline-none transition-all text-sm text-white placeholder:text-white/20"
                                         placeholder="e.g. Infrastructure"
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Year</label>
+                                    <label className="text-xs font-semibold tracking-relaxed text-white/50">Year</label>
                                     <input
                                         type="number"
                                         value={formData.year}
                                         onChange={e => setFormData(p => ({ ...p, year: parseInt(e.target.value) }))}
-                                        className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 outline-none transition-all"
+                                        className="w-full px-3 py-2 bg-black/20 border border-white/10 rounded-lg focus:border-army-500/50 outline-none transition-all text-sm text-white"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Client</label>
+                                <label className="text-xs font-semibold tracking-relaxed text-white/50">Client</label>
                                 <input
                                     type="text"
                                     value={formData.client}
                                     onChange={e => setFormData(p => ({ ...p, client: e.target.value }))}
-                                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 outline-none transition-all"
+                                    className="w-full px-3 py-2 bg-black/20 border border-white/10 rounded-lg focus:border-army-500/50 outline-none transition-all text-sm text-white placeholder:text-white/20"
                                     placeholder="Company or organization name"
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Location</label>
+                                    <label className="text-xs font-semibold tracking-relaxed text-white/50">Location</label>
                                     <div className="relative">
-                                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                                         <input
                                             type="text"
                                             value={formData.location}
                                             onChange={e => setFormData(p => ({ ...p, location: e.target.value }))}
-                                            className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 outline-none transition-all"
+                                            className="w-full pl-9 pr-3 py-2 bg-black/20 border border-white/10 rounded-lg focus:border-army-500/50 outline-none transition-all text-sm text-white placeholder:text-white/20"
                                             placeholder="City, Province"
                                         />
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Area</label>
+                                    <label className="text-xs font-semibold tracking-relaxed text-white/50">Area</label>
                                     <input
                                         type="text"
                                         value={formData.area}
                                         onChange={e => setFormData(p => ({ ...p, area: e.target.value }))}
-                                        className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 outline-none transition-all"
+                                        className="w-full px-3 py-2 bg-black/20 border border-white/10 rounded-lg focus:border-army-500/50 outline-none transition-all text-sm text-white placeholder:text-white/20"
                                         placeholder="e.g. 5,000 sqm"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Description</label>
+                                <label className="text-xs font-semibold tracking-relaxed text-white/50">Description</label>
                                 <textarea
                                     value={formData.long_description}
                                     onChange={e => setFormData(p => ({ ...p, long_description: e.target.value }))}
                                     rows={4}
-                                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100 outline-none transition-all resize-none"
+                                    className="w-full px-3 py-2 bg-black/20 border border-white/10 rounded-lg focus:border-army-500/50 outline-none transition-all text-sm text-white placeholder:text-white/20 resize-none"
                                     placeholder="Detailed project breakdown..."
                                 />
                             </div>
@@ -360,30 +363,30 @@ function ProjectModal({ id, isOpen: _isOpen, onClose, onSuccess, existingData }:
                         <div className="space-y-6">
                             {/* Thumbnail Upload */}
                             <div className="space-y-2">
-                                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Cover Thumbnail</label>
+                                <label className="text-xs font-semibold tracking-relaxed text-white/50">Cover Thumbnail</label>
                                 <div
-                                    onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('border-slate-900', 'dark:border-slate-100'); }}
-                                    onDragLeave={e => { e.preventDefault(); e.currentTarget.classList.remove('border-slate-900', 'dark:border-slate-100'); }}
+                                    onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('border-army-500', 'bg-army-500/10'); }}
+                                    onDragLeave={e => { e.preventDefault(); e.currentTarget.classList.remove('border-army-500', 'bg-army-500/10'); }}
                                     onDrop={e => {
                                         e.preventDefault();
-                                        e.currentTarget.classList.remove('border-slate-900', 'dark:border-slate-100');
+                                        e.currentTarget.classList.remove('border-army-500', 'bg-army-500/10');
                                         if (e.dataTransfer.files?.[0]) handleThumbnailChange(e.dataTransfer.files[0]);
                                     }}
-                                    className="relative group h-40 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/30 overflow-hidden transition-all"
+                                    className="relative group h-40 border-2 border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center bg-black/20 overflow-hidden transition-all hover:border-white/20"
                                 >
                                     {thumbnailPreview ? (
                                         <>
                                             <img src={thumbnailPreview} className="absolute inset-0 w-full h-full object-cover" alt="Thumbnail" />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                                <button type="button" onClick={() => document.getElementById('thumb-input')?.click()} className="p-2 bg-white/20 text-white rounded-full backdrop-blur-md">
+                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                                <button type="button" onClick={() => document.getElementById('thumb-input')?.click()} className="p-2 bg-white/20 text-white rounded-full backdrop-blur-md hover:bg-white/30 transition-colors">
                                                     <Upload className="w-5 h-5" />
                                                 </button>
                                             </div>
                                         </>
                                     ) : (
                                         <div className="flex flex-col items-center">
-                                            <Upload className="w-8 h-8 text-slate-400 mb-2 group-hover:scale-110 transition-transform" />
-                                            <p className="text-xs text-slate-500 font-medium tracking-tight">Drag & Drop or click to upload</p>
+                                            <Upload className="w-8 h-8 text-white/20 mb-2 group-hover:scale-110 transition-transform group-hover:text-white/40" />
+                                            <p className="text-xs text-white/40 font-semibold tracking-tight">Drag & Drop or click to upload</p>
                                         </div>
                                     )}
                                     <input id="thumb-input" type="file" hidden accept="image/*" onChange={e => e.target.files?.[0] && handleThumbnailChange(e.target.files[0])} />
@@ -393,25 +396,25 @@ function ProjectModal({ id, isOpen: _isOpen, onClose, onSuccess, existingData }:
 
                             {/* Previews Upload */}
                             <div className="space-y-2 text-normal">
-                                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Project Gallery (Multiple)</label>
+                                <label className="text-xs font-semibold tracking-relaxed text-white/50">Project Gallery (Multiple)</label>
                                 <div
-                                    onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('border-slate-900', 'dark:border-slate-100'); }}
-                                    onDragLeave={e => { e.preventDefault(); e.currentTarget.classList.remove('border-slate-900', 'dark:border-slate-100'); }}
+                                    onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('border-army-500', 'bg-army-500/10'); }}
+                                    onDragLeave={e => { e.preventDefault(); e.currentTarget.classList.remove('border-army-500', 'bg-army-500/10'); }}
                                     onDrop={e => {
                                         e.preventDefault();
-                                        e.currentTarget.classList.remove('border-slate-900', 'dark:border-slate-100');
+                                        e.currentTarget.classList.remove('border-army-500', 'bg-army-500/10');
                                         if (e.dataTransfer.files) handlePreviewsChange(e.dataTransfer.files);
                                     }}
-                                    className="min-h-[160px] border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-4 bg-slate-50 dark:bg-slate-900/30 transition-all"
+                                    className="min-h-[160px] border-2 border-dashed border-white/10 rounded-xl p-4 bg-black/20 transition-all hover:border-white/20"
                                 >
-                                    <div className="grid grid-cols-3 gap-2 mb-4">
+                                    <div className="grid grid-cols-3 gap-3 mb-4">
                                         {previewsMap.map((item, i) => (
-                                            <div key={i} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 group/preview">
+                                            <div key={i} className="relative aspect-square rounded-lg overflow-hidden border border-white/10 bg-black/40 group/preview">
                                                 <img src={item.url} className="w-full h-full object-cover" alt="Preview" />
                                                 <button
                                                     type="button"
                                                     onClick={() => removePreview(i)}
-                                                    className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover/preview:opacity-100 transition-opacity"
+                                                    className="absolute top-1 right-1 p-1 bg-red-500/80 hover:bg-red-500 text-white rounded flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity backdrop-blur-sm"
                                                 >
                                                     <X className="w-3 h-3" />
                                                 </button>
@@ -420,30 +423,30 @@ function ProjectModal({ id, isOpen: _isOpen, onClose, onSuccess, existingData }:
                                         <button
                                             type="button"
                                             onClick={() => document.getElementById('previews-input')?.click()}
-                                            className="aspect-square rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                            className="aspect-square rounded-lg border-2 border-dashed border-white/10 flex items-center justify-center hover:bg-white/5 hover:border-white/30 transition-colors"
                                         >
-                                            <Plus className="w-6 h-6 text-slate-400" />
+                                            <Plus className="w-6 h-6 text-white/30" />
                                         </button>
                                     </div>
-                                    {!previewsMap.length && <p className="text-[10px] text-center text-slate-400">Add up to 99 preview images</p>}
+                                    {!previewsMap.length && <p className="text-[10px] text-center text-white/40">Add up to 99 preview images</p>}
                                     <input id="previews-input" type="file" multiple hidden accept="image/*" onChange={e => e.target.files && handlePreviewsChange(e.target.files)} />
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="pt-6 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-3">
+                    <div className="pt-6 border-t border-white/5 flex justify-end gap-3 bg-black/40 -mx-6 -mb-6 px-6 pb-6 mt-6">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-6 py-2 rounded-md border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                            className="px-5 py-2 rounded-lg border border-white/10 text-sm font-semibold text-white/60 hover:text-white hover:bg-white/5 transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="px-8 py-2 rounded-md bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-sm font-bold shadow-lg hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
+                            className="px-6 py-2 rounded-lg bg-white text-black text-sm font-bold shadow-lg hover:bg-white/90 transition-colors disabled:opacity-50 flex items-center gap-2"
                         >
                             {isSubmitting ? (
                                 <>

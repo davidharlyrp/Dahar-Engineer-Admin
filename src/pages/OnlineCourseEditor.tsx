@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
     ChevronLeft, Save, Loader2, Plus,
     Video as VideoIcon, FileText, Settings, Image as ImageIcon,
     Bold, Italic, Underline as UnderlineIcon, List as ListIcon,
     ListOrdered, Type,
     Heading1, Heading2, Sigma,
-    Table as TableIcon, PlusSquare, Trash2,
+    Table as TableIcon, Trash2,
     AlignLeft, AlignCenter, AlignRight,
     Link as LinkIcon, Upload, File as FileIcon
 } from "lucide-react";
@@ -586,7 +587,7 @@ export function OnlineCourseEditor() {
 
     if (loading) {
         return (
-            <div className="h-screen flex flex-col items-center justify-center text-slate-500">
+            <div className="h-screen flex flex-col items-center justify-center text-army-500">
                 <Loader2 className="w-8 h-8 animate-spin mb-4 opacity-20" />
                 <span className="text-sm font-medium">Preparing Editor...</span>
             </div>
@@ -594,28 +595,38 @@ export function OnlineCourseEditor() {
     }
 
     return (
-        <div className="fixed inset-0 z-50 bg-slate-50 dark:bg-slate-950 flex flex-col">
+        <div className="fixed inset-0 z-50 bg-army-50 dark:bg-army-950 flex flex-col">
             {/* Top Navigation */}
-            <div className="h-14 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between px-4 shrink-0 transition-colors">
-                <div className="flex items-center gap-3 min-w-0">
-                    <button onClick={() => navigate("/online-course")} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors shrink-0">
-                        <ChevronLeft className="w-5 h-5 text-slate-500" />
+            <div className="h-14 border-b border-white/5 bg-secondary backdrop-blur-md flex items-center justify-between px-6 shrink-0 z-50">
+                <div className="flex items-center gap-4 min-w-0">
+                    <button
+                        onClick={() => navigate("/online-course")}
+                        className="p-2 hover:bg-white/5 rounded-lg transition-all active:scale-95 group"
+                    >
+                        <ChevronLeft className="w-5 h-5 text-muted-foreground group-hover:text-white transition-colors" />
                     </button>
-                    <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 shrink-0" />
-                    <h1 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
-                        {course?.title} <span className="mx-2 text-slate-300">/</span>
-                        <span className="text-slate-500 font-medium">Content Editor</span>
-                    </h1>
+                    <div className="h-6 w-px bg-white/10 shrink-0" />
+                    <div className="flex flex-col min-w-0">
+                        <h1 className="text-sm font-semibold text-white truncate flex items-center gap-2">
+                            <span className="text-army-400">Course Editor</span>
+                            <span className="text-white/20 text-[10px] select-none">/</span>
+                            <span className="text-white/60 font-medium truncate">{course?.title}</span>
+                        </h1>
+                    </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
+                    <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-white/[0.03] border border-white/5 rounded-full text-[10px] font-medium text-white/40">
+                        <div className="w-1.5 h-1.5 rounded-full bg-army-500 animate-pulse" />
+                        Live Editing
+                    </div>
                     <button
                         onClick={handleSave}
                         disabled={saving}
-                        className="flex items-center gap-2 px-4 py-1.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-md text-xs font-semibold hover:opacity-90 disabled:opacity-50 transition-all shadow-sm active:scale-95"
+                        className="flex items-center gap-2 px-4 py-1.5 bg-army-500 hover:bg-army-400 disabled:bg-army-800/50 text-white rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all shadow-lg active:scale-95 disabled:scale-100"
                     >
-                        {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                        {saving ? "Saving..." : "Save Changes"}
+                        {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3 h-3" />}
+                        {saving ? "Saving" : "Save"}
                     </button>
                 </div>
 
@@ -627,7 +638,8 @@ export function OnlineCourseEditor() {
                     .editor-canvas p { margin-bottom: 1rem !important; line-height: 1.6 !important; }
                     .editor-canvas table { border-collapse: collapse; table-layout: fixed; width: 100%; margin: 0; overflow: hidden; }
                     .editor-canvas table td, .editor-canvas table th { min-width: 1em; border: 1px solid #ced4da; padding: 3px 5px; vertical-align: top; box-sizing: border-box; position: relative; }
-                    .editor-canvas table th { font-weight: bold; text-align: left; background-color: #f8f9fa; }
+                    .editor-canvas table th { font-weight: bold; text-align: left; background-color: #333333; }
+                    .editor-canvas th { color: #000; }
                     .editor-canvas .selectedCell:after { z-index: 2; position: absolute; content: ""; left: 0; right: 0; top: 0; bottom: 0; background: rgba(200, 200, 255, 0.4); pointer-events: none; }
                     .editor-canvas .column-resize-handle { position: absolute; right: -2px; top: 0; bottom: -2px; width: 4px; background-color: #adf; pointer-events: none; }
                     .editor-canvas video { max-width: 100%; height: auto; border-radius: 8px; margin: 1rem 0; }
@@ -636,15 +648,19 @@ export function OnlineCourseEditor() {
 
             <div className="flex-1 flex overflow-hidden">
                 {/* Sidebar Navigation */}
-                <div className="w-72 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col shrink-0 transition-colors">
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-none">Curriculum</span>
-                        <button onClick={addModule} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors" title="Add Module">
-                            <Plus className="w-4 h-4 text-slate-500" />
+                <div className="w-72 border-r border-white/5 bg-secondary flex flex-col shrink-0">
+                    <div className="p-4 border-b border-white/5 flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Curriculum</span>
+                        <button
+                            onClick={addModule}
+                            className="p-1 hover:bg-army-500/10 text-white/40 hover:text-army-400 rounded-md transition-all"
+                            title="Add Module"
+                        >
+                            <Plus className="w-3.5 h-3.5" />
                         </button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                    <div className="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar">
                         {/* Course Metadata Link */}
                         <SidebarItem
                             label="Course Settings"
@@ -653,63 +669,83 @@ export function OnlineCourseEditor() {
                             onClick={handleSelectCourse}
                         />
 
-                        <div className="h-4" />
+                        <div className="h-2" />
+
+                        <div className="px-2 mb-2">
+                            <div className="h-px bg-white/5 w-full" />
+                        </div>
 
                         {modules.map((module, mIdx) => (
                             <div key={module.id} className="space-y-1">
-                                <div className={cn(
-                                    "group flex items-center gap-2 px-2 py-1.5 rounded-md transition-all cursor-pointer",
-                                    selectedModuleId === module.id && selectedLevel === "module"
-                                        ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                                        : "hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400"
-                                )} onClick={() => handleSelectModule(module)}>
-                                    <div className="w-5 h-5 flex items-center justify-center text-[10px] font-bold bg-slate-200 dark:bg-slate-700 rounded text-slate-500">
+                                <motion.div
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: mIdx * 0.05 }}
+                                    className={cn(
+                                        "group flex items-center gap-2 px-3 py-2 rounded-xl transition-all cursor-pointer border",
+                                        selectedModuleId === module.id && selectedLevel === "module"
+                                            ? "bg-army-500/10 border-army-500/20 text-white shadow-lg shadow-army-900/10"
+                                            : "hover:bg-white/[0.03] border-transparent text-white/60 hover:text-white"
+                                    )} onClick={() => handleSelectModule(module)}
+                                >
+                                    <div className={cn(
+                                        "w-4 h-4 flex items-center justify-center text-[9px] font-bold rounded flex-shrink-0 transition-colors",
+                                        selectedModuleId === module.id && selectedLevel === "module"
+                                            ? "bg-army-500 text-white shadow-sm shadow-army-500/50"
+                                            : "bg-white/5 text-white/40 group-hover:bg-white/10 group-hover:text-white/60"
+                                    )}>
                                         {mIdx + 1}
                                     </div>
-                                    <span className="text-xs font-semibold truncate flex-1">{module.title}</span>
+                                    <span className="text-[11px] font-semibold flex-1 leading-none tracking-relaxed">{module.title}</span>
                                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
                                         <button
                                             onClick={(e) => { e.stopPropagation(); addStep(module.id); }}
-                                            className="p-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-all"
+                                            className="p-1 hover:bg-white/10 rounded-md transition-all text-white/40 hover:text-army-400"
                                             title="Add Lesson"
                                         >
-                                            <Plus className="w-3.5 h-3.5 text-slate-500" />
+                                            <Plus className="w-3.5 h-3.5" />
                                         </button>
                                         <button
                                             onClick={(e) => { e.stopPropagation(); handleDeleteModule(module.id); }}
-                                            className="p-0.5 hover:bg-red-100 dark:hover:bg-red-900/30 text-slate-400 hover:text-red-500 rounded transition-all"
+                                            className="p-1 hover:bg-red-500/10 text-white/40 hover:text-red-400 rounded-md transition-all"
                                             title="Delete Module"
                                         >
                                             <Trash2 className="w-3.5 h-3.5" />
                                         </button>
                                     </div>
-                                </div>
+                                </motion.div>
 
-                                <div className="ml-7 border-l-2 border-slate-100 dark:border-slate-800 pl-2 space-y-1">
-                                    {(steps[module.id] || []).map((step) => (
-                                        <div
-                                            key={step.id}
-                                            onClick={() => handleSelectStep(step)}
-                                            className={cn(
-                                                "flex items-center gap-2 px-2 py-1 rounded-md text-[11px] cursor-pointer transition-all",
-                                                selectedStepId === step.id
-                                                    ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
-                                                    : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500"
-                                            )}
-                                        >
-                                            <div className="shrink-0">
-                                                {step.type === "video" ? <VideoIcon className="w-3 h-3" /> : <FileText className="w-3 h-3" />}
-                                            </div>
-                                            <span className="truncate flex-1 font-medium">{step.title}</span>
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); handleDeleteStep(module.id, step.id); }}
-                                                className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-red-500 rounded transition-all"
-                                                title="Delete Lesson"
+                                <div className="ml-5 border-l border-white/5 pl-2 py-1 space-y-1">
+                                    <AnimatePresence mode="popLayout">
+                                        {(steps[module.id] || []).map((step, sIdx) => (
+                                            <motion.div
+                                                key={step.id}
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, x: -10 }}
+                                                transition={{ delay: (mIdx * 0.1) + (sIdx * 0.03) }}
+                                                onClick={() => handleSelectStep(step)}
+                                                className={cn(
+                                                    "group flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] cursor-pointer transition-all border",
+                                                    selectedStepId === step.id
+                                                        ? "bg-white text-black border-transparent shadow-lg"
+                                                        : "hover:bg-white/5 border-transparent text-white/40 hover:text-white/80"
+                                                )}
                                             >
-                                                <Trash2 className="w-3 h-3" />
-                                            </button>
-                                        </div>
-                                    ))}
+                                                <div className="shrink-0">
+                                                    {step.type === "video" ? <VideoIcon className="w-3 h-3 text-army-400" /> : <FileText className="w-3 h-3 text-army-400" />}
+                                                </div>
+                                                <span className="truncate flex-1 font-semibold leading-none text-[10px] tracking-tight">{step.title}</span>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); handleDeleteStep(module.id, step.id); }}
+                                                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/10 text-white/20 hover:text-red-400 rounded-md transition-all"
+                                                    title="Delete Lesson"
+                                                >
+                                                    <Trash2 className="w-3 h-3" />
+                                                </button>
+                                            </motion.div>
+                                        ))}
+                                    </AnimatePresence>
                                 </div>
                             </div>
                         ))}
@@ -717,136 +753,139 @@ export function OnlineCourseEditor() {
                 </div>
 
                 {/* Main Content / Editor */}
-                <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors overflow-hidden">
-                    {selectedLevel === "step" && editor ? (
-                        <div className="flex-1 flex flex-row overflow-hidden w-full relative">
-                            {/* Editor Main Area */}
-                            <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-slate-950 shadow-sm z-0">
-                                {/* Editor Toolbar */}
-                                <div className="h-10 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center px-4 gap-1 overflow-x-auto no-scrollbar scroll-smooth">
-                                    <div className="flex items-center gap-0.5 pr-2 border-r border-slate-200 dark:border-slate-800">
-                                        <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} active={editor.isActive('heading', { level: 1 })} icon={Heading1} title="H1" />
-                                        <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive('heading', { level: 2 })} icon={Heading2} title="H2" />
-                                        <ToolbarButton onClick={() => editor.chain().focus().setParagraph().run()} active={editor.isActive('paragraph')} icon={Type} title="Text" />
+                <div className="flex-1 flex flex-col bg-black overflow-hidden relative">
+                    <AnimatePresence mode="wait">
+                        {selectedLevel === "step" && editor ? (
+                            <motion.div
+                                key="step-editor"
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.98 }}
+                                transition={{ duration: 0.3, ease: "circOut" }}
+                                className="flex-1 flex flex-row overflow-hidden w-full relative"
+                            >
+                                {/* Editor Main Area */}
+                                <div className="flex-1 flex flex-col min-w-0 bg-[#050505] z-0 px-4 pt-4">
+                                    {/* Editor Toolbar */}
+                                    <div className="h-11 border border-white/5 bg-white/[0.03] backdrop-blur-md flex items-center px-4 gap-1 overflow-x-auto no-scrollbar scroll-smooth rounded-full mb-4 shrink-0 shadow-lg">
+                                        <div className="flex items-center gap-0.5 pr-2 border-r border-white/10">
+                                            <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} active={editor.isActive('heading', { level: 1 })} icon={Heading1} title="H1" />
+                                            <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive('heading', { level: 2 })} icon={Heading2} title="H2" />
+                                            <ToolbarButton onClick={() => editor.chain().focus().setParagraph().run()} active={editor.isActive('paragraph')} icon={Type} title="Text" />
+                                        </div>
+                                        <div className="flex items-center gap-0.5 px-2 border-r border-white/10">
+                                            <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} icon={Bold} title="Bold" />
+                                            <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')} icon={Italic} title="Italic" />
+                                            <ToolbarButton onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive('underline')} icon={UnderlineIcon} title="Underline" />
+                                            <ToolbarButton onClick={setLink} active={editor.isActive('link')} icon={LinkIcon} title="Link" />
+                                        </div>
+                                        <div className="flex items-center gap-0.5 px-2 border-r border-white/10">
+                                            <ToolbarButton onClick={() => editor.chain().focus().setTextAlign('left').run()} active={editor.isActive({ textAlign: 'left' })} icon={AlignLeft} title="Align Left" />
+                                            <ToolbarButton onClick={() => editor.chain().focus().setTextAlign('center').run()} active={editor.isActive({ textAlign: 'center' })} icon={AlignCenter} title="Align Center" />
+                                            <ToolbarButton onClick={() => editor.chain().focus().setTextAlign('right').run()} active={editor.isActive({ textAlign: 'right' })} icon={AlignRight} title="Align Right" />
+                                        </div>
+                                        <div className="flex items-center gap-0.5 px-2 border-r border-white/10">
+                                            <ToolbarButton onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} icon={ListIcon} />
+                                            <ToolbarButton onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive('orderedList')} icon={ListOrdered} />
+                                        </div>
+                                        <div className="flex items-center gap-0.5 px-2">
+                                            <ToolbarButton onClick={handleImageUpload} active={false} icon={ImageIcon} title="Upload Image" />
+                                            <ToolbarButton
+                                                onClick={() => {
+                                                    const latex = prompt("Enter LaTeX formula (e.g. E=mc^2):", "\\sigma");
+                                                    if (latex) (editor.commands as any).setLatex(latex);
+                                                }}
+                                                active={false}
+                                                icon={Sigma}
+                                                title="Insert Equation"
+                                            />
+                                            <ToolbarButton onClick={handleVideoUpload} active={editor.isActive('video')} icon={VideoIcon} title="Upload Video" />
+                                        </div>
+                                        <div className="flex items-center gap-0.5 pl-2 border-l border-white/10">
+                                            <ToolbarButton onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} active={editor.isActive('table')} icon={TableIcon} title="Insert Table" />
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-0.5 px-2 border-r border-slate-200 dark:border-slate-800">
-                                        <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} icon={Bold} title="Bold" />
-                                        <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')} icon={Italic} title="Italic" />
-                                        <ToolbarButton onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive('underline')} icon={UnderlineIcon} title="Underline" />
-                                        <ToolbarButton onClick={setLink} active={editor.isActive('link')} icon={LinkIcon} title="Link" />
-                                    </div>
-                                    <div className="flex items-center gap-0.5 px-2 border-r border-slate-200 dark:border-slate-800">
-                                        <ToolbarButton onClick={() => editor.chain().focus().setTextAlign('left').run()} active={editor.isActive({ textAlign: 'left' })} icon={AlignLeft} title="Align Left" />
-                                        <ToolbarButton onClick={() => editor.chain().focus().setTextAlign('center').run()} active={editor.isActive({ textAlign: 'center' })} icon={AlignCenter} title="Align Center" />
-                                        <ToolbarButton onClick={() => editor.chain().focus().setTextAlign('right').run()} active={editor.isActive({ textAlign: 'right' })} icon={AlignRight} title="Align Right" />
-                                    </div>
-                                    <div className="flex items-center gap-0.5 px-2 border-r border-slate-200 dark:border-slate-800">
-                                        <ToolbarButton onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} icon={ListIcon} />
-                                        <ToolbarButton onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive('orderedList')} icon={ListOrdered} />
-                                    </div>
-                                    <div className="flex items-center gap-0.5 px-2">
-                                        <ToolbarButton
-                                            onClick={handleImageUpload}
-                                            active={false}
-                                            icon={ImageIcon}
-                                            title="Upload Image"
-                                        />
-                                        <ToolbarButton
-                                            onClick={() => {
-                                                const latex = prompt("Enter LaTeX formula (e.g. E=mc^2):", "\\sigma");
-                                                if (latex) (editor.commands as any).setLatex(latex);
-                                            }}
-                                            active={false}
-                                            icon={Sigma}
-                                            title="Insert Equation"
-                                        />
-                                        <ToolbarButton
-                                            onClick={handleVideoUpload}
-                                            active={editor.isActive('video')}
-                                            icon={VideoIcon}
-                                            title="Upload Video"
-                                        />
-                                    </div>
-                                    <div className="flex items-center gap-0.5 pl-2 border-l border-slate-200 dark:border-slate-800">
-                                        <ToolbarButton
-                                            onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
-                                            active={editor.isActive('table')}
-                                            icon={TableIcon}
-                                            title="Insert Table"
-                                        />
-                                        {editor.isActive('table') && (
-                                            <>
-                                                <ToolbarButton onClick={() => editor.chain().focus().addColumnAfter().run()} active={false} icon={PlusSquare} title="Add Column" />
-                                                <ToolbarButton onClick={() => editor.chain().focus().addRowAfter().run()} active={false} icon={PlusSquare} title="Add Row" />
-                                                <ToolbarButton onClick={() => editor.chain().focus().deleteTable().run()} active={false} icon={Trash2} title="Delete Table" />
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
 
-                                <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900/50 p-6 md:p-12 transition-colors">
-                                    <div className="max-w-4xl mx-auto space-y-6">
-                                        {/* Step Metadata Header */}
-                                        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4 shadow-sm space-y-3">
-                                            <div>
-                                                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1 block">Lesson Title</label>
-                                                <input
-                                                    type="text"
-                                                    value={formData.title || ""}
-                                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                                    className="w-full text-lg font-bold bg-transparent border-none outline-none text-slate-900 dark:text-white p-0"
-                                                    placeholder="Enter lesson title..."
-                                                />
+                                    <div className="flex-1 overflow-y-auto px-4 pb-20 custom-scrollbar">
+                                        <div className="max-w-4xl mx-auto space-y-4">
+                                            {/* Lesson Metadata Header */}
+                                            <div className="bg-secondary/50 border border-white/5 rounded-2xl p-6 shadow-xl space-y-4">
+                                                <div className="space-y-1">
+                                                    <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Lesson Title</label>
+                                                    <input
+                                                        type="text"
+                                                        value={formData.title || ""}
+                                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                                        className="w-full text-lg font-bold bg-transparent border-none outline-none text-white p-0 placeholder:text-white/10 tracking-tight"
+                                                        placeholder="Enter lesson title..."
+                                                    />
+                                                </div>
+                                                <div className="h-px bg-white/5 w-full" />
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div className="flex flex-col gap-1 flex-1">
+                                                        <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Lesson Type</label>
+                                                        <select
+                                                            value={formData.type || "video"}
+                                                            onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                                                            className="bg-black border border-white/10 rounded-xl px-3 py-2 text-[11px] font-semibold text-white outline-none hover:border-army-500/50 transition-all w-full appearance-none cursor-pointer"
+                                                        >
+                                                            <option value="video" className="bg-black">Video Lesson</option>
+                                                            <option value="text" className="bg-black">Text / Reading</option>
+                                                            <option value="quiz" className="bg-black">Interactive Quiz</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-100 dark:border-slate-800">
-                                                <div>
-                                                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1 block">Type</label>
-                                                    <select
-                                                        value={formData.type || "video"}
-                                                        onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                                                        className="w-full text-xs font-semibold bg-slate-50 dark:bg-slate-800 border-none rounded-md px-2 py-1 outline-none text-slate-700 dark:text-slate-300 transition-colors"
-                                                    >
-                                                        <option value="video">Video Lesson</option>
-                                                        <option value="text">Text / Reading</option>
-                                                        <option value="quiz">Interactive Quiz</option>
-                                                    </select>
+
+                                            {/* Editor Canvas */}
+                                            <div className="bg-secondary/50 border border-white/5 rounded-2xl shadow-xl min-h-[600px] overflow-hidden group">
+                                                <div className="px-5 py-3 border-b border-white/5 bg-black/40 flex items-center justify-between">
+                                                    <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Content Editor</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-army-500 animate-pulse shadow-[0_0_8px_rgba(74,103,65,0.8)]" />
+                                                        <span className="text-[9px] font-bold text-army-400 uppercase tracking-widest">Editor Active</span>
+                                                    </div>
+                                                </div>
+                                                <div className="p-2">
+                                                    <EditorContent editor={editor} />
                                                 </div>
                                             </div>
                                         </div>
-
-                                        {/* Editor Canvas */}
-                                        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm min-h-[600px] overflow-hidden">
-                                            <div className="p-4 border-b border-slate-50 dark:border-slate-800 bg-slate-50/20">
-                                                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Lesson Content (HTML)</span>
-                                            </div>
-                                            <EditorContent editor={editor} />
-                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* File Manager Sidebar */}
-                            <div className="w-80 border-l border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex flex-col shrink-0">
-                                <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shadow-sm z-10">
-                                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">File Manager</span>
-                                </div>
-                                <div
-                                    className="flex-1 overflow-y-auto p-4 space-y-4 relative"
-                                    onDragOver={(e) => { e.preventDefault(); setIsDraggingOverSidebar(true); }}
-                                    onDragLeave={(e) => { e.preventDefault(); setIsDraggingOverSidebar(false); }}
-                                    onDrop={handleSidebarDrop}
-                                >
-                                    {isDraggingOverSidebar && (
-                                        <div className="absolute inset-2 z-20 bg-blue-50/90 dark:bg-blue-900/90 border-2 border-dashed border-blue-500 rounded-lg flex items-center justify-center pointer-events-none backdrop-blur-sm">
-                                            <p className="text-blue-600 dark:text-blue-400 font-bold flex items-center gap-2">
-                                                <Upload className="w-5 h-5 animate-bounce" /> Drop files to upload
-                                            </p>
+                                {/* File Manager Sidebar */}
+                                <div className="w-80 border-l border-white/5 bg-black/40 flex flex-col shrink-0">
+                                    <div className="p-4 border-b border-white/5 flex items-center justify-between bg-black/20 backdrop-blur-md">
+                                        <span className="text-xs font-semibold text-white/60">Asset Manager</span>
+                                        <div className="px-2 py-0.5 bg-army-500/10 rounded-md text-[10px] font-semibold text-army-400 border border-army-500/20">
+                                            {steps[selectedModuleId!]?.find(s => s.id === selectedStepId)?.files?.length || 0} Assets
                                         </div>
-                                    )}
+                                    </div>
+                                    <div
+                                        className="flex-1 overflow-y-auto p-4 space-y-4 relative custom-scrollbar"
+                                        onDragOver={(e) => { e.preventDefault(); setIsDraggingOverSidebar(true); }}
+                                        onDragLeave={(e) => { e.preventDefault(); setIsDraggingOverSidebar(false); }}
+                                        onDrop={handleSidebarDrop}
+                                    >
+                                        <AnimatePresence>
+                                            {isDraggingOverSidebar && (
+                                                <motion.div
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    exit={{ opacity: 0 }}
+                                                    className="absolute inset-2 z-20 bg-army-900/40 border-2 border-dashed border-army-500 rounded-2xl flex items-center justify-center pointer-events-none backdrop-blur-md transition-all"
+                                                >
+                                                    <div className="text-center">
+                                                        <Upload className="w-8 h-8 text-army-400 mx-auto mb-2 animate-bounce" />
+                                                        <p className="text-army-400 font-semibold text-sm">Drop to Upload</p>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
 
-                                    <div className="space-y-4">
                                         <button
-                                            className="w-full py-6 px-4 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center gap-3 text-slate-500 hover:border-blue-500 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all cursor-pointer relative overflow-hidden group bg-white dark:bg-slate-800/50"
+                                            className="w-full py-8 px-4 border-2 border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center gap-3 text-white/40 hover:border-army-500/50 hover:text-army-400 hover:bg-army-500/5 transition-all cursor-pointer group bg-white/[0.02]"
                                             disabled={isUploadingSidebar}
                                             onClick={() => {
                                                 const input = document.createElement('input');
@@ -865,272 +904,354 @@ export function OnlineCourseEditor() {
                                         >
                                             {isUploadingSidebar ? (
                                                 <div className="flex flex-col items-center gap-2">
-                                                    <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
-                                                    <span className="text-[10px] font-semibold text-blue-500">Uploading...</span>
+                                                    <Loader2 className="w-6 h-6 animate-spin text-army-500" />
+                                                    <span className="text-[10px] font-semibold text-army-500 uppercase tracking-widest">Processing...</span>
                                                 </div>
                                             ) : (
                                                 <>
-                                                    <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 flex items-center justify-center transition-colors">
-                                                        <Upload className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
+                                                    <div className="w-12 h-12 rounded-2xl bg-white/5 group-hover:bg-army-500/10 flex items-center justify-center transition-colors">
+                                                        <Upload className="w-6 h-6 group-hover:-translate-y-1 transition-transform text-white/20 group-hover:text-army-400" />
                                                     </div>
                                                     <div className="text-center">
-                                                        <span className="text-xs font-semibold block text-slate-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">Click or drag files here</span>
-                                                        <span className="text-[10px] text-slate-400">Any file type supported (max. 200 MB per file)</span>
+                                                        <span className="text-xs font-semibold block text-white/60 group-hover:text-white">Upload Assets</span>
+                                                        <span className="text-[10px] text-white/20">Click or drag & drop</span>
                                                     </div>
                                                 </>
                                             )}
                                         </button>
 
-                                        <div className="space-y-3">
-                                            <div className="flex items-center justify-between">
-                                                <h3 className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Uploaded Files</h3>
-                                                <span className="text-[10px] font-semibold text-slate-500 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded">
-                                                    {steps[selectedModuleId!]?.find(s => s.id === selectedStepId)?.files?.length || 0}
-                                                </span>
+                                        <div className="space-y-4">
+                                            <div className="flex items-center justify-between pb-2 border-b border-white/5">
+                                                <h3 className="text-[10px] font-semibold text-white/30 uppercase tracking-widest">Attachments</h3>
+                                                <span className="text-[9px] font-semibold text-white/10 uppercase italic">Drag to editor</span>
                                             </div>
-                                            <p className="text-[10px] text-slate-500 leading-tight">Drag items directly into the text editor canvas to insert them.</p>
 
-                                            <div className="space-y-2">
+                                            <div className="grid gap-2">
                                                 {(steps[selectedModuleId!]?.find(s => s.id === selectedStepId)?.files || []).map((filename, idx) => {
                                                     const step = steps[selectedModuleId!]?.find(s => s.id === selectedStepId);
                                                     const url = step ? OnlineCourseService.getFileUrl(step, filename) : '';
                                                     return (
-                                                        <div
-                                                            key={idx}
+                                                        <motion.div
+                                                            key={filename}
+                                                            layoutId={filename}
+                                                            initial={{ opacity: 0, x: 20 }}
+                                                            animate={{ opacity: 1, x: 0 }}
+                                                            transition={{ delay: idx * 0.05 }}
                                                             draggable
-                                                            onDragStart={(e) => {
-                                                                if ((e.target as HTMLElement).closest('button')) {
+                                                            onDragStart={(e: any) => {
+                                                                if (e.target.closest('button')) {
                                                                     e.preventDefault();
                                                                     return;
                                                                 }
                                                                 handleDragStartFromSidebar(e, url, filename);
                                                             }}
-                                                            className="flex items-center gap-3 p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-grab active:cursor-grabbing hover:border-blue-500 hover:shadow-md transition-all group select-none relative"
+                                                            className="flex items-center gap-3 p-3 bg-white/[0.03] border border-white/5 rounded-xl cursor-grab active:cursor-grabbing hover:border-army-500/30 hover:bg-white/[0.05] transition-all group select-none relative"
                                                         >
-                                                            <div className="w-8 h-8 rounded bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
-                                                                <FileIcon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                                            <div className="w-8 h-8 rounded-lg bg-black flex items-center justify-center shrink-0 border border-white/5">
+                                                                <FileIcon className="w-4 h-4 text-army-400" />
                                                             </div>
-                                                            <div className="flex-1 min-w-0 pr-8">
-                                                                <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate" title={filename}>
+                                                            <div className="flex-1 min-w-0 pr-6">
+                                                                <p className="text-[11px] font-semibold text-white/80 truncate" title={getOriginalFilename(filename)}>
                                                                     {getOriginalFilename(filename)}
                                                                 </p>
-                                                                <p className="text-[10px] text-slate-500 truncate flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span> Drag to insert
-                                                                </p>
                                                             </div>
-                                                            <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all scale-90 group-hover:scale-100">
                                                                 <button
                                                                     title="Delete file"
                                                                     onClick={(e) => { e.stopPropagation(); handleDeleteFile(filename); }}
-                                                                    className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-slate-700 rounded-md transition-colors"
+                                                                    className="p-1.5 text-white/20 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors border border-transparent hover:border-red-500/20"
                                                                 >
                                                                     <Trash2 className="w-3.5 h-3.5" />
                                                                 </button>
                                                             </div>
-                                                        </div>
+                                                        </motion.div>
                                                     );
                                                 })}
 
                                                 {!(steps[selectedModuleId!]?.find(s => s.id === selectedStepId)?.files?.length) && (
-                                                    <div className="text-center py-8 text-slate-400 text-[11px] font-medium border border-dashed border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50/50 dark:bg-slate-900/20">
-                                                        No files uploaded yet.
+                                                    <div className="text-center py-10 px-4 border border-dashed border-white/5 rounded-2xl bg-white/[0.01]">
+                                                        <FileText className="w-6 h-6 text-white/10 mx-auto mb-2" />
+                                                        <p className="text-[10px] font-semibold text-white/20 uppercase tracking-wider leading-relaxed">No assets attached</p>
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex-1 flex flex-col p-6 md:p-12 overflow-y-auto transition-colors">
-                            <div className="max-w-6xl mx-auto w-full space-y-8 py-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                                <div className="space-y-2">
-                                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                                        {selectedLevel === "course" ? "Course Configuration" : "Module Settings"}
-                                    </h2>
-                                    <p className="text-sm text-slate-500">Manage high-level information and organization.</p>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <div className="space-y-1.5">
-                                        <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Title</label>
-                                        <input
-                                            type="text"
-                                            value={formData?.title || ""}
-                                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                            className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md text-sm font-semibold focus:ring-1 focus:ring-slate-400 transition-all outline-none"
-                                        />
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="settings-view"
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.98 }}
+                                transition={{ duration: 0.3, ease: "circOut" }}
+                                className="flex-1 flex flex-col p-6 md:p-10 overflow-y-auto custom-scrollbar"
+                            >
+                                <div className="max-w-7xl mx-auto w-full space-y-8">
+                                    <div className="flex items-end justify-between border-b border-white/5 pb-6">
+                                        <div className="space-y-1">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-army-500 shadow-[0_0_8px_rgba(74,103,65,0.8)]" />
+                                                <span className="text-[9px] font-bold text-army-400 uppercase tracking-widest leading-none">Settings</span>
+                                            </div>
+                                            <h2 className="text-xl font-bold text-white tracking-tight">
+                                                {selectedLevel === "course" ? "Configuration" : "Module Properties"}
+                                            </h2>
+                                        </div>
+                                        <button
+                                            onClick={handleSave}
+                                            disabled={saving}
+                                            className="px-4 py-1.5 bg-white text-black hover:bg-army-400 hover:text-white rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50"
+                                        >
+                                            {saving ? "..." : "Save Config"}
+                                        </button>
                                     </div>
 
-                                    {selectedLevel === "course" && (
-                                        <>
-                                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pb-20">
+                                        <div className="lg:col-span-8 space-y-6">
+                                            <div className="bg-secondary/50 border border-white/5 rounded-2xl p-6 space-y-4 shadow-xl">
                                                 <div className="space-y-1">
-                                                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Level</label>
-                                                    <select
-                                                        value={formData?.level || "beginner"}
-                                                        onChange={(e) => setFormData({ ...formData, level: e.target.value })}
-                                                        className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md text-sm font-semibold outline-none"
-                                                    >
-                                                        <option value="beginner">Beginner</option>
-                                                        <option value="intermediate">Intermediate</option>
-                                                        <option value="advanced">Advanced</option>
-                                                    </select>
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Price (IDR)</label>
-                                                    <input
-                                                        type="number"
-                                                        value={formData?.price ?? 0}
-                                                        onChange={(e) => setFormData({ ...formData, price: e.target.value === "" ? 0 : parseInt(e.target.value) })}
-                                                        className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md text-sm font-semibold outline-none"
-                                                    />
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Discount Price (IDR)</label>
-                                                    <input
-                                                        type="number"
-                                                        value={formData?.discountPrice ?? 0}
-                                                        onChange={(e) => setFormData({ ...formData, discountPrice: e.target.value === "" ? 0 : parseInt(e.target.value) })}
-                                                        className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md text-sm font-semibold outline-none"
-                                                    />
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Duration</label>
+                                                    <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Display Title</label>
                                                     <input
                                                         type="text"
-                                                        placeholder="e.g. 8 Hours"
-                                                        value={formData?.duration || ""}
-                                                        onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                                                        className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md text-sm font-semibold outline-none"
+                                                        value={formData?.title || ""}
+                                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                                        className="w-full px-4 py-2.5 bg-black border border-white/10 rounded-xl text-[11px] font-semibold text-white focus:border-army-500/50 transition-all outline-none placeholder:text-white/20"
+                                                        placeholder="Enter title..."
                                                     />
                                                 </div>
-                                                <div className="space-y-1">
-                                                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Instructor</label>
-                                                    <select
-                                                        value={formData?.instructor || ""}
-                                                        onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
-                                                        className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md text-sm font-semibold outline-none"
-                                                    >
-                                                        <option value="">Select Instructor</option>
-                                                        {mentors.map(mentor => (
-                                                            <option key={mentor.id} value={mentor.id}>{mentor.name}</option>
-                                                        ))}
-                                                    </select>
-                                                </div>
+
+                                                {selectedLevel === "course" && (
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div className="space-y-1">
+                                                            <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Category</label>
+                                                            <input
+                                                                type="text"
+                                                                value={formData?.category || ""}
+                                                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                                                className="w-full px-4 py-2.5 bg-black border border-white/10 rounded-xl text-[11px] font-semibold text-white outline-none focus:border-army-500/50 transition-all placeholder:text-white/20"
+                                                                placeholder="e.g. Engineering"
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Level</label>
+                                                            <select
+                                                                value={formData?.level || "beginner"}
+                                                                onChange={(e) => setFormData({ ...formData, level: e.target.value })}
+                                                                className="w-full px-4 py-2.5 bg-black border border-white/10 rounded-xl text-[11px] font-semibold text-white outline-none appearance-none cursor-pointer focus:border-army-500/50"
+                                                            >
+                                                                <option value="beginner" className="bg-black">Beginner</option>
+                                                                <option value="intermediate" className="bg-black">Intermediate</option>
+                                                                <option value="advanced" className="bg-black">Advanced</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
 
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest block">Thumbnail</label>
-                                                <div className="flex items-start gap-4">
-                                                    <div className="w-40 h-24 bg-slate-100 dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 overflow-hidden flex items-center justify-center shrink-0">
-                                                        {formData.thumbnail ? (
-                                                            <img
-                                                                src={formData.thumbnail instanceof File ? URL.createObjectURL(formData.thumbnail) : OnlineCourseService.getFileUrl(course, formData.thumbnail)}
-                                                                alt="Thumbnail Preview"
-                                                                className="w-full h-full object-cover"
+                                            {selectedLevel === "course" && (
+                                                <div className="bg-secondary/50 border border-white/5 rounded-2xl p-6 space-y-6 shadow-xl">
+                                                    <div className="grid grid-cols-2 gap-6">
+                                                        <div className="space-y-1">
+                                                            <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Instructor</label>
+                                                            <select
+                                                                value={formData?.instructor || ""}
+                                                                onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
+                                                                className="w-full px-4 py-2.5 bg-black border border-white/10 rounded-xl text-[11px] font-semibold text-white outline-none appearance-none cursor-pointer focus:border-army-500/50"
+                                                            >
+                                                                <option value="" className="bg-black text-muted-foreground">Select Instructor</option>
+                                                                {mentors.map(mentor => (
+                                                                    <option key={mentor.id} value={mentor.id} className="bg-black">{mentor.name}</option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Total Est. Duration</label>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="e.g. 8 Hours"
+                                                                value={formData?.duration || ""}
+                                                                onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                                                                className="w-full px-4 py-2.5 bg-black border border-white/10 rounded-xl text-[11px] font-semibold text-white outline-none transition-all focus:border-army-500/50 placeholder:text-white/20"
                                                             />
-                                                        ) : (
-                                                            <ImageIcon className="w-8 h-8 text-slate-300" />
-                                                        )}
+                                                        </div>
                                                     </div>
-                                                    <div className="flex-1 space-y-2">
-                                                        <p className="text-[10px] text-slate-500">Recommended size: 1280x720px.</p>
-                                                        <button
-                                                            onClick={() => {
-                                                                const input = document.createElement('input');
-                                                                input.type = 'file';
-                                                                input.accept = 'image/*';
-                                                                input.onchange = (e: any) => {
-                                                                    const file = e.target.files?.[0];
-                                                                    if (file) {
-                                                                        setFormData({ ...formData, thumbnail: file });
-                                                                    }
-                                                                };
-                                                                input.click();
-                                                            }}
-                                                            className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-[11px] font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
-                                                        >
-                                                            <Upload className="w-3.5 h-3.5" />
-                                                            {formData.thumbnail ? "Change Image" : "Upload Image"}
-                                                        </button>
+
+                                                    <div className="grid grid-cols-2 gap-6">
+                                                        <div className="space-y-1">
+                                                            <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Standard Price</label>
+                                                            <div className="relative">
+                                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-muted-foreground">Rp</span>
+                                                                <input
+                                                                    type="number"
+                                                                    value={formData?.price ?? 0}
+                                                                    onChange={(e) => setFormData({ ...formData, price: e.target.value === "" ? 0 : parseInt(e.target.value) })}
+                                                                    className="w-full pl-9 pr-4 py-2.5 bg-black border border-white/10 rounded-xl text-[11px] font-bold text-white outline-none transition-all focus:border-army-500/50"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Discounted Price</label>
+                                                            <div className="relative border border-army-500/20 rounded-xl overflow-hidden focus-within:border-army-500/50 transition-colors bg-army-500/5">
+                                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-army-400">Rp</span>
+                                                                <input
+                                                                    type="number"
+                                                                    value={formData?.discountPrice ?? 0}
+                                                                    onChange={(e) => setFormData({ ...formData, discountPrice: e.target.value === "" ? 0 : parseInt(e.target.value) })}
+                                                                    className="w-full pl-9 pr-4 py-2.5 bg-transparent text-[11px] font-bold text-army-400 outline-none"
+                                                                />
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Description</label>
+                                            )}
+
+                                            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 space-y-4 shadow-2xl">
+                                                <label className="text-[10px] font-semibold text-white/30 uppercase tracking-wider">Short Overview</label>
                                                 <textarea
                                                     rows={4}
                                                     value={formData?.description || ""}
                                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                                    className="w-full px-3 h-32 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md text-sm font-semibold focus:ring-1 focus:ring-slate-400 transition-all outline-none resize-none"
+                                                    className="w-full px-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl text-sm font-medium text-white/80 focus:border-army-500/50 transition-all outline-none resize-none leading-relaxed"
+                                                    placeholder="Provide a detailed overview..."
                                                 />
                                             </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div className="space-y-1">
-                                                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Features <span className="font-normal text-slate-500">(one per line, saved as dot-separated)</span></label>
-                                                    <textarea
-                                                        rows={4}
-                                                        value={(formData?.features || "").replace(/\./g, "\n")}
-                                                        onChange={(e) => setFormData({ ...formData, features: e.target.value.replace(/\n/g, ".") })}
-                                                        placeholder={"Feature 1\nFeature 2\nFeature 3"}
-                                                        className="w-full px-3 py-2 h-60 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md text-sm font-semibold focus:ring-1 focus:ring-slate-400 transition-all outline-none resize-none"
-                                                    />
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Deliverables <span className="font-normal text-slate-500">(one per line, saved as dot-separated)</span></label>
-                                                    <textarea
-                                                        rows={4}
-                                                        value={(formData?.deliverables || "").replace(/\./g, "\n")}
-                                                        onChange={(e) => setFormData({ ...formData, deliverables: e.target.value.replace(/\n/g, ".") })}
-                                                        placeholder={"Deliverable 1\nDeliverable 2\nDeliverable 3"}
-                                                        className="w-full px-3 py-2 h-60 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md text-sm font-semibold focus:ring-1 focus:ring-slate-400 transition-all outline-none resize-none"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
 
-                                    {selectedLevel === "module" && (
-                                        <div className="space-y-1.5">
-                                            <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Module Description</label>
-                                            <textarea
-                                                rows={4}
-                                                value={formData?.description || ""}
-                                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md text-sm font-semibold focus:ring-1 focus:ring-slate-400 transition-all outline-none resize-none"
-                                            />
+                                            {selectedLevel === "course" && (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 space-y-4 shadow-2xl">
+                                                        <label className="text-[10px] font-semibold text-white/30 uppercase tracking-wider">Core Features</label>
+                                                        <textarea
+                                                            rows={6}
+                                                            value={(formData?.features || "").replace(/\./g, "\n")}
+                                                            onChange={(e) => setFormData({ ...formData, features: e.target.value.replace(/\n/g, ".") })}
+                                                            placeholder={"Interactive Lessons\nSource Codes Included"}
+                                                            className="w-full px-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl text-[11px] font-semibold text-white/80 transition-all outline-none resize-none"
+                                                        />
+                                                    </div>
+                                                    <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 space-y-4 shadow-2xl">
+                                                        <label className="text-[10px] font-semibold text-white/30 uppercase tracking-wider">Deliverables</label>
+                                                        <textarea
+                                                            rows={6}
+                                                            value={(formData?.deliverables || "").replace(/\./g, "\n")}
+                                                            onChange={(e) => setFormData({ ...formData, deliverables: e.target.value.replace(/\n/g, ".") })}
+                                                            placeholder={"Certificate\nPractical Knowledge"}
+                                                            className="w-full px-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl text-[11px] font-semibold text-white/80 transition-all outline-none resize-none"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
 
-                                    <div className="pt-4 flex justify-end">
-                                        <button
-                                            onClick={handleSave}
-                                            disabled={saving}
-                                            className="px-6 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-md text-sm font-semibold shadow-sm active:scale-95 disabled:opacity-50 transition-all"
-                                        >
-                                            {saving ? "Saving..." : "Apply Changes"}
-                                        </button>
+                                        <div className="lg:col-span-4 space-y-6">
+                                            {selectedLevel === "course" && (
+                                                <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 space-y-6 shadow-2xl sticky top-6">
+                                                    <div className="space-y-4">
+                                                        <label className="text-[10px] font-semibold text-white/30 uppercase tracking-wider block">Course Media</label>
+                                                        <div className="relative group cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-black aspect-video flex flex-col items-center justify-center transition-all hover:border-army-500/50">
+                                                            {formData.thumbnail ? (
+                                                                <img
+                                                                    src={formData.thumbnail instanceof File ? URL.createObjectURL(formData.thumbnail) : OnlineCourseService.getFileUrl(course, formData.thumbnail)}
+                                                                    alt="Thumbnail Preview"
+                                                                    className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
+                                                                />
+                                                            ) : (
+                                                                <ImageIcon className="w-8 h-8 text-white/10" />
+                                                            )}
+                                                            <button
+                                                                onClick={() => {
+                                                                    const input = document.createElement('input');
+                                                                    input.type = 'file';
+                                                                    input.accept = 'image/*';
+                                                                    input.onchange = (e: any) => {
+                                                                        const file = e.target.files?.[0];
+                                                                        if (file) {
+                                                                            setFormData({ ...formData, thumbnail: file });
+                                                                        }
+                                                                    };
+                                                                    input.click();
+                                                                }}
+                                                                className="relative z-10 px-4 py-2 bg-black/60 backdrop-blur-md border border-white/20 rounded-xl text-[10px] font-semibold text-white uppercase tracking-widest hover:bg-army-500 transition-all shadow-2xl"
+                                                            >
+                                                                {formData.thumbnail ? "Change Cover" : "Upload Cover"}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="pt-6 border-t border-white/5 space-y-4">
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-[10px] font-semibold text-white/30 uppercase">Status</span>
+                                                            <div className={cn(
+                                                                "px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-tight",
+                                                                formData.status === "active" ? "bg-army-500/20 text-army-400" : "bg-white/5 text-white/20"
+                                                            )}>
+                                                                {formData.status || "draft"}
+                                                            </div>
+                                                        </div>
+                                                        <select
+                                                            value={formData.status || "draft"}
+                                                            onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs font-semibold text-white outline-none appearance-none cursor-pointer hover:bg-white/10 transition-all"
+                                                        >
+                                                            <option value="draft" className="bg-black">Draft Mode</option>
+                                                            <option value="active" className="bg-black">Published</option>
+                                                            <option value="maintenance" className="bg-black">Maintenance</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Premium Saving Overlay */}
+                    <AnimatePresence>
+                        {saving && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center"
+                            >
+                                <div className="bg-[#0A0A0A] border border-white/5 p-8 rounded-3xl flex flex-col items-center gap-4 shadow-2xl">
+                                    <div className="relative">
+                                        <div className="w-12 h-12 rounded-full border-2 border-army-500/20" />
+                                        <div className="absolute inset-0 w-12 h-12 rounded-full border-t-2 border-army-500 animate-spin" />
+                                    </div>
+                                    <div className="text-center">
+                                        <h3 className="text-white font-semibold text-sm uppercase tracking-widest mb-1">Applying Changes</h3>
+                                        <p className="text-white/40 text-[10px] uppercase font-semibold tracking-widest">Synchronizing to database...</p>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
 
             <style>{`
                 .no-scrollbar::-webkit-scrollbar { display: none; }
                 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-                .editor-canvas h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; }
-                .editor-canvas h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; }
-                .editor-canvas h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
-                .editor-canvas p { font-size: 0.9rem; line-height: 1.6; margin-bottom: 1rem; }
-                .editor-canvas ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
-                .editor-canvas ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1rem; }
-                .editor-canvas a { color: #2563eb !important; text-decoration: underline !important; cursor: pointer !important; }
-                .dark .editor-canvas a { color: #60a5fa !important; }
+                .editor-canvas h1 { font-size: 1.25rem; font-weight: 900; margin-bottom: 0.75rem; color: white; letter-spacing: -0.025em; }
+                .editor-canvas h2 { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem; color: #a3a3a3; }
+                .editor-canvas p { font-size: 0.875rem; line-height: 1.6; margin-bottom: 1rem; color: #d4d4d4; font-weight: 500; }
+                .editor-canvas ul { list-style-type: none; padding-left: 0.5rem; margin-bottom: 1rem; }
+                .editor-canvas ul li { position: relative; padding-left: 1.5rem; margin-bottom: 0.5rem; }
+                .editor-canvas ul li::before { content: ""; position: absolute; left: 0; top: 0.6em; width: 6px; height: 6px; background: #6b8e23; border-radius: 2px; }
+                .editor-canvas a { color: #6b8e23 !important; text-decoration: underline !important; cursor: pointer !important; font-weight: 700; transition: opacity 0.2s; }
+                .editor-canvas a:hover { opacity: 0.8; }
+                .editor-canvas img { border-radius: 1rem; border: 1px solid rgba(255,255,255,0.05); margin: 1.5rem 0; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+                .editor-canvas video { border-radius: 1rem; border: 1px solid rgba(255,255,255,0.05); margin: 1.5rem 0; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 100%; aspect-ratio: 16/9; }
+                .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.1); }
+                .ProseMirror { outline: none !important; min-height: 400px; padding: 2rem; color: #d4d4d4; }
+                .ProseMirror p.is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; color: #404040; pointer-events: none; height: 0; font-weight: 500; }
             `}</style>
         </div>
     );
@@ -1141,13 +1262,18 @@ function SidebarItem({ label, icon: Icon, active, onClick }: { label: string, ic
         <button
             onClick={onClick}
             className={cn(
-                "w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs font-semibold transition-all transition-colors",
+                "w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[11px] font-semibold transition-all border",
                 active
-                    ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                    ? "bg-army-500/10 border-army-500/20 text-white shadow-lg shadow-army-900/10"
+                    : "text-white/40 border-transparent hover:bg-white/[0.03] hover:text-white/60"
             )}
         >
-            <Icon className="w-3.5 h-3.5" />
+            <div className={cn(
+                "w-5 h-5 flex items-center justify-center rounded-lg transition-colors",
+                active ? "bg-army-500 text-white" : "bg-white/5 text-white/20"
+            )}>
+                <Icon className="w-3 h-3" />
+            </div>
             {label}
         </button>
     );
@@ -1160,13 +1286,13 @@ function ToolbarButton({ onClick, active, icon: Icon, title }: { onClick: () => 
             onClick={onClick}
             title={title}
             className={cn(
-                "p-1.5 rounded-md transition-all active:scale-95",
+                "p-2 rounded-lg transition-all active:scale-90 group",
                 active
-                    ? "bg-slate-200 text-slate-900 dark:bg-slate-700 dark:text-slate-100"
-                    : "text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
+                    ? "bg-army-500 text-white shadow-lg shadow-army-900/40"
+                    : "text-white/30 hover:bg-white/5 hover:text-white/60"
             )}
         >
-            <Icon className="w-3.5 h-3.5" />
+            <Icon className="w-4 h-4 transition-transform group-hover:scale-110" />
         </button>
     );
 }
